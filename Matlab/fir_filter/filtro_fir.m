@@ -8,7 +8,7 @@ format long g;
 % http://t-filter.appspot.com/fir/index.html
 
 fs=64e6
-order=31                
+order=100                
 fc=2e6               
 input_size=8
 
