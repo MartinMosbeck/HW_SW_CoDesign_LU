@@ -35,6 +35,7 @@ int main(void)
 	unsigned int avail = 0;	
 	unsigned int i = 0;
 	char outputBuffer[1000];
+	int status = 1;
 
 
 	// Open the sgdma receive device
@@ -143,10 +144,11 @@ int main(void)
 		act_frame = 1-act_frame;
 		
 		// Wait until receive descriptor transfer is complete
-		while (1)
+		while (status != 0)
 		{
-			sprintf(outputBuffer, "avalon descriptor status: %d\n", alt_avalon_sgdma_check_descriptor_status(&rx_descriptor[act_frame]));
-			display_print(outputBuffer);
+			status = alt_avalon_sgdma_check_descriptor_status(&rx_descriptor[act_frame]);
+			sprintf(outputBuffer, "avalon descriptor status: %d\n", status);
+			//display_print(outputBuffer);
 		}
 	}
 	
