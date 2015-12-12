@@ -6,6 +6,7 @@
 #include "sys/alt_irq.h"
 #include <unistd.h>
 #include <malloc.h>
+#include <string.h>
 #include "io.h"
 #include "altera_eth_tse_regs.h"
 #include "system.h"
@@ -33,6 +34,8 @@ int main(void)
 	
 	unsigned int avail = 0;	
 	unsigned int i = 0;
+	char outputBuffer[1000];
+
 
 	// Open the sgdma receive device
 	sgdma_rx_dev = alt_avalon_sgdma_open ("/dev/sgdma_rx");
@@ -58,18 +61,37 @@ int main(void)
 	
 	// Initialize display
 	display_init();
-	
+
 	// Clear display
 	display_clear();
 	
 	// Print a message
-	display_print("Messages...");
+	display_print(
+	"                      ::::::    .-~~\\        ::::::\n"
+    "                      |::::|   /     \\ _     |::::|\n"
+    "              _ _     l~~~~!   ~x   .-~_)_   l~~~~!\n"
+    "           .-~   ~-.   \\  /      ~x\\\".-~   ~-. \\  /\n"
+    "    _     /         \\   ||    _  ( /         \\ ||\n"
+    "    ||   T  o  o     Y  ||    ||  T o  o      Y||\n"
+    "  ==:l   l   <       !  (3  ==:l  l  <        !(3\n"
+    "     \\\\   \\  .__/   /  /||     \\\\  \\  ._/    / ||\n"
+    "      \\\\ ,r\\\"-,___.-'r.//||      \\\\,r\\\"-,___.-'r/||\n"
+    "       }^ \\.( )   _.'//.||      }^\\. ( )  _.-//||\n"
+    "      /    }~Xi--~  //  ||     /   }~Xi--~  // ||\\\\\n"
+    "     Y    Y I\\ \\    \\\"   ||    Y   Y I\\ \\    \\\"  || Y\n"
+    "     |    | |o\\ \\       ||    |   | |o\\ \\      || |\n"
+    "     |    l_l  Y T      ||    |   l_l  Y T     || |\n"
+    "     l      'o l_j      |!    l     \\\"o l_j     || !\n"
+    "      \\                 ||     \\               ||/\n"
+    "    .--^.     o       .^||.  .--^.     o       ||--. -   \n"
+    "         \\\\           ~  `'        \\\"           ~`'"
+			 );
 
 	// Allocate memory for the song (SDRAM)
 	song = (short*)malloc(SONG_LEN*2);
 	if (song == NULL)
 	{
-		alt_printf("Could not allocate memory for audio file!\n");
+		display_print("Could not allocate memory for audio file!\n");
 		return -1;
 	}
 	
@@ -80,12 +102,13 @@ int main(void)
 	// Create sgdma receive descriptor
 	alt_avalon_sgdma_construct_stream_to_mem_desc( &rx_descriptor[0], &rx_descriptor[1], (alt_u32 *)rx_frame[0], 0, 0 );
 	
-	alt_printf ("Ready to receive data!\n");
+	display_print ("Ready to receive data!\n");
 	
 	// Set up non-blocking transfer of sgdma receive descriptor
-	alt_avalon_sgdma_do_sync_transfer( sgdma_rx_dev, &rx_descriptor[0] );
-	
+	alt_avalon_sgdma_do_async_transfer( sgdma_rx_dev, &rx_descriptor[0] );
+
 	act_frame = 0;
+
 	while(1) 
 	{
 		// Create sgdma receive descriptor
@@ -108,22 +131,33 @@ int main(void)
 			{
 				break;
 			}
+
+		}
+
+		//XXX test output
+		{
+			sprintf(outputBuffer, "song_cnt: %d\n",song_cnt);
+			display_print(outputBuffer);
 		}
 		
 		act_frame = 1-act_frame;
 		
 		// Wait until receive descriptor transfer is complete
-		while (alt_avalon_sgdma_check_descriptor_status(&rx_descriptor[act_frame]) != 0);
+		while (1)
+		{
+			sprintf(outputBuffer, "avalon descriptor status: %d\n", alt_avalon_sgdma_check_descriptor_status(&rx_descriptor[act_frame]));
+			display_print(outputBuffer);
+		}
 	}
 	
-	alt_printf ("Initializing audio...\n");
+	display_print("Initializing audio...\n");
 	
 	// Reset the audio and video config core
 	IOWR_32DIRECT(AUDIO_AND_VIDEO_CONFIG_0_BASE,0,0x01);
 	// Wait until auto-initialization is done
 	while ((IORD_32DIRECT(AUDIO_AND_VIDEO_CONFIG_0_BASE,4)&(1<<8)) == 0);
 	
-	alt_printf ("done!\n");
+	display_print("done!\n");
 	
 	// Reset audio FIFOs
 	IOWR_32DIRECT(AUDIO_BASE,0,0x0C);

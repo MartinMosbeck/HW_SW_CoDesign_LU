@@ -36,9 +36,9 @@ PACKAGE body fir_package IS
 
     FUNCTION decimal_to_signed (c_real: IN REAL; CONSTANT precision: IN NATURAL) RETURN SIGNED IS
     -- SIGNED = REAL / 2^(-precision) = REAL * 2^precision, with IEEE rounding
-        CONSTANT RESOLUCION : REAL := "**"(2,REAL(INTEGER(precision)));
+        CONSTANT RESOLUTION : REAL := "**"(2,REAL(INTEGER(precision)));
     BEGIN
-        RETURN (SIGNED(CONV_STD_LOGIC_VECTOR(INTEGER(ROUND ("*"(c_real,RESOLUCION))),precision+1)));
+        RETURN (SIGNED(CONV_STD_LOGIC_VECTOR(INTEGER(ROUND ("*"(c_real,RESOLUTION))),precision+1)));
     END FUNCTION;
     
 END fir_package;
