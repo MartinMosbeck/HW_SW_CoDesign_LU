@@ -2,8 +2,8 @@
 <sch:Settings xmlns:sch="http://www.altera.com/embeddedsw/bsp/schema">
         <BspType>hal</BspType>
         <BspVersion>default</BspVersion>
-        <BspGeneratedTimeStamp>Dec 12, 2015 5:00:42 PM</BspGeneratedTimeStamp>
-        <BspGeneratedUnixTimeStamp>1449936042161</BspGeneratedUnixTimeStamp>
+        <BspGeneratedTimeStamp>Dec 14, 2015 10:49:46 AM</BspGeneratedTimeStamp>
+        <BspGeneratedUnixTimeStamp>1450086587013</BspGeneratedUnixTimeStamp>
         <BspGeneratedLocation>bsp/</BspGeneratedLocation>
         <BspSettingsFile>./settings.bsp</BspSettingsFile>
         <SopcDesignFile>../quartus/tse_tutorial.sopcinfo</SopcDesignFile>
