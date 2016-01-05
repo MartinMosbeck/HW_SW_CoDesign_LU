@@ -20,8 +20,8 @@ mixedsignal99_9MHz=IQ.*exp(-1i*2*pi*(-0.6*10^6)*t');
 clear IQ
 
 %Filter f�r die Frequenzen �ber 100kHz, auskommentieren schaltet Filter aus
-open fir_lowpass_400_60kHz.mat; %b.mat=400 Punkte, b200.mat=200, b14.mat=14, Erstellt mit filterremeztest
-b=ans.h';
+load('fir_lowpass_400_15kHz');%b.mat=400 Punkte, b200.mat=200, b14.mat=14, Erstellt mit filterremeztest
+b=h';
 % xhist=zeros(length(b),1);
 % for index=1:length(mixedsignal99_9MHz)
 %    xhist=circshift(xhist,[1,0]);
@@ -71,9 +71,9 @@ fmdemod = angle(conj(decisignal(1:end-1)).*decisignal(2:end));
 %clear decisignal
 
 %Carrier-Frequency-Error ausgleichen! (Highpass 15-20Hz, IIR) Filter
-% open 15HfilterIIR3.mat
-% b=ans.b';
-% a=ans.a';
+% load('15HfilterIIR3.mat');
+% b=b';
+% a=a';
 % b=b.*(1/a(1));
 % a=a.*(1/a(1));
 % a=a(2:end);
@@ -98,8 +98,8 @@ fmdemod = angle(conj(decisignal(1:end-1)).*decisignal(2:end));
 %F�r das Radio kopieren und das Signal filtern (Lowpass zwischen 15-19kHz)
 %filteredtonsignal=fmdemod;
 %Ab hier den Filter auskommentieren
- open fir_lowpass_400_15kHz.mat
-b=ans.h';
+load('fir_lowpass_400_15kHz.mat');
+b=h';
 % xhist=zeros(length(b),1);
 % for index=1:length(filteredtonsignal)
 %     xhist=circshift(xhist,[1,0]);
@@ -119,8 +119,7 @@ b=ans.h';
 %Filtervariablen Radioteil aufr�umen
 clear a b xhist yhist index
 
-%sound(filteredtonsignal,floor(2.5*10^6/Nth));
-clear filteredtonsignal
+sound(filteredtonsignal,floor(2.5*10^6/Nth));
 
 %RDS, ausgehend von beforedecsignal
 %Ab hier erste Versuche mit RDS
@@ -133,8 +132,8 @@ mixedsignal=IQfmdemod.*exp(-1i*2*pi*(-57000)*t');
 clear IQfmdemod decisignal
 
 %Matched Filter
-open RDSmatched.mat
-b=ans.h';
+load('RDSmatched.mat');
+b=h';
 mfsignal=filter(b,1,mixedsignal);
 clear mixedsignal
 
