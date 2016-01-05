@@ -73,6 +73,14 @@
          type = "int";
       }
    }
+   element audiocore
+   {
+      datum _sortIndex
+      {
+         value = "16";
+         type = "int";
+      }
+   }
    element clock_bridge_25
    {
       datum _sortIndex
@@ -578,6 +586,7 @@
   <parameter name="device_family" value="Cyclone IV E" />
   <parameter name="gui_refclk" value="50.0" />
  </module>
+ <module name="audiocore" kind="audiocore" version="1.0" enabled="1" />
  <module
    name="clock_bridge_25"
    kind="altera_clock_bridge"
@@ -1153,13 +1162,18 @@
  <connection
    kind="avalon_streaming"
    version="15.0"
+   start="audiocore.asout"
+   end="sgdma_rx.in" />
+ <connection
+   kind="avalon_streaming"
+   version="15.0"
    start="sgdma_tx.out"
    end="tse.transmit" />
  <connection
    kind="avalon_streaming"
    version="15.0"
    start="tse.receive"
-   end="sgdma_rx.in" />
+   end="audiocore.asin" />
  <connection kind="clock" version="15.0" start="altpll.c0" end="nios2.clk" />
  <connection kind="clock" version="15.0" start="altpll.c0" end="jtag_uart.clk" />
  <connection kind="clock" version="15.0" start="altpll.c0" end="sgdma_rx.clk" />
@@ -1171,6 +1185,7 @@
    version="15.0"
    start="altpll.c0"
    end="descriptor_memory.clk1" />
+ <connection kind="clock" version="15.0" start="altpll.c0" end="audiocore.clock" />
  <connection
    kind="clock"
    version="15.0"
@@ -1298,6 +1313,11 @@
    version="15.0"
    start="sys_clk.clk_reset"
    end="audio.reset" />
+ <connection
+   kind="reset"
+   version="15.0"
+   start="sys_clk.clk_reset"
+   end="audiocore.reset" />
  <connection
    kind="reset"
    version="15.0"

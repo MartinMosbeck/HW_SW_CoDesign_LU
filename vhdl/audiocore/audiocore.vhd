@@ -3,6 +3,9 @@ library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 
+library work;
+use work.fir_package.all;
+
 
 entity audiocore is
 	port (
@@ -25,6 +28,9 @@ entity audiocore is
 	);
 end entity;
 
+-----------------------------------------------------------------
+-------------------- BEGIN OF ARCHITECTURE ----------------------
+-----------------------------------------------------------------
 architecture rtl of audiocore is
 begin
 

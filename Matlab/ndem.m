@@ -117,7 +117,7 @@ b=ans.h';
 %Bis hier um den Filter auszukommentieren
 
 %Filtervariablen Radioteil aufr�umen
-clear a b xhist yhist index fmdemod
+clear a b xhist yhist index
 
 %sound(filteredtonsignal,floor(2.5*10^6/Nth));
 clear filteredtonsignal
@@ -126,37 +126,13 @@ clear filteredtonsignal
 %Ab hier erste Versuche mit RDS
 % 
 f=[-60000:60000];
-plot(f,abs(fftshift(fft(decisignal(1:length(f))))))
-t=(0:size(decisignal)-1)*1/(floor(2.5*10^6));
-IQfmdemod = decisignal.*cos(2*pi*57000*t')+1i*decisignal.*cos(2*pi*57000*t'+90);
+plot(f,abs(fftshift(fft(fmdemod(1:length(f))))))
+t=(0:size(fmdemod)-1)*1/(floor(2.5*10^6));
+IQfmdemod = fmdemod.*cos(2*pi*57000*t')+1i*fmdemod.*cos(2*pi*57000*t'+90);
 mixedsignal=IQfmdemod.*exp(-1i*2*pi*(-57000)*t');
 clear IQfmdemod decisignal
 
-% %Filter, daweil OONA
-% %Baustelle: Die Frequenzen ab 2,5 kHz m�ssen rausgefiltert werden
-% %Derzeit sind durch die hohen Frequenzen viel zu viele zeroCrossings, der
-% %Biphaser funktioniert dann nicht
-% b=[1;1];
-% a=[1.0000;0.9462];
-% a=a(2:end);
-% a=-1*a;
-% xhist=zeros(length(b),1);
-% yhist=zeros(length(a),1);
-% for index=1:length(fmdemod)
-%     xhist=circshift(xhist,[1,0]);
-%     xhist(1)=fmdemod(index);
-%     fmdemod(index)=sum(xhist.*b)+sum(yhist.*a);
-%     yhist=circshift(yhist,[1,0]);
-%     yhist(1)=fmdemod(index);
-%     if mod(index,100000) == 0%"Fortschritts"balken
-%         fprintf('%i|',index);
-%     end
-%     if mod(index,1400000) == 0
-%         fprintf('\n');
-%     end
-% end
-% 
-
+%Matched Filter
 open RDSmatched.mat
 b=ans.h';
 mfsignal=filter(b,1,mixedsignal);
@@ -171,21 +147,23 @@ indexliste=zeros(ceil(length(mfsignal)/105),1)-1;
 biphaseindex=1;
 index=1;
 lastbiphase=0;
+startvalueindex1=1;
+startvalueindex2=1;
 %Teil 1: guten Startwert finden durch suchen eines Zero-Crossings
 while index+1<length(mfsignal)
      %Debugausgabe
-     %if (real(mfsignal(index))>0 && real(mfsignal(index+1))<0)
-     %    startvalue(1,startvalueindex1)=index;
-     %    startvalueindex1=startvalueindex1+1;
-     %elseif (real(mfsignal(index))<0 && real(mfsignal(index+1))>0)
-     %    startvalue(2,startvalueindex2)=index;
-     %    startvalueindex2=startvalueindex2+1;
-     %end
-     %zero-crossing detection
-     if (real(mfsignal(index))>0 && real(mfsignal(index+1))<0) || (real(mfsignal(index))<0 && real(mfsignal(index+1))>0)
-         startvalue=index;
-         break;
+     if (real(mfsignal(index))>0 && real(mfsignal(index+1))<0)
+        startvalue(1,startvalueindex1)=index;
+        startvalueindex1=startvalueindex1+1;
+     elseif (real(mfsignal(index))<0 && real(mfsignal(index+1))>0)
+        startvalue(2,startvalueindex2)=index;
+        startvalueindex2=startvalueindex2+1;
      end
+     %zero-crossing detection
+%      if (real(mfsignal(index))>0 && real(mfsignal(index+1))<0) || (real(mfsignal(index))<0 && real(mfsignal(index+1))>0)
+%          startvalue=index;
+%          break;
+%      end
      index=index+1;
 end
 intervalmid=53+startvalue(1,1);%Zero +53 ist ca. der h�chste (Daten-)wert
