@@ -25,7 +25,7 @@ entity audiocore is
 	);
 end entity;
 
-architecture rtl of stream_processor is
+architecture rtl of audiocore is
 begin
 
 end architecture;
