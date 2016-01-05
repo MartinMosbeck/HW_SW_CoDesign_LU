@@ -119,8 +119,7 @@ b=ans.h';
 %Filtervariablen Radioteil aufr�umen
 clear a b xhist yhist index
 
-%sound(filteredtonsignal,floor(2.5*10^6/Nth));
-clear filteredtonsignal
+sound(filteredtonsignal,floor(2.5*10^6/Nth));
 
 %RDS, ausgehend von beforedecsignal
 %Ab hier erste Versuche mit RDS

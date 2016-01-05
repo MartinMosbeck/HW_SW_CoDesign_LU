@@ -59,10 +59,21 @@ int main(void)
 
 	// Enable read and write transfers, gigabit Ethernet operation, and CRC forwarding
 	IOWR_ALTERA_TSEMAC_CMD_CONFIG(TSE_BASE, IORD_ALTERA_TSEMAC_CMD_CONFIG(TSE_BASE) | 0x00000002);
-	
-	// Initialize display
-	display_init();
 
+
+	display_print("Initializing audio...\n");
+	
+	// Reset the audio and video config core
+	IOWR_32DIRECT(AUDIO_AND_VIDEO_CONFIG_0_BASE,0,0x01);
+	// Wait until auto-initialization is done
+	while ((IORD_32DIRECT(AUDIO_AND_VIDEO_CONFIG_0_BASE,4)&(1<<8)) == 0);
+	
+	display_print("done!\n");
+	
+	// Reset audio FIFOs
+	IOWR_32DIRECT(AUDIO_BASE,0,0x0C);
+	IOWR_32DIRECT(AUDIO_BASE,0,0x00);
+	
 	// Clear display
 	display_clear();
 	
@@ -134,12 +145,6 @@ int main(void)
 			}
 
 		}
-
-		//XXX test output
-		{
-			sprintf(outputBuffer, "song_cnt: %d\n",song_cnt);
-			display_print(outputBuffer);
-		}
 		
 		act_frame = 1-act_frame;
 		
@@ -151,19 +156,6 @@ int main(void)
 			//display_print(outputBuffer);
 		}
 	}
-	
-	display_print("Initializing audio...\n");
-	
-	// Reset the audio and video config core
-	IOWR_32DIRECT(AUDIO_AND_VIDEO_CONFIG_0_BASE,0,0x01);
-	// Wait until auto-initialization is done
-	while ((IORD_32DIRECT(AUDIO_AND_VIDEO_CONFIG_0_BASE,4)&(1<<8)) == 0);
-	
-	display_print("done!\n");
-	
-	// Reset audio FIFOs
-	IOWR_32DIRECT(AUDIO_BASE,0,0x0C);
-	IOWR_32DIRECT(AUDIO_BASE,0,0x00);
 	
 	while(1)
 	{
