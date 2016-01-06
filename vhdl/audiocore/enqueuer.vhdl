@@ -22,7 +22,7 @@ entity enqueuer is
 		Qout1 			: out byte;
 		Qout2 			: out byte; 
 
-		outvalid 		: out std_logic; -- should FIFO take the data
+		validout 		: out std_logic; -- should FIFO take the data
 		outmode 		: out std_logic  -- enqueue 1 or 2
 	);
 end enqueuer;
@@ -40,7 +40,7 @@ architecture behavior of enqueuer is
 	signal Iout1_cur, Iout2_cur, Qout1_cur, Qout2_cur : byte;
 	signal Iout1_next, Iout2_next, Qout1_next, Qout2_next : byte;
 
-	signal outvalid_cur, outvalid_next : std_logic;
+	signal validout_cur, validout_next : std_logic;
 	signal outmode_cur, outmode_next : std_logic;
 
 	signal framecounter_cur, framecounter_next : integer range 0 to 16;
@@ -63,28 +63,28 @@ begin
 		Iout2_next <= Iout2_cur;
 		Qout1_next <= Qout1_cur;
 		Qout2_next <= Qout2_cur;
-		outvalid_next <= outvalid_cur;
+		validout_next <= validout_cur;
 		outmode_next <= outmode_cur;
 		framecounter_next <= framecounter_cur;
 	
-		-- if not valid stay in state but set outvalid=0
+		-- if not valid stay in state but set validout=0
 		if(valid ='0') then
-			outvalid_next <= '0';
+			validout_next <= '0';
 
 		elsif(valid = '1') then
 			case state_cur is
 				when IDLE =>
-					outvalid_next <= '0';
+					validout_next <= '0';
 					if(startofpacket = '1') then
 						framecounter_next <= 1;
 						state_next <= HEADER; 
 					end if;
 				when HEADER =>
 					if framecounter_cur = 3 then
-						if (byte1 = x"FF") and (byte2 = x"b5") then 
+						if (byte1 = x"88") and (byte2 = x"b5") then 
 							Iout1_next <= byte3;
 							Qout1_next <= byte4;
-							outvalid_next <= '1';
+							validout_next <= '1';
 							outmode_next <= '0';
 							state_next <= DATA;
 						else
@@ -97,7 +97,7 @@ begin
 					if endofpacket = '1' then
 						Iout1_next <= byte1;
 						Qout1_next <= byte2;
-						outvalid_next <= '1';
+						validout_next <= '1';
 						outmode_next <= '0';
 						state_next <= IDLE;
 					else
@@ -105,7 +105,7 @@ begin
 						Qout1_next <= byte2;
 						Iout2_next <= byte3;
 						Qout2_next <= byte4;
-						outvalid_next <= '1';
+						validout_next <= '1';
 						outmode_next <= '1';
 					end if;
 			end case;
@@ -127,7 +127,7 @@ begin
 			Iout2_cur <= (others=>'0');
 			Qout1_cur <= (others=>'0');
 			Qout2_cur <= (others=>'0');
-			outvalid_cur <= '0';
+			validout_cur <= '0';
 			outmode_cur <= '0';
 			framecounter_cur <= 0;
 	
@@ -138,7 +138,7 @@ begin
 			Iout2_cur <= Iout2_next;
 			Qout1_cur <= Qout1_next;
 			Qout2_cur <= Qout2_next;
-			outvalid_cur <= outvalid_next;
+			validout_cur <= validout_next;
 			outmode_cur <= outmode_next;
 			framecounter_cur <= framecounter_next;
 			
@@ -147,7 +147,7 @@ begin
 			Iout2 <= Iout2_next;	
 			Qout1 <= Qout1_next;	
 			Qout2 <= Qout2_next;	
-			outvalid <= outvalid_next;	
+			validout <= validout_next;	
 			outmode <= outmode_next;	
 		end if;		
 	

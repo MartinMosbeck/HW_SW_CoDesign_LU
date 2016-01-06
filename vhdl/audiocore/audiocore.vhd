@@ -2,6 +2,7 @@
 library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
+use work.audiocore_pkg.all;
 
 --library work;
 --use work.fir_package.all;
@@ -32,76 +33,86 @@ end entity;
 -------------------- BEGIN OF ARCHITECTURE ----------------------
 -----------------------------------------------------------------
 architecture rtl of audiocore is
-	signal clk_top, rst_n_top : std_logic;
-	
+	signal clk_top, res_n_top : std_logic;
+	signal enq_Iout1, enq_Iout2, enq_Qout1, enq_Qout2 : byte;
+	signal enq_validout, enq_outmode : std_logic;
+	signal fifoI_validout, fifoQ_validout : std_logic;
+	signal fifoI_data_out, fifoQ_data_out : byte;
+	signal mixer_Iout, mixer_Qout : fixedpoint;
+	signal mixer_validout : std_logic;
+	signal Ideci_data_out, Qdeci_data_out : fixedpoint;
+	signal Ideci_validout, Qdeci_validout : std_logic;
+
 begin
 	clk_top <= clk;
-	rst_n_top <= rst_n;
+	res_n_top <= res_n;
 
 	enq : enqueuer 
 	port map
 	(
 		clk 			=> clk_top,
-		rst_n 			=> rst_n_top,	
-		valid 			=>,	
-		startofpacket	=>,	
-		endofpacket 	=>,	
-		data_in 		=>,	
+		res_n 			=> res_n_top,	
+		valid 			=> asin_valid,	
+		startofpacket	=> asin_startofpacket,	
+		endofpacket 	=> asin_endofpacket,	
+		data_in 		=> asin_data,	
 		
-		Iout1 			=>,			
-		Iout2 			=>,		
-		Qout1 			=>,		
-		Qout2 			=>,		
-		outvalid 		=>,		
-		outmode 		=>		
+		Iout1 			=> enq_Iout1,			
+		Iout2 			=> enq_Iout2,		
+		Qout1 			=> enq_Qout1,		
+		Qout2 			=> enq_Qout2,		
+		validout 		=> enq_validout,		
+		outmode 		=> enq_outmode
 	);
+
+	
 
 	fifoI : FIFO
 	port map
 	(
 		clk 		=> clk_top,
-		rst_n 		=> rst_n_top,
+		res_n 		=> res_n_top,
 
-		in1 		=>,
-		in2 		=>,
-		invalid 	=>,
-		inmode 		=>,
+		in1 		=> enq_Iout1,
+		in2 		=> enq_Iout2,
+		validin 	=> enq_validout,
+		inmode 		=> enq_outmode,
 
-		outvalid 	=>,
-		data_out 	=>
+		validout 	=> fifoI_validout,
+		data_out 	=> fifoI_data_out
 	);
 
 	fifoQ : FIFO
 	port map
 	(
 		clk 		=> clk_top,
-		rst_n 		=> rst_n_top,
+		res_n 		=> res_n_top,
 
-		in1 		=>,
-		in2 		=>,
-		invalid 	=>,
-		inmode 		=>,
+		in1 		=> enq_Qout1,
+		in2 		=> enq_Qout2,
+		validin 	=> enq_validout,
+		inmode 		=> enq_outmode,
 
-		outvalid 	=>,
-		data_out 	=>
+		validout 	=> fifoQ_validout,
+		data_out 	=> fifoQ_data_out
 	);
 
 	mix : mixerFM
 	port map
 	(
 		clk 		=> clk_top,
-		rst_n 		=> rst_n_top,
+		res_n 		=> res_n_top,
 
-		Iin 		=>,
-		Qin 		=>,
-		invalid 	=>,
+		Iin 		=> fifoI_data_out,
+		Qin 		=> fifoQ_data_out,
+		validin		=> fifoI_validout,	--could also use fifoQ_validout
 			
-		Iout 		=>,
-		Qout 		=>,
-		outvalid 	=>,
+		Iout 		=> mixer_Iout,
+		Qout 		=> mixer_Qout,
+		validout 	=> mixer_validout
 	);
 
-	deci : decimator
+	Ideci : decimator
 	generic map
 	(
 		N => 20
@@ -109,15 +120,31 @@ begin
 	port map
 	(
 		clk 		=> clk_top,
-		rst_n		=> rst_n_top,
+		res_n		=> res_n_top,
 
-		data_in 	=>,
-		invalid 	=>,
+		data_in 	=> mixer_Iout,
+		validin 	=> mixer_validout,
 			
-		data_out 	=>,
-		outvalid 	=>
+		data_out 	=> Ideci_data_out,
+		validout 	=> Ideci_validout
 	);
 
+	Qdeci : decimator
+	generic map
+	(
+		N => 20
+	)
+	port map
+	(
+		clk 		=> clk_top,
+		res_n		=> res_n_top,
+
+		data_in 	=> mixer_Qout,
+		validin 	=> mixer_validout,
+			
+		data_out 	=> Qdeci_data_out,
+		validout 	=> Qdeci_validout
+	);
 	
 end architecture;
 

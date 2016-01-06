@@ -9,15 +9,15 @@ entity mixerFM is
 	port 
 	(
 		clk : in std_logic;
-		rst_n : in std_logic;
+		res_n : in std_logic;
 
 		Iin : in byte;
 		Qin : in byte;
-		invalid : in std_logic;
+		validin : in std_logic;
 		
 		Iout : out fixedpoint;
 		Qout : out fixedpoint;
-		outvalid : out std_logic
+		validout : out std_logic
 	);
 end mixerFM;
 
@@ -25,7 +25,7 @@ architecture behavior of mixerFM is
 	
 	signal Iout_cur, Iout_next : fixedpoint;
 	signal Qout_cur, Qout_next : fixedpoint;
-	signal outvalid_cur, outvalid_next : std_logic;
+	signal validout_cur, validout_next : std_logic;
 	signal t_cur,t_next : index_time; 
 	
 	function lookup_sin(index:index_time) 
@@ -143,22 +143,22 @@ architecture behavior of mixerFM is
 	end function;
 
 begin
-	mix_it: process (Iin,QIn,invalid)
+	mix_it: process (Iin,QIn,validin)
 		variable I_temp : fixedpoint;
 		variable Q_temp : fixedpoint;
 	begin
 		Iout_next <= Iout_cur;
 		Qout_next <= Qout_cur;
-		outvalid_next <= outvalid_cur;
+		validout_next <= validout_cur;
 		t_next <= t_cur;
 		
-		if(invalid = '1') then
+		if(validin = '1') then
 			I_temp := (others => '0');
 			Q_temp := (others => '0');
 
-			outvalid_next <= '1';
-			I_temp(31 downto 24) := signed(Iin)-signed(127); --error here
-			Q_temp(31 downto 24) := signed(Qin)-signed(127); --error here
+			validout_next <= '1';
+			I_temp(31 downto 24) := signed(unsigned(Iin)-to_unsigned(127, 8));
+			Q_temp(31 downto 24) := signed(unsigned(Qin)-to_unsigned(127, 8));
 
 			Iout_next <= I_temp * lookup_cos(t_cur) - Q_temp * lookup_sin(t_cur);
 			Qout_next <= I_temp * lookup_sin(t_cur) + Q_temp * lookup_cos(t_cur);
@@ -170,27 +170,27 @@ begin
 			end if;
 
 		else
-			outvalid_next <= '0';
+			validout_next <= '0';
 		end if;
 
 	end process mix_it;
 
-	sync: process (clk,rst_n)
+	sync: process (clk,res_n)
 	begin
-		if rst_n ='0' then
+		if res_n ='0' then
 			Iout_cur <= (others => '0');
 			Qout_cur <= (others => '1');
-			outvalid_cur <= '0';
+			validout_cur <= '0';
 			t_cur <= 0;
 		elsif rising_edge(clk) then
 			--internals
 			Iout_cur <= Iout_next;
 			Qout_cur <= Qout_next;
-			outvalid_cur <= outvalid_next;
+			validout_cur <= validout_next;
 			t_cur <= t_next;
 
 			--outputs
-			outvalid <= outvalid_next;
+			validout <= validout_next;
 			Iout <= Iout_next;
 			Qout <= Qout_next;
 		end if;

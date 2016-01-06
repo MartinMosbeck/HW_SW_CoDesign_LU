@@ -13,7 +13,7 @@ package audiocore_pkg is
 		port
 		(
 			clk 			: in std_logic;
-			rst_n 			: in std_logic;
+			res_n 			: in std_logic;
 
 			valid 			: in std_logic;
 			startofpacket	: in std_logic;
@@ -26,7 +26,7 @@ package audiocore_pkg is
 			Qout1 			: out byte;
 			Qout2 			: out byte; 
 
-			outvalid 		: out std_logic; -- should FIFO take the data
+			validout 		: out std_logic; -- should FIFO take the data
 			outmode 		: out std_logic  -- enqueue 1 or 2
 		);
 	end component;
@@ -35,14 +35,14 @@ package audiocore_pkg is
 		port
 		(
 			clk : in std_logic;
-			rst_n : in std_logic;
+			res_n : in std_logic;
 
 			in1 : in byte;
 			in2 : in byte;
-			invalid : in std_logic;
+			validin : in std_logic;
 			inmode : in std_logic;
 
-			outvalid : out std_logic;
+			validout : out std_logic;
 			data_out : out byte
 		);
 	end component;
@@ -51,15 +51,15 @@ package audiocore_pkg is
 		port
 		(
 			clk : in std_logic;
-			rst_n : in std_logic;
+			res_n : in std_logic;
 
 			Iin : in byte;
 			Qin : in byte;
-			invalid : in std_logic;
+			validin : in std_logic;
 			
 			Iout : out fixedpoint;
 			Qout : out fixedpoint;
-			outvalid : out std_logic	
+			validout : out std_logic	
 		);
 	end component;
 
@@ -71,13 +71,13 @@ package audiocore_pkg is
 		port 
 		(
 			clk : in std_logic;
-			rst_n : in std_logic;
+			res_n : in std_logic;
 
 			data_in : in fixedpoint;
-			invalid : in std_logic;
+			validin : in std_logic;
 			
 			data_out : out fixedpoint;
-			outvalid : out std_logic
+			validout : out std_logic
 		);	
 	end component;
 end package audiocore_pkg;
