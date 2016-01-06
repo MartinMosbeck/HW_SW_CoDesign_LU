@@ -32,7 +32,92 @@ end entity;
 -------------------- BEGIN OF ARCHITECTURE ----------------------
 -----------------------------------------------------------------
 architecture rtl of audiocore is
+	signal clk_top, rst_n_top : std_logic;
+	
 begin
+	clk_top <= clk;
+	rst_n_top <= rst_n;
 
+	enq : enqueuer 
+	port map
+	(
+		clk 			=> clk_top,
+		rst_n 			=> rst_n_top,	
+		valid 			=>,	
+		startofpacket	=>,	
+		endofpacket 	=>,	
+		data_in 		=>,	
+		
+		Iout1 			=>,			
+		Iout2 			=>,		
+		Qout1 			=>,		
+		Qout2 			=>,		
+		outvalid 		=>,		
+		outmode 		=>		
+	);
+
+	fifoI : FIFO
+	port map
+	(
+		clk 		=> clk_top,
+		rst_n 		=> rst_n_top,
+
+		in1 		=>,
+		in2 		=>,
+		invalid 	=>,
+		inmode 		=>,
+
+		outvalid 	=>,
+		data_out 	=>
+	);
+
+	fifoQ : FIFO
+	port map
+	(
+		clk 		=> clk_top,
+		rst_n 		=> rst_n_top,
+
+		in1 		=>,
+		in2 		=>,
+		invalid 	=>,
+		inmode 		=>,
+
+		outvalid 	=>,
+		data_out 	=>
+	);
+
+	mix : mixerFM
+	port map
+	(
+		clk 		=> clk_top,
+		rst_n 		=> rst_n_top,
+
+		Iin 		=>,
+		Qin 		=>,
+		invalid 	=>,
+			
+		Iout 		=>,
+		Qout 		=>,
+		outvalid 	=>,
+	);
+
+	deci : decimator
+	generic map
+	(
+		N => 20
+	)
+	port map
+	(
+		clk 		=> clk_top,
+		rst_n		=> rst_n_top,
+
+		data_in 	=>,
+		invalid 	=>,
+			
+		data_out 	=>,
+		outvalid 	=>
+	);
+
+	
 end architecture;
 
