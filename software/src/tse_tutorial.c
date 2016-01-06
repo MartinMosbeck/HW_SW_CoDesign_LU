@@ -121,7 +121,8 @@ int main(void)
 	{
 		// Create sgdma receive descriptor
 		alt_avalon_sgdma_construct_stream_to_mem_desc( &rx_descriptor[1-act_frame], &rx_descriptor[2-act_frame], (alt_u32 *)rx_audio[1-act_frame], BUF_SIZE, 0 );
-		
+		//Ausgegangen wird von 64 Byte die eingelesen werden - der scatter gatter sollte dann ready nur anzeigen wenn nachfolgender Transfer gemacht wird!
+		//Das muss unser Block beherzigen
 		// Set up non-blocking transfer of sgdma receive descriptor
 		alt_avalon_sgdma_do_async_transfer( sgdma_rx_dev, &rx_descriptor[1-act_frame] );
 
@@ -132,7 +133,7 @@ int main(void)
 		}
 
 		
-		for (i = 0; i < BUF_SIZE/4; i ++)
+		for (i = 0; i < BUF_SIZE/2; i ++)//Bei Mono vll BUF_SIZE statt BUF_SIZE/2
 		{
 			//Play the received frame
 			avail = (unsigned int)((IORD_32DIRECT(AUDIO_BASE,4)&0xFF000000)>>24);
