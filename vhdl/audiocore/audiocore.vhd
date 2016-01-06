@@ -21,7 +21,7 @@ entity audiocore is
 		asin_ready : out std_logic;
 		
 		-- stream output
-		asout_data : out std_logic_vector(31 downto 0);
+		asout_data : out std_logic_vector(7 downto 0);--!Sending bytewise to sgdma
 		asout_startofpacket : out std_logic;
 		asout_endofpacket : out std_logic;
 		asout_valid : out std_logic;
@@ -44,6 +44,8 @@ architecture rtl of audiocore is
 	signal Ideci_validout, Qdeci_validout : std_logic;
 	signal FMdemod_data_out : sfixed;
 	signal FMdemod_validout : std_logic;
+	signal outlogic_data_out: byte;
+	signal outlogic_validout: std_logic;
 
 begin
 	clk_top <= clk;
@@ -162,6 +164,41 @@ begin
 		data_out 	=> FMdemod_data_out,
 		validout 	=> FMdemod_validout
 	);
+
+	outlogic: outputlogic
+	port map
+	(
+		clk => clk_top,
+		res_n => res_n_top,
+
+		data_in => FMdemod_data_out,
+		validin => FMdemod_validout,
+
+		data_out => outlogic_data_out,
+		validout => outlogic_validout
+	);
+
+	outbuffer: outputbuffer
+	generic
+	(
+		N => 32
+	)
+	port 
+	(
+		clk => clk_top,
+		res_n => res_n_top,
+
+		data_in => outlogic_data_out,
+		validin => outlogic_validout,
+		
+		ready: => asout_ready,
+		validout => asout_valid,
+		data_out => asout_data
+	);
+
+	--Buffer does not send start/end
+	asout_startofpacket <= open;
+	asout_endofpacket <= open;
 	
 end architecture;
 
