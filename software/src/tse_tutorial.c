@@ -133,7 +133,7 @@ int main(void)
 		}
 
 		
-		for (i = 0; i < BUF_SIZE/2; i ++)//Bei Mono vll BUF_SIZE statt BUF_SIZE/2
+		for (i = 0; i < BUF_SIZE/2; i ++)
 		{
 			//Play the received frame
 			avail = (unsigned int)((IORD_32DIRECT(AUDIO_BASE,4)&0xFF000000)>>24);
@@ -143,9 +143,7 @@ int main(void)
 			// and write it to the FIFO for left channel
 			IOWR_32DIRECT(AUDIO_BASE,8,sample);
 
-			// Read sample from SDRAM
-			//sample = (int)song[i+1];//!MONOTON!
-			// and write it to the FIFO for left channel
+			// and write it to the FIFO for left channel (soll wl right bedeuten)
 			IOWR_32DIRECT(AUDIO_BASE,12,sample);
 		}
 		
