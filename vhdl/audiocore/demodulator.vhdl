@@ -1,6 +1,10 @@
 library IEEE;
 use IEEE.std_logic_1164.all;
 
+library ieee_proposed;
+use ieee_proposed.fixed_float_types.all;
+use ieee_proposed.fixed_pkg.all;
+
 library work;
 use work.audiocore_pkg.all;
 
@@ -10,20 +14,20 @@ entity demodulator is
 		clk : in std_logic;
 		res_n : in std_logic;
 
-		data_in_I : in sfixed;
-		data_in_Q : in sfixed;
+		data_in_I : in sfixed(7 downto -24);
+		data_in_Q : in sfixed(7 downto -24);
 		validin_I : in std_logic;
 		validin_Q : in std_logic;
 		
-		data_out : out sfixed;
+		data_out : out sfixed(7 downto -24);
 		validout : out std_logic
 	);
 end demodulator;
 
 architecture behavior of demodulator is
-	signal data_out_cur,data_out_next, data_con_I, data_con_Q, data_con_I_next, data_con_Q_next: sfixed;
+	signal data_out_cur,data_out_next, data_con_I, data_con_Q, data_con_I_next, data_con_Q_next: sfixed(7 downto -24);
 	signal validout_cur, validout_next :std_logic;
-	variable data_I, data_Q: sfixed;
+	variable data_I, data_Q: sfixed(7 downto -24);
 begin
 
 	do_demodulation: process (data_in,validin_I, validin_Q)

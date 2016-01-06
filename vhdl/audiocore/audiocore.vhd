@@ -4,6 +4,10 @@ use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 use work.audiocore_pkg.all;
 
+library ieee_proposed;
+use ieee_proposed.fixed_float_types.all;
+use ieee_proposed.fixed_pkg.all;
+ 
 --library work;
 --use work.fir_package.all;
 
@@ -38,11 +42,11 @@ architecture rtl of audiocore is
 	signal enq_validout, enq_outmode : std_logic;
 	signal fifoI_validout, fifoQ_validout : std_logic;
 	signal fifoI_data_out, fifoQ_data_out : byte;
-	signal mixer_Iout, mixer_Qout : sfixed;
+	signal mixer_Iout, mixer_Qout : sfixed(7 downto -24);
 	signal mixer_validout : std_logic;
-	signal Ideci_data_out, Qdeci_data_out : sfixed;
+	signal Ideci_data_out, Qdeci_data_out : sfixed(7 downto -24);
 	signal Ideci_validout, Qdeci_validout : std_logic;
-	signal FMdemod_data_out : sfixed;
+	signal FMdemod_data_out : sfixed(7 downto -24);
 	signal FMdemod_validout : std_logic;
 	signal outlogic_data_out: byte;
 	signal outlogic_validout: std_logic;
@@ -165,7 +169,7 @@ begin
 		validout 	=> FMdemod_validout
 	);
 
-	outlogic: outputlogic
+	outlogic : outputlogic
 	port map
 	(
 		clk => clk_top,
@@ -179,11 +183,11 @@ begin
 	);
 
 	outbuffer: outputbuffer
-	generic
+	generic map
 	(
 		N => 32
 	)
-	port 
+	port map
 	(
 		clk => clk_top,
 		res_n => res_n_top,
@@ -191,14 +195,14 @@ begin
 		data_in => outlogic_data_out,
 		validin => outlogic_validout,
 		
-		ready: => asout_ready,
+		ready => asout_ready,
 		validout => asout_valid,
 		data_out => asout_data
 	);
 
 	--Buffer does not send start/end
-	asout_startofpacket <= open;
-	asout_endofpacket <= open;
+--	asout_startofpacket <= open;
+--	asout_endofpacket <= open;
 	
 end architecture;
 

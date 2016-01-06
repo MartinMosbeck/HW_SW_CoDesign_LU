@@ -3,8 +3,12 @@ use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 use work.fixed_alg_pkg.all;
 
+library ieee_proposed;
+use ieee_proposed.fixed_float_types.all;
+use ieee_proposed.fixed_pkg.all;
+
+
 package audiocore_pkg is
-	subtype sfixed is signed(31 downto 0); -- 8.24 fixed point 
 	subtype byte is std_logic_vector(7 downto 0);
 	subtype sgdma_frame is std_logic_vector(31 downto 0);
 	subtype index_time is integer range 0 to 24; 
@@ -57,8 +61,8 @@ package audiocore_pkg is
 			Qin : in byte;
 			validin : in std_logic;
 			
-			Iout : out sfixed;
-			Qout : out sfixed;
+			Iout : out sfixed(7 downto -24);
+			Qout : out sfixed(7 downto -24);
 			validout : out std_logic	
 		);
 	end component;
@@ -73,10 +77,10 @@ package audiocore_pkg is
 			clk : in std_logic;
 			res_n : in std_logic;
 
-			data_in : in sfixed;
+			data_in : in sfixed(7 downto -24);
 			validin : in std_logic;
 			
-			data_out : out sfixed;
+			data_out : out sfixed(7 downto -24);
 			validout : out std_logic
 		);	
 	end component;
@@ -87,13 +91,48 @@ package audiocore_pkg is
 			clk : in std_logic;
 			res_n: in std_logic;
 
-			data_in_I : in sfixed;
-			data_in_Q : in sfixed;
+			data_in_I : in sfixed(7 downto -24);
+			data_in_Q : in sfixed(7 downto -24);
 			validin_I : in std_logic;
 			validin_Q : in std_logic;
 			
-			data_out : out sfixed;
+			data_out : out sfixed(7 downto -24);
 			validout : out std_logic
 		);
 	end component;
+
+
+	component outputbuffer is
+		generic
+		(
+			N: natural := 32
+		);
+		port 
+		(
+			clk : in std_logic;
+			res_n : in std_logic;
+
+			data_in : in byte;
+			validin : in std_logic;
+			
+			ready: in std_logic;
+			validout : out std_logic;
+			data_out : out byte
+		);
+	end component;
+
+	component outputlogic is
+		port 
+		(
+			clk : in std_logic;
+			res_n : in std_logic;
+
+			data_in : in sfixed(7 downto -24);
+			validin : in std_logic;
+			
+			data_out : out byte;
+			validout : out std_logic
+		);
+	end component;
+
 end package audiocore_pkg;

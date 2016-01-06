@@ -10,7 +10,7 @@ entity outputlogic is
 		clk : in std_logic;
 		res_n : in std_logic;
 
-		data_in : in fixedpoint;
+		data_in : in sfixed(7 downto -24);
 		validin : in std_logic;
 		
 		data_out : out byte;
@@ -19,8 +19,9 @@ entity outputlogic is
 end outputlogic;
 
 architecture behavior of outputlogic is
-	signal data_out_cur,data_out_next, data: fixedpoint;
-	signal validout_cur, validout_next, valid :std_logic;
+	signal data_out_cur,data_out_next, data : sfixed(7 downto -24);
+	signal validout_cur, validout_next, valid : std_logic;
+	variable var_data0, var_data1 : sfixed(7 downto -24);
 begin
 
 	deci: decimator
@@ -51,7 +52,10 @@ begin
 		else
 			validout_next <= '1';
 			
-			data_out_next <=byte(round(30*data)+128);--!FIXEDPOINT2INT
+			var_data0 := to_sfixed(30, var_data0);
+			var_data1 := to_sfixed(128, var_data1);
+			data_out_next <= (resize(resize(var_data0*data)+var_data1))(7 downto 0);--!FIXEDPOINT2INT
+
 		end if; 
 	end process do_output;
 

@@ -1,6 +1,10 @@
 library IEEE;
 use IEEE.std_logic_1164.all;
 
+library ieee_proposed;
+use ieee_proposed.fixed_float_types.all;
+use ieee_proposed.fixed_pkg.all;
+
 library work;
 use work.audiocore_pkg.all;
 
@@ -14,16 +18,16 @@ entity decimator is
 		clk : in std_logic;
 		res_n : in std_logic;
 
-		data_in : in sfixed;
+		data_in : in sfixed(7 downto -24);
 		validin : in std_logic;
 		
-		data_out : out sfixed;
+		data_out : out sfixed(7 downto -24);
 		validout : out std_logic
 	);
 end decimator;
 
 architecture behavior of decimator is
-	signal data_out_cur,data_out_next : sfixed;
+	signal data_out_cur,data_out_next : sfixed(7 downto -24);
 	signal validout_cur, validout_next :std_logic;
 	signal cnt_cur, cnt_next : integer range 0 to N-1;
 begin

@@ -1,6 +1,10 @@
 library IEEE;
 use IEEE.std_logic_1164.all;
-use IEEE.numeric_std.all;
+use ieee.numeric_std.all;
+
+library ieee_proposed;
+use ieee_proposed.fixed_pkg.all;
+use ieee_proposed.fixed_float_types.all;
 
 library work;
 use work.audiocore_pkg.all;
@@ -15,16 +19,16 @@ entity mixerFM is
 		Qin : in byte;
 		validin : in std_logic;
 		
-		Iout : out sfixed;
-		Qout : out sfixed;
+		Iout : out sfixed(7 downto -24);
+		Qout : out sfixed(7 downto -24);
 		validout : out std_logic
 	);
 end mixerFM;
 
 architecture behavior of mixerFM is
 	
-	signal Iout_cur, Iout_next : sfixed;
-	signal Qout_cur, Qout_next : sfixed;
+	signal Iout_cur, Iout_next : sfixed(7 downto -24);
+	signal Qout_cur, Qout_next : sfixed(7 downto -24);
 	signal validout_cur, validout_next : std_logic;
 	signal t_cur,t_next : index_time; 
 	
@@ -144,8 +148,8 @@ architecture behavior of mixerFM is
 
 begin
 	mix_it: process (Iin,QIn,validin)
-		variable I_temp : sfixed;
-		variable Q_temp : sfixed;
+		variable I_temp : sfixed(7 downto -24);
+		variable Q_temp : sfixed(7 downto -24);
 	begin
 		Iout_next <= Iout_cur;
 		Qout_next <= Qout_cur;
@@ -157,11 +161,11 @@ begin
 			Q_temp := (others => '0');
 
 			validout_next <= '1';
-			I_temp(31 downto 24) := signed(unsigned(Iin)-to_unsigned(127, 8));
-			Q_temp(31 downto 24) := signed(unsigned(Qin)-to_unsigned(127, 8));
+			I_temp(7 downto 0) := sfixed(unsigned(Iin)-to_unsigned(127, 8));
+			Q_temp(7 downto 0) := sfixed(unsigned(Qin)-to_unsigned(127, 8));
 
-			Iout_next <= precision(I_temp * lookup_cos(t_cur) - Q_temp * lookup_sin(t_cur), Iout_next'length);
-			Qout_next <= precision(I_temp * lookup_sin(t_cur) + Q_temp * lookup_cos(t_cur), Qout_next'length);
+			Iout_next <= resize(I_temp * lookup_cos(t_cur) - Q_temp * lookup_sin(t_cur), Iout_next'high, Iout_next'low);
+			Qout_next <= resize(I_temp * lookup_sin(t_cur) + Q_temp * lookup_cos(t_cur), Qout_next'high, Qout_next'low);
 
 			if(t_cur = 24) then
 				t_next <= 0;
