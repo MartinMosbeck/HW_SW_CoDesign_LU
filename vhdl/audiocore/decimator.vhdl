@@ -14,16 +14,16 @@ entity decimator is
 		clk : in std_logic;
 		res_n : in std_logic;
 
-		data_in : in fixedpoint;
+		data_in : in sfixed;
 		validin : in std_logic;
 		
-		data_out : out fixedpoint;
+		data_out : out sfixed;
 		validout : out std_logic
 	);
 end decimator;
 
 architecture behavior of decimator is
-	signal data_out_cur,data_out_next : fixedpoint;
+	signal data_out_cur,data_out_next : sfixed;
 	signal validout_cur, validout_next :std_logic;
 	signal cnt_cur, cnt_next : integer range 0 to N-1;
 begin

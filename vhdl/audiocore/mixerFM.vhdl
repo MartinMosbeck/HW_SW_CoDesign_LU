@@ -15,21 +15,21 @@ entity mixerFM is
 		Qin : in byte;
 		validin : in std_logic;
 		
-		Iout : out fixedpoint;
-		Qout : out fixedpoint;
+		Iout : out sfixed;
+		Qout : out sfixed;
 		validout : out std_logic
 	);
 end mixerFM;
 
 architecture behavior of mixerFM is
 	
-	signal Iout_cur, Iout_next : fixedpoint;
-	signal Qout_cur, Qout_next : fixedpoint;
+	signal Iout_cur, Iout_next : sfixed;
+	signal Qout_cur, Qout_next : sfixed;
 	signal validout_cur, validout_next : std_logic;
 	signal t_cur,t_next : index_time; 
 	
 	function lookup_sin(index:index_time) 
-		return fixedpoint is
+		return sfixed is
 	begin 
 		case index is
 			when 0 =>
@@ -86,7 +86,7 @@ architecture behavior of mixerFM is
 	end function;
 
 	function lookup_cos(index:index_time)
-		return fixedpoint is
+		return sfixed is
 	begin	
 		case index is
 			when 0 =>
@@ -144,8 +144,8 @@ architecture behavior of mixerFM is
 
 begin
 	mix_it: process (Iin,QIn,validin)
-		variable I_temp : fixedpoint;
-		variable Q_temp : fixedpoint;
+		variable I_temp : sfixed;
+		variable Q_temp : sfixed;
 	begin
 		Iout_next <= Iout_cur;
 		Qout_next <= Qout_cur;
@@ -160,8 +160,8 @@ begin
 			I_temp(31 downto 24) := signed(unsigned(Iin)-to_unsigned(127, 8));
 			Q_temp(31 downto 24) := signed(unsigned(Qin)-to_unsigned(127, 8));
 
-			Iout_next <= I_temp * lookup_cos(t_cur) - Q_temp * lookup_sin(t_cur);
-			Qout_next <= I_temp * lookup_sin(t_cur) + Q_temp * lookup_cos(t_cur);
+			Iout_next <= precision(I_temp * lookup_cos(t_cur) - Q_temp * lookup_sin(t_cur), Iout_next'length);
+			Qout_next <= precision(I_temp * lookup_sin(t_cur) + Q_temp * lookup_cos(t_cur), Qout_next'length);
 
 			if(t_cur = 24) then
 				t_next <= 0;

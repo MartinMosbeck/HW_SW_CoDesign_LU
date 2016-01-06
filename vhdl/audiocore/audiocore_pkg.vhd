@@ -1,10 +1,10 @@
 library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
-
+use work.fixed_alg_pkg.all;
 
 package audiocore_pkg is
-	subtype fixedpoint is signed(31 downto 0); -- 8.24 fixed point 
+	subtype sfixed is signed(31 downto 0); -- 8.24 fixed point 
 	subtype byte is std_logic_vector(7 downto 0);
 	subtype sgdma_frame is std_logic_vector(31 downto 0);
 	subtype index_time is integer range 0 to 24; 
@@ -57,8 +57,8 @@ package audiocore_pkg is
 			Qin : in byte;
 			validin : in std_logic;
 			
-			Iout : out fixedpoint;
-			Qout : out fixedpoint;
+			Iout : out sfixed;
+			Qout : out sfixed;
 			validout : out std_logic	
 		);
 	end component;
@@ -73,11 +73,27 @@ package audiocore_pkg is
 			clk : in std_logic;
 			res_n : in std_logic;
 
-			data_in : in fixedpoint;
+			data_in : in sfixed;
 			validin : in std_logic;
 			
-			data_out : out fixedpoint;
+			data_out : out sfixed;
 			validout : out std_logic
 		);	
+	end component;
+
+	component demodulator is
+		port 
+		(
+			clk : in std_logic;
+			res_n: in std_logic;
+
+			data_in_I : in sfixed;
+			data_in_Q : in sfixed;
+			validin_I : in std_logic;
+			validin_Q : in std_logic;
+			
+			data_out : out sfixed;
+			validout : out std_logic
+		);
 	end component;
 end package audiocore_pkg;

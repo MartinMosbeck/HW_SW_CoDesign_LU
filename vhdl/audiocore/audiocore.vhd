@@ -38,10 +38,12 @@ architecture rtl of audiocore is
 	signal enq_validout, enq_outmode : std_logic;
 	signal fifoI_validout, fifoQ_validout : std_logic;
 	signal fifoI_data_out, fifoQ_data_out : byte;
-	signal mixer_Iout, mixer_Qout : fixedpoint;
+	signal mixer_Iout, mixer_Qout : sfixed;
 	signal mixer_validout : std_logic;
-	signal Ideci_data_out, Qdeci_data_out : fixedpoint;
+	signal Ideci_data_out, Qdeci_data_out : sfixed;
 	signal Ideci_validout, Qdeci_validout : std_logic;
+	signal FMdemod_data_out : sfixed;
+	signal FMdemod_validout : std_logic;
 
 begin
 	clk_top <= clk;
@@ -144,6 +146,21 @@ begin
 			
 		data_out 	=> Qdeci_data_out,
 		validout 	=> Qdeci_validout
+	);
+
+	FMdemod : demodulator
+	port map
+	(
+		clk			=> clk_top,
+		res_n		=> res_n_top,
+
+		data_in_I	=> Ideci_data_out,
+		data_in_Q	=> Qdeci_data_out,
+		validin_I	=> Ideci_validout,
+		validin_Q	=> Qdeci_validout,
+
+		data_out 	=> FMdemod_data_out,
+		validout 	=> FMdemod_validout
 	);
 	
 end architecture;

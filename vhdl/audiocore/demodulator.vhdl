@@ -8,25 +8,25 @@ entity demodulator is
 	port 
 	(
 		clk : in std_logic;
-		rst_n : in std_logic;
+		res_n : in std_logic;
 
-		data_in_I : in fixedpoint;
-		data_in_Q : in fixedpoint;
+		data_in_I : in sfixed;
+		data_in_Q : in sfixed;
 		validin_I : in std_logic;
 		validin_Q : in std_logic;
 		
-		data_out : out fixedpoint;
+		data_out : out sfixed;
 		validout : out std_logic
 	);
 end demodulator;
 
 architecture behavior of demodulator is
-	signal data_out_cur,data_out_next, data_con_I, data_con_Q, data_con_I_next, data_con_Q_next: fixedpoint;
+	signal data_out_cur,data_out_next, data_con_I, data_con_Q, data_con_I_next, data_con_Q_next: sfixed;
 	signal validout_cur, validout_next :std_logic;
-	variable data_I, data_Q: fixedpoint;
+	variable data_I, data_Q: sfixed;
 begin
 
-	do_decimation: process (data_in,validin_I, validin_Q)
+	do_demodulation: process (data_in,validin_I, validin_Q)
 	begin
 		data_out_next <= data_out_cur;
 		validout_next <= validout_cur;
@@ -41,11 +41,11 @@ begin
 			data_con_Q_next <= -data_in_Q;
 			data_out_next <= arctan(data_Q/data_I);
 		end if; 
-	end process do_decimation;
+	end process do_demodulation;
 
-	sync: process (clk,rst_n)
+	sync: process (clk,res_n)
 	begin
-		if rst_n = '0' then
+		if res_n = '0' then
 			data_out_cur <= (others =>'0');
 			validout_cur <= '0';
 		elsif rising_edge(clk) then
