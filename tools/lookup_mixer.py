@@ -17,31 +17,45 @@ for i in range(0,25):
     index.append(x)
     x=x+86.4
 
-for x in index:
-#    print("sin("+str(x)+")=" + str(sin(x/180*pi)))
-    print("cos("+str(x)+")=" + str(cos(x/180*pi)))
 
 skalierungsfaktor = pow(2,3*8)
-
 
 print("\nCOSINUS")
 i=0
 for x in index:
     value= cos(x/180*pi)
-    print("\t\t\twhen "+str(i)+" =>")
-    print('\t\t\t\treturn "',end="") 
-    if(value==1):
-        print(7*"0"+"1"+24*"0",end="")
-    elif(value==-1):
-        print("1"+7*"0"+24*"0",end="")
-    else:
-        kommas = abs(int(value * skalierungsfaktor))
-        bv = BitVector(intVal=kommas,size=24)
-        if(value >0):
-            print("0"+7*"0"+str(bv),end="")
+    
+    vorkomma = abs(int(value))
+    nachkomma = abs(int((value-int(value))*skalierungsfaktor))
+    
+    bv1 = BitVector(intVal=vorkomma,size=8)
+    bv2 = BitVector(intVal=nachkomma,size=24)
+    bv = bv1 + bv2
+
+    if(value<0):
+        #invert add +1
+        bv3 = BitVector(intVal=int(str(~bv),2)+1 ,size=32)
+        bv = bv3
+
+    summe = 0
+    j = 0
+    power = 7 
+    for c in str(bv):
+        
+        if(j==0):
+            toadd = -pow(2,power)
         else:
-            print("1"+7*"0"+str(bv),end="")
-    print('";')
+            toadd =  pow(2,power)
+        power = power - 1
+        summe=summe + toadd * int(c)
+        j=j+1
+    #print("Wert:"+str(value)+ " = " + str(summe))
+    #print("Delta= " + str(abs(value-summe)))
+
+    
+    print("\t\t\twhen "+str(i)+" =>")
+    print('\t\t\t\treturn "',end="")
+    print(str(bv)+'";') 
     i=i+1
 
 
@@ -49,18 +63,36 @@ print("\nSINUS")
 i=0
 for x in index:
     value= sin(x/180*pi)
-    print("\t\t\twhen "+str(i)+" =>")
-    print('\t\t\t\treturn "',end="") 
-    if(value==1):
-        print(7*"0"+"1"+24*"0",end="")
-    elif(value==-1):
-        print("1"+7*"0"+24*"0",end="")
-    else:
-        kommas = abs(int(value * skalierungsfaktor))
-        bv = BitVector(intVal=kommas,size=24)
-        if(value >0):
-            print("0"+7*"0"+str(bv),end="")
+    
+    vorkomma = abs(int(value))
+    nachkomma = abs(int((value-int(value))*skalierungsfaktor))
+    
+    bv1 = BitVector(intVal=vorkomma,size=8)
+    bv2 = BitVector(intVal=nachkomma,size=24)
+    bv = bv1 + bv2
+
+    if(value<0):
+        #invert add +1
+        bv3 = BitVector(intVal=int(str(~bv),2)+1 ,size=32)
+        bv = bv3
+
+    summe = 0
+    j = 0
+    power = 7 
+    for c in str(bv):
+        
+        if(j==0):
+            toadd = -pow(2,power)
         else:
-            print("1"+7*"0"+str(bv),end="")
-    print('";')
+            toadd =  pow(2,power)
+        power = power - 1
+        summe=summe + toadd * int(c)
+        j=j+1
+    #print("Wert:"+str(value)+ " = " + str(summe))
+    #print("Delta= " + str(abs(value-summe)))
+
+
+    print("\t\t\twhen "+str(i)+" =>")
+    print('\t\t\t\treturn "',end="")
+    print(str(bv)+'";') 
     i=i+1

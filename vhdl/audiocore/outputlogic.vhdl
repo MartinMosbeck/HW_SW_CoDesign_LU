@@ -67,12 +67,6 @@ begin
 --			product := factor0 * factor1;
 --			data_out_next <= product(103 downto 71);
 		
-			factor0(31 downto 24) := to_signed(30,8);
-			factor0(23 downto 0) := (others => '0');
-			product := (others => '0');
-			product := factor0 * data;
-
-			data_out_next <= product(55 downto 24);
 
 		end if; 
 	end process do_output;
