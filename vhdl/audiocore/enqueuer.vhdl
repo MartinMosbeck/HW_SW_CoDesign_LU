@@ -81,11 +81,7 @@ begin
 					end if;
 				when HEADER =>
 					if framecounter_cur = 3 then
-						if (byte1 = x"88") and (byte2 = x"b5") then 
-							Iout1_next <= byte3;
-							Qout1_next <= byte4;
-							validout_next <= '1';
-							outmode_next <= '0';
+						if (byte3 = x"88") and (byte4 = x"b5") then 
 							state_next <= DATA;
 						else
 							state_next <= IDLE;
@@ -95,19 +91,15 @@ begin
 					end if;
 				when DATA =>
 					if endofpacket = '1' then
-						Iout1_next <= byte1;
-						Qout1_next <= byte2;
-						validout_next <= '1';
-						outmode_next <= '0';
 						state_next <= IDLE;
-					else
-						Iout1_next <= byte1;
-						Qout1_next <= byte2;
-						Iout2_next <= byte3;
-						Qout2_next <= byte4;
-						validout_next <= '1';
-						outmode_next <= '1';
 					end if;
+
+					Iout1_next <= byte1;
+					Qout1_next <= byte2;
+					Iout2_next <= byte3;
+					Qout2_next <= byte4;
+					validout_next <= '1';
+					outmode_next <= '1';
 			end case;
 		end if;
 	end process out_statenext;
