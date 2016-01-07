@@ -2,10 +2,6 @@ library IEEE;
 use IEEE.std_logic_1164.all;
 use ieee.numeric_std.all;
 
-library ieee_proposed;
-use ieee_proposed.fixed_pkg.all;
-use ieee_proposed.fixed_float_types.all;
-
 library work;
 use work.audiocore_pkg.all;
 
@@ -19,16 +15,16 @@ entity mixerFM is
 		Qin : in byte;
 		validin : in std_logic;
 		
-		Iout : out sfixed(7 downto -24);
-		Qout : out sfixed(7 downto -24);
+		Iout : out fixpoint;
+		Qout : out fixpoint;
 		validout : out std_logic
 	);
 end mixerFM;
 
 architecture behavior of mixerFM is
 	
-	signal Iout_cur, Iout_next : sfixed(7 downto -24);
-	signal Qout_cur, Qout_next : sfixed(7 downto -24);
+	signal Iout_cur, Iout_next : fixpoint;
+	signal Qout_cur, Qout_next : fixpoint;
 	signal validout_cur, validout_next : std_logic;
 	signal t_cur,t_next : index_time; 
 	
@@ -148,8 +144,8 @@ architecture behavior of mixerFM is
 
 begin
 	mix_it: process (Iin,QIn,validin)
-		variable I_temp : sfixed(7 downto -24);
-		variable Q_temp : sfixed(7 downto -24);
+		variable I_temp : fixpoint;
+		variable Q_temp : fixpoint;
 	begin
 		Iout_next <= Iout_cur;
 		Qout_next <= Qout_cur;

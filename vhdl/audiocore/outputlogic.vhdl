@@ -10,7 +10,7 @@ entity outputlogic is
 		clk : in std_logic;
 		res_n : in std_logic;
 
-		data_in : in sfixed(7 downto -24);
+		data_in : in fixpoint;
 		validin : in std_logic;
 		
 		data_out : out byte;
@@ -19,9 +19,10 @@ entity outputlogic is
 end outputlogic;
 
 architecture behavior of outputlogic is
-	signal data_out_cur,data_out_next, data : sfixed(7 downto -24);
+	signal data_out_cur,data_out_next, data : fixpoint;
 	signal validout_cur, validout_next, valid : std_logic;
-	variable var_data0, var_data1 : sfixed(7 downto -24);
+	variable factor0 : fixpoint;
+	variable product : fixpoint_product;
 begin
 
 	deci: decimator
@@ -52,9 +53,26 @@ begin
 		else
 			validout_next <= '1';
 			
-			var_data0 := to_sfixed(30, var_data0);
-			var_data1 := to_sfixed(128, var_data1);
-			data_out_next <= (resize(resize(var_data0*data)+var_data1))(7 downto 0);--!FIXEDPOINT2INT
+			--sign extend
+--			if(data(31) = '1' then
+--				factor0(63 downto 56) := (others => '1');
+--			else
+--				factor0(63 downto 56) := (others => '0');
+--			end if;
+--			factor0(23 downto 0) := (others => '0');
+--			factor0(55 downto 24) := data;
+--
+--			factor1(63 downto 48) := to_signed(30, 16);
+--			factor1(47 downto 0) := (others => '0');
+--			product := factor0 * factor1;
+--			data_out_next <= product(103 downto 71);
+		
+			factor0(31 downto 24) := to_signed(30,8);
+			factor0(23 downto 0) := (others => '0');
+			product := (others => '0');
+			product := factor0 * data;
+
+			data_out_next <= product(55 downto 24);
 
 		end if; 
 	end process do_output;
