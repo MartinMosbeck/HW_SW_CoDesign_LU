@@ -160,11 +160,11 @@ begin
 			Q_temp := (others => '0');
 
 			validout_next <= '1';
-			I_temp(7 downto 0) := sfixed(unsigned(Iin)-to_unsigned(127, 8));
-			Q_temp(7 downto 0) := sfixed(unsigned(Qin)-to_unsigned(127, 8));
+			I_temp(31 downto 24) := signed(unsigned(Iin) - to_unsigned(127,8)); 
+			Q_temp(31 downto 24) := signed(unsigned(Qin) - to_unsigned(127,8));
 
-			Iout_next <= resize(I_temp * lookup_cos(t_cur) - Q_temp * lookup_sin(t_cur), Iout_next'high, Iout_next'low);
-			Qout_next <= resize(I_temp * lookup_sin(t_cur) + Q_temp * lookup_cos(t_cur), Qout_next'high, Qout_next'low);
+			Iout_next <= fixpoint_mult(I_temp,lookup_cos(t_cur)) - fixpoint_mult(Q_temp * lookup_sin(t_cur));
+			Qout_next <= fixpoint_mult(I_temp,lookup_sin(t_cur)) + fixpoint_mult(Q_temp,lookup_cos(t_cur));
 
 			if(t_cur = 24) then
 				t_next <= 0;

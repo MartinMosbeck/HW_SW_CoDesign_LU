@@ -132,10 +132,9 @@ package audiocore_pkg is
 		);
 	end component;
 
-	function fixpoint_mult(a:fixpoint, b:fixpoint)
-				variable result_full : fixpoint_product
-			return fixpoint is
-
+	function fixpoint_mult(a:fixpoint, b:fixpoint) return fixpoint is
+				variable result_full : fixpoint_product;
+	begin
 		result_full := a * b;
 
 		return result_full(55 downto 24);

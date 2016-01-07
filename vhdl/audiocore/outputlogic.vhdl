@@ -19,7 +19,8 @@ entity outputlogic is
 end outputlogic;
 
 architecture behavior of outputlogic is
-	signal data_out_cur,data_out_next, data : fixpoint;
+	signal data_out_cur,data_out_next : byte; 
+	signal data : fixpoint;
 	signal validout_cur, validout_next, valid : std_logic;
 	variable factor0 : fixpoint;
 	variable product : fixpoint_product;
@@ -44,6 +45,9 @@ begin
 
 
 	do_output: process (data,valid)
+		constant factor : fixpoint := x"1e000000";
+		variable data_fixp : fixpoint;
+		constant v127 : signed(7 downto 0) := "01111111"; 
 	begin
 		data_out_next <= data_out_cur;
 		validout_next <= validout_cur;
@@ -66,8 +70,10 @@ begin
 --			factor1(47 downto 0) := (others => '0');
 --			product := factor0 * factor1;
 --			data_out_next <= product(103 downto 71);
-		
 
+			data_fixp := fixpoint_mult(data,factor);
+			data_out_next <= std_logic_vector(data_fixp(31 downto 24) + v127));
+			
 		end if; 
 	end process do_output;
 
