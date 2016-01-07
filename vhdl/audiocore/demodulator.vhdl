@@ -24,6 +24,7 @@ architecture behavior of demodulator is
 	signal data_out_cur,data_out_next, data_con_I, data_con_Q, data_con_I_next, data_con_Q_next: fixpoint;
 	signal validout_cur, validout_next :std_logic;
 	variable data_I, data_Q: fixpoint;
+	constant min1: fixpoint := x"FF000000";
 begin
 
 	do_demodulation: process (data_in,validin_I, validin_Q)
@@ -35,11 +36,11 @@ begin
 			validout_next <= '0';
 		else
 			validout_next <= '1';
-			data_I := data_in_I * data_con_I - data_in_Q * data_con_Q;
-			data_Q := data_in_I * data_con_Q + data_con_I * data_in_Q;
+			data_I := fixpoint_mult(data_in_I,data_con_I) - fixpoint_mult(data_in_Q,data_con_Q);
+			data_Q := fixpoint_mult(data_in_I,data_con_Q) + fixpoint_mult(data_con_I,data_in_Q);
 			data_con_I_next <= data_in_I;
-			data_con_Q_next <= -data_in_Q;
-			data_out_next <= arctan(data_Q/data_I);
+			data_con_Q_next <= fixpoint_mult(min1,data_in_Q);
+			data_out_next <= data_I;
 		end if; 
 	end process do_demodulation;
 

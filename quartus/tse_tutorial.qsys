@@ -897,7 +897,7 @@
   <parameter name="enableDescriptorReadMasterBurst" value="false" />
   <parameter name="enableUnalignedTransfers" value="false" />
   <parameter name="internalFIFODepth" value="2" />
-  <parameter name="readBlockDataWidth" value="32" />
+  <parameter name="readBlockDataWidth" value="8" />
   <parameter name="readBurstcountWidth" value="4" />
   <parameter name="sinkErrorWidth" value="6" />
   <parameter name="sourceErrorWidth" value="0" />
