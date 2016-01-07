@@ -27,6 +27,15 @@ architecture behavior of mixerFM is
 	signal Qout_cur, Qout_next : fixpoint;
 	signal validout_cur, validout_next : std_logic;
 	signal t_cur,t_next : index_time; 
+
+
+	function fixpoint_mult(a,b:fixpoint) return fixpoint is
+				variable result_full : fixpoint_product;
+	begin
+		result_full := a * b;
+
+		return result_full(55 downto 24);
+	end function;
 	
 	function lookup_sin(index:index_time) 
 		return fixpoint is
@@ -163,7 +172,7 @@ begin
 			I_temp(31 downto 24) := signed(unsigned(Iin) - to_unsigned(127,8)); 
 			Q_temp(31 downto 24) := signed(unsigned(Qin) - to_unsigned(127,8));
 
-			Iout_next <= fixpoint_mult(I_temp,lookup_cos(t_cur)) - fixpoint_mult(Q_temp * lookup_sin(t_cur));
+			Iout_next <= fixpoint_mult(I_temp,lookup_cos(t_cur)) - fixpoint_mult(Q_temp,lookup_sin(t_cur));
 			Qout_next <= fixpoint_mult(I_temp,lookup_sin(t_cur)) + fixpoint_mult(Q_temp,lookup_cos(t_cur));
 
 			if(t_cur = 24) then

@@ -1,5 +1,6 @@
 library IEEE;
 use IEEE.std_logic_1164.all;
+use IEEE.numeric_std.all;
 
 library work;
 use work.audiocore_pkg.all;
@@ -23,11 +24,19 @@ end demodulator;
 architecture behavior of demodulator is
 	signal data_out_cur,data_out_next, data_con_I, data_con_Q, data_con_I_next, data_con_Q_next: fixpoint;
 	signal validout_cur, validout_next :std_logic;
-	variable data_I, data_Q: fixpoint;
 	constant min1: fixpoint := x"FF000000";
+
+	function fixpoint_mult(a,b:fixpoint) return fixpoint is
+				variable result_full : fixpoint_product;
+	begin
+		result_full := a * b;
+
+		return result_full(55 downto 24);
+	end function;
 begin
 
-	do_demodulation: process (data_in,validin_I, validin_Q)
+	do_demodulation: process (data_in_I,data_in_Q,validin_I, validin_Q)
+	variable data_I: fixpoint;
 	begin
 		data_out_next <= data_out_cur;
 		validout_next <= validout_cur;
@@ -37,7 +46,6 @@ begin
 		else
 			validout_next <= '1';
 			data_I := fixpoint_mult(data_in_I,data_con_I) - fixpoint_mult(data_in_Q,data_con_Q);
-			data_Q := fixpoint_mult(data_in_I,data_con_Q) + fixpoint_mult(data_con_I,data_in_Q);
 			data_con_I_next <= data_in_I;
 			data_con_Q_next <= fixpoint_mult(min1,data_in_Q);
 			data_out_next <= data_I;
@@ -61,4 +69,4 @@ begin
 		end if;
 	end process sync;
 
-end demodulator;
+end behavior;

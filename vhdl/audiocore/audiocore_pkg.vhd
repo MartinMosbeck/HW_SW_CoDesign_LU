@@ -1,7 +1,6 @@
 library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
-use work.fixed_alg_pkg.all;
 
 package audiocore_pkg is
 	subtype byte is std_logic_vector(7 downto 0);
@@ -68,7 +67,7 @@ package audiocore_pkg is
 		generic 
 		(
 			N : integer
-		);	
+		);
 		port 
 		(
 			clk : in std_logic;
@@ -131,13 +130,5 @@ package audiocore_pkg is
 			validout : out std_logic
 		);
 	end component;
-
-	function fixpoint_mult(a:fixpoint, b:fixpoint) return fixpoint is
-				variable result_full : fixpoint_product;
-	begin
-		result_full := a * b;
-
-		return result_full(55 downto 24);
-	end function;
 
 end package audiocore_pkg;

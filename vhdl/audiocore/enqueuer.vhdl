@@ -9,7 +9,7 @@ entity enqueuer is
 	port 
 	(
 		clk 			: in std_logic;
-		rst_n 			: in std_logic;
+		res_n			: in std_logic;
 
 		valid 			: in std_logic;
 		startofpacket	: in std_logic;
@@ -116,10 +116,10 @@ begin
 	----------
 	-- SYNC --
 	----------
-	sync: process (clk,rst_n)
+	sync: process (clk,res_n)
 		
 	begin
-		if rst_n = '0' then
+		if res_n = '0' then
 	
 			--defaults
 			state_cur <= IDLE;

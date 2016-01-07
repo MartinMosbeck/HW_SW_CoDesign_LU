@@ -1,5 +1,6 @@
 library IEEE;
 use IEEE.std_logic_1164.all;
+use IEEE.numeric_std.all;
 
 library work;
 use work.audiocore_pkg.all;
@@ -22,12 +23,18 @@ architecture behavior of outputlogic is
 	signal data_out_cur,data_out_next : byte; 
 	signal data : fixpoint;
 	signal validout_cur, validout_next, valid : std_logic;
-	variable factor0 : fixpoint;
-	variable product : fixpoint_product;
+
+	function fixpoint_mult(a,b:fixpoint) return fixpoint is
+				variable result_full : fixpoint_product;
+	begin
+		result_full := a * b;
+
+		return result_full(55 downto 24);
+	end function;
 begin
 
 	deci: decimator
-	generic 
+	generic map
 	(
 		N => 2
 	)	
@@ -48,6 +55,9 @@ begin
 		constant factor : fixpoint := x"1e000000";
 		variable data_fixp : fixpoint;
 		constant v127 : signed(7 downto 0) := "01111111"; 
+		
+		variable factor0 : fixpoint;
+		variable product : fixpoint_product;
 	begin
 		data_out_next <= data_out_cur;
 		validout_next <= validout_cur;
@@ -72,7 +82,7 @@ begin
 --			data_out_next <= product(103 downto 71);
 
 			data_fixp := fixpoint_mult(data,factor);
-			data_out_next <= std_logic_vector(data_fixp(31 downto 24) + v127));
+			data_out_next <= std_logic_vector(data_fixp(31 downto 24) + v127);
 			
 		end if; 
 	end process do_output;
@@ -92,4 +102,4 @@ begin
 		end if;
 	end process sync;
 
-end outputlogic;
+end behavior;

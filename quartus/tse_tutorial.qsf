@@ -990,10 +990,9 @@ set_global_assignment -name OUTPUT_IO_TIMING_FAR_END_VMEAS "HALF SIGNAL SWING" -
 set_global_assignment -name ENABLE_SIGNALTAP OFF
 
 
-set_global_assignment -name VHDL_FILE "../vhdl/fixpoint/fixed_alg_pkg/fixed_alg_pkg-body_real.vhdl"
-set_global_assignment -name VHDL_FILE ../vhdl/fixpoint/fixed_alg_pkg/fixed_alg_pkg.vhdl
-set_global_assignment -name VHDL_FILE ../vhdl/fixpoint/fixed_pkg.vhdl
-set_global_assignment -name VHDL_FILE ../vhdl/fixpoint/fixed_float_types.vhdl
+set_global_assignment -name VHDL_FILE ../vhdl/audiocore/outputlogic.vhdl
+set_global_assignment -name VHDL_FILE ../vhdl/audiocore/outputbuffer.vhdl
+set_global_assignment -name VHDL_FILE ../vhdl/audiocore/demodulator.vhdl
 set_global_assignment -name VHDL_FILE ../vhdl/audiocore/mixerFM.vhdl
 set_global_assignment -name VHDL_FILE ../vhdl/audiocore/FIFO.vhdl
 set_global_assignment -name VHDL_FILE ../vhdl/audiocore/enqueuer.vhdl

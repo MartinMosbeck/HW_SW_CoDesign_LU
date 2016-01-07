@@ -19,7 +19,7 @@ entity audiocore is
 		asin_endofpacket : in std_logic;
 		asin_valid : in std_logic;
 		asin_ready : out std_logic;
-		
+
 		-- stream output
 		asout_data : out std_logic_vector(7 downto 0);--!Sending bytewise to sgdma
 		asout_startofpacket : out std_logic;
@@ -197,8 +197,8 @@ begin
 	);
 
 	--Buffer does not send start/end
---	asout_startofpacket <= open;
---	asout_endofpacket <= open;
+	asout_startofpacket <= '0';
+	asout_endofpacket <= '0';
 	
 end architecture;
 
