@@ -138,19 +138,16 @@ for z = 1:size(mixedsignal)
 	else
 		phaseCorrectedSig(z) = mixedsignal(z)*exp(-1*i*phaseCorrection);
 	end;
-
 end
 
 figure
-plot(mixedsignal, 'r.');
-hold on
 plot(phaseCorrectedSig, 'g.');
 
 %Matched Filter
 load('RDSmatched.mat');
 b=h';
-mfsignal=filter(b,1,mixedsignal);
-clear mixedsignal
+mfsignal=filter(b,1,phaseCorrectedSig);
+clear mixedsignal phaseCorrectedSig
 
 %BIPHASER
 %Idee=alle drei verbleibenden Schritte bis zu den Biphasesymbolen mit dem
@@ -163,33 +160,46 @@ index=1;
 lastbiphase=0;
 startvalueindex1=1;
 startvalueindex2=1;
+timeToZeroCrossing=0;
 %Teil 1: guten Startwert finden durch suchen eines Zero-Crossings
-while index+1<length(mfsignal)
+%while index+1<length(mfsignal)
      %Debugausgabe
-     if (real(mfsignal(index))>0 && real(mfsignal(index+1))<0)
-        startvalue(1,startvalueindex1)=index;
-        startvalueindex1=startvalueindex1+1;
-     elseif (real(mfsignal(index))<0 && real(mfsignal(index+1))>0)
-        startvalue(2,startvalueindex2)=index;
-        startvalueindex2=startvalueindex2+1;
-     end
-     %zero-crossing detection
-%      if (real(mfsignal(index))>0 && real(mfsignal(index+1))<0) || (real(mfsignal(index))<0 && real(mfsignal(index+1))>0)
-%          startvalue=index;
-%          break;
+%      if (real(mfsignal(index))>0 && real(mfsignal(index+1))<0)
+%         startvalue(1,startvalueindex1)=index;
+%         startvalueindex1=startvalueindex1+1;
+%      elseif (real(mfsignal(index))<0 && real(mfsignal(index+1))>0)
+%         startvalue(2,startvalueindex2)=index;
+%         startvalueindex2=startvalueindex2+1;
 %      end
-     index=index+1;
-end
-intervalmid=53+startvalue(1,1);%Zero +53 ist ca. der h�chste (Daten-)wert
+%      zero-crossing detection
+%     index=index+1;
+%end
+%intervalmid=53+startvalue(1,1);%Zero +53 ist ca. der h�chste (Daten-)wert
 corrector=0;
+index = 1;
+
+while index+1 < length(mfsignal)
+      %zero-crossing detection
+      if(real(mfsignal(index)) > 0 && real(mfsignal(index+1)) < 0) || (real(mfsignal(index)) < 0 && real(mfsignal(index+1)) > 0)
+          index = index + 53;	%advance by the half the symbol duration
+		  biphasesymbols(biphaseindex) = mfsignal(index);
+		  biphaseindex = biphaseindex + 1;
+		  timeToZeroCrossing = 0;
+	  elseif timeToZeroCrossing > 105
+	      biphasesymbols(biphaseindex) = mfsignal(index);
+		  timeToZeroCrossing = 0;
+      end
+	timeToZeroCrossing = timeToZeroCrossing + 1;
+    index = index + 1;
+end
 %Teil 2: ca. alle 105 Werte einen RDS-Wert rauslesen, CLockphase und Carrier
 %Estimation implizit mit dem Korrektor
-while intervalmid+abs(corrector)<length(mfsignal)
-    [~,maxindex]=max(abs(real(mfsignal(intervalmid-4:intervalmid+4))));
-    biphasesymbols(biphaseindex)=mfsignal(maxindex+intervalmid-5);
-    indexliste(biphaseindex)=maxindex+intervalmid-5;
-    biphaseindex=biphaseindex+1;
-    corrector=maxindex-5;
-    intervalindexes(biphaseindex-1)=intervalmid;
-    intervalmid=intervalmid+105-corrector;
-end
+% while intervalmid+abs(corrector)<length(mfsignal)
+%     [~,maxindex]=max(abs(real(mfsignal(intervalmid-4:intervalmid+4))));
+%     biphasesymbols(biphaseindex)=mfsignal(maxindex+intervalmid-5);
+%     indexliste(biphaseindex)=maxindex+intervalmid-5;
+%     biphaseindex=biphaseindex+1;
+%     corrector=maxindex-5;
+%     intervalindexes(biphaseindex-1)=intervalmid;
+%     intervalmid=intervalmid+105-corrector;
+% end

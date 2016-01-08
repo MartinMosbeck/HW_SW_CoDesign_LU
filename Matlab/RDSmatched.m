@@ -37,3 +37,4 @@ f_norm= f ./ f_nyquist;
 
 h=firls(filterorder,f_norm,a);
 
+fvtool(h,'Analysis','freq');
