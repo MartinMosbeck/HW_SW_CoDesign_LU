@@ -15,7 +15,7 @@ entity debugger is
 		
 		output 			: out byte;
 		validout 		: out std_logic;
-		ready			: in stc_logic;
+		ready			: in std_logic
 	);
 end debugger;
 
