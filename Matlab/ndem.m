@@ -20,7 +20,7 @@ mixedsignal99_9MHz=IQ.*exp(-1i*2*pi*(-0.6*10^6)*t');
 clear IQ
 
 %Filter f�r die Frequenzen �ber 100kHz, auskommentieren schaltet Filter aus
-load('fir_lowpass_400_15kHz');%b.mat=400 Punkte, b200.mat=200, b14.mat=14, Erstellt mit filterremeztest
+load('fir_lowpass_400_60kHz.mat');%b.mat=400 Punkte, b200.mat=200, b14.mat=14, Erstellt mit filterremeztest
 b=h';
 % xhist=zeros(length(b),1);
 % for index=1:length(mixedsignal99_9MHz)
@@ -121,7 +121,7 @@ clear a b xhist yhist index
 
 sound(filteredtonsignal,floor(2.5*10^6/Nth));
 
-%RDS, ausgehend von beforedecsignal
+%RDS, ausgehend von fmdemod
 %Ab hier erste Versuche mit RDS
 % 
 f=[-60000:60000];
@@ -130,6 +130,21 @@ t=(0:size(fmdemod)-1)*1/(floor(2.5*10^6));
 IQfmdemod = fmdemod.*cos(2*pi*57000*t')+1i*fmdemod.*cos(2*pi*57000*t'+90);
 mixedsignal=IQfmdemod.*exp(-1i*2*pi*(-57000)*t');
 clear IQfmdemod decisignal
+
+for z = 1:size(mixedsignal)
+	phaseCorrection = angle(mixedsignal(z));
+	if (phaseCorrection > pi/2) & (phaseCorrection < 3*pi/2)
+		phaseCorrectedSig(z) = mixedsignal(z)*exp(-1*i*(phaseCorrection+pi));
+	else
+		phaseCorrectedSig(z) = mixedsignal(z)*exp(-1*i*phaseCorrection);
+	end;
+
+end
+
+figure
+plot(mixedsignal, 'r.');
+hold on
+plot(phaseCorrectedSig, 'g.');
 
 %Matched Filter
 load('RDSmatched.mat');
