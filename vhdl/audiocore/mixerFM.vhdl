@@ -155,7 +155,7 @@ architecture behavior of mixerFM is
 	end function;
 
 begin
-	mix_it: process (Iin,QIn,validin)
+	mix_it: process (Iin,QIn,validin, Iout_cur, Qout_cur, t_cur, validout_cur)
 		variable I_temp : fixpoint;
 		variable Q_temp : fixpoint;
 	begin

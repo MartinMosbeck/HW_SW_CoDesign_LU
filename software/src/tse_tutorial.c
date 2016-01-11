@@ -38,9 +38,9 @@ int main(void)
 	// Open the sgdma receive device
 	sgdma_rx_dev = alt_avalon_sgdma_open ("/dev/sgdma_rx");
 	if (sgdma_rx_dev == NULL) {
-		alt_printf ("Error: could not open scatter-gather dma receive device\n");
+		//alt_printf ("Error: could not open scatter-gather dma receive device\n");
 		return -1;
-	} else alt_printf ("Opened scatter-gather dma receive device\n");
+	} else ;//alt_printf ("Opened scatter-gather dma receive device\n");
 
 	// Initialize the MAC address 
 	IOWR_ALTERA_TSEMAC_MAC_0(TSE_BASE, 0x116E6001); 
@@ -110,13 +110,16 @@ int main(void)
 	// Create sgdma receive descriptor
 	alt_avalon_sgdma_construct_stream_to_mem_desc( &rx_descriptor[0], &rx_descriptor[1], (alt_u32 *)rx_audio[0], BUF_SIZE, 0 );
 	
-	display_print ("Ready to receive data!\n");
+	//display_print ("Ready to receive data!\n");
 	
 	// Set up non-blocking transfer of sgdma receive descriptor
 	alt_avalon_sgdma_do_async_transfer( sgdma_rx_dev, &rx_descriptor[0] );
 
 	act_frame = 0;
-
+char text[80];
+int zeigen=4;
+//int *show=NULL;
+int laststatus=status;
 	while(1) 
 	{
 		// Create sgdma receive descriptor
@@ -130,6 +133,31 @@ int main(void)
 		for (i = 0; i < BUF_SIZE; i ++)
 		{
 			song_ptr_b[i] = rx_audio[act_frame][i];
+		}
+
+		if(zeigen>0){
+			for (i = 0; i < BUF_SIZE; i ++)
+			{
+				sprintf(text, "%u|",song_ptr_b[i]);
+				//display_print(text);
+				alt_printf(text);
+			}
+			/*show=&rx_descriptor[act_frame];
+			sprintf(text,"\n%x",*show);
+			display_print(text);
+			sprintf(text,"\n%x",*(show+2));
+			display_print(text);
+			sprintf(text,"\n%x",*(show+4));
+			display_print(text);
+			sprintf(text,"\n%x",*(show+6));
+			display_print(text);
+			sprintf(text,"\n%x",*(show+7));
+			display_print(text);
+			sprintf(text,"\n%x",(alt_u32*)rx_audio[act_frame]);
+			display_print(text);*/
+			//display_print("\n");
+			alt_printf("\n");
+			//zeigen--;
 		}
 
 		
@@ -153,9 +181,14 @@ int main(void)
 		while (status != 0)
 		{
 			status = alt_avalon_sgdma_check_descriptor_status(&rx_descriptor[act_frame]);
-			sprintf(outputBuffer, "avalon descriptor status: %d\n", status);
-			//display_print(outputBuffer);
+			if(laststatus!=status){
+				sprintf(outputBuffer, "avalon descriptor status: %d\n", status);//-119=EINPROGRESS
+				//display_print(outputBuffer);
+				alt_printf(outputBuffer);
+				laststatus=status;
+			}
 		}
+		status=1;
 	}
 	return 0;
 }

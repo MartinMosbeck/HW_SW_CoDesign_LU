@@ -16,6 +16,8 @@ entity enqueuer is
 		endofpacket 	: in std_logic;
 
 		data_in 		: in sgdma_frame;
+
+		ready_in	: out std_logic;
 		
 		Iout1 			: out byte;
 		Iout2 			: out byte;
@@ -50,12 +52,14 @@ architecture behavior of enqueuer is
 	alias byte3 is data_in(15 downto 8);
 	alias byte4 is data_in(7 downto 0);
 
+	signal ready_in_cur, ready_in_next: std_logic;
+
 begin
 
 	---------------------
 	-- OUT & STATENEXT --
 	---------------------
-	out_statenext: process (state_cur,valid,startofpacket,endofpacket,data_in)
+	out_statenext: process (state_cur,valid,startofpacket,endofpacket,data_in, ready_in_cur, Iout1_cur, Iout2_cur, Qout1_cur, Qout2_cur, validout_cur, outmode_cur, framecounter_cur)
 	begin
 		-- to avoid latches
 		state_next <= state_cur;
@@ -66,11 +70,12 @@ begin
 		validout_next <= validout_cur;
 		outmode_next <= outmode_cur;
 		framecounter_next <= framecounter_cur;
+		ready_in_next <= ready_in_cur;
 	
 		-- if not valid stay in state but set validout=0
 		if(valid ='0') then
 			validout_next <= '0';
-
+			ready_in_next <= '1';
 		elsif(valid = '1') then
 			case state_cur is
 				when IDLE =>
@@ -92,6 +97,7 @@ begin
 				when DATA =>
 					if endofpacket = '1' then
 						state_next <= IDLE;
+						ready_in_next <= '0';
 					end if;
 
 					Iout1_next <= byte1;
@@ -122,6 +128,7 @@ begin
 			validout_cur <= '0';
 			outmode_cur <= '0';
 			framecounter_cur <= 0;
+			ready_in_cur <= '0';
 	
 		elsif rising_edge(clk) then
 			-- internal
@@ -133,6 +140,7 @@ begin
 			validout_cur <= validout_next;
 			outmode_cur <= outmode_next;
 			framecounter_cur <= framecounter_next;
+			ready_in_cur <= ready_in_next;
 			
 			-- outputs
 			Iout1 <= Iout1_next;	
@@ -140,7 +148,8 @@ begin
 			Qout1 <= Qout1_next;	
 			Qout2 <= Qout2_next;	
 			validout <= validout_next;	
-			outmode <= outmode_next;	
+			outmode <= outmode_next;
+			ready_in <= ready_in_next;
 		end if;		
 	
 	end process sync;

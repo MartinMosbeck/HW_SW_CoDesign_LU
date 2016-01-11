@@ -35,11 +35,13 @@ architecture behavior of demodulator is
 	end function;
 begin
 
-	do_demodulation: process (data_in_I,data_in_Q,validin_I)--,validin_Q
+	do_demodulation: process (data_in_I,data_in_Q,validin_I, data_out_cur, validout_cur, data_con_I, data_con_Q)--,validin_Q
 	variable data_I: fixpoint;
 	begin
 		data_out_next <= data_out_cur;
 		validout_next <= validout_cur;
+		data_con_I_next <= data_con_I;
+		data_con_Q_next <= data_con_Q;
 
 		if(validin_I = '0') then--bzw and validin_Q ='0'
 			validout_next <= '0';

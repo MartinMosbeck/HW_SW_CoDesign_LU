@@ -34,6 +34,7 @@ architecture behavior of outputbuffer is
 	signal data_out_cur, data_out_next : byte;
 
 	signal validout_cur, validout_next : std_logic;
+
 	
 	function pos_plus1(pos : bufferpos)
 		return bufferpos is
@@ -49,7 +50,7 @@ begin
 	------------------
 	-- FIFO action --
 	------------------
-	outputbuffer_action: process (validin,data_in,ready)
+	outputbuffer_action: process (validin,data_in,ready, fields_cur, rpos_cur, wpos_cur, data_out_cur, validout_cur)
 	begin
 		-- to avoid latches
 		fields_next <= fields_cur;

@@ -50,7 +50,6 @@ architecture rtl of audiocore is
 begin
 	clk_top <= clk;
 	res_n_top <= res_n;
-	asin_ready <= '1';
 
 	enq : enqueuer 
 	port map
@@ -60,7 +59,8 @@ begin
 		valid 			=> asin_valid,	
 		startofpacket	=> asin_startofpacket,	
 		endofpacket 	=> asin_endofpacket,	
-		data_in 		=> asin_data,	
+		data_in 		=> asin_data,
+		ready_in	=> asin_ready,
 		
 		Iout1 			=> enq_Iout1,			
 		Iout2 			=> enq_Iout2,		

@@ -28,7 +28,7 @@ architecture behavior of decimator is
 	signal cnt_cur, cnt_next : integer range 0 to N-1;
 begin
 
-	do_decimation: process (data_in,validin)
+	do_decimation: process (data_in,validin,data_out_cur,validout_cur,cnt_cur)
 	begin
 		data_out_next <= data_out_cur;
 		validout_next <= validout_cur;

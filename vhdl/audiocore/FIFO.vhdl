@@ -46,7 +46,7 @@ begin
 	------------------
 	-- FIFO action --
 	------------------
-	fifo_action: process (validin,inmode,in1,in2)
+	fifo_action: process (validin,inmode,in1,in2, fields_cur, rpos_cur, wpos_cur, data_out_cur, validout_cur)
 	begin
 		-- to avoid latches
 		fields_next <= fields_cur;

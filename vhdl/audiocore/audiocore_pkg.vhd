@@ -20,6 +20,8 @@ package audiocore_pkg is
 			endofpacket 	: in std_logic;
 
 			data_in 		: in sgdma_frame;
+
+			ready_in	: out std_logic;
 			
 			Iout1 			: out byte;
 			Iout2 			: out byte;

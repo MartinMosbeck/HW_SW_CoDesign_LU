@@ -51,7 +51,7 @@ begin
 	);
 
 
-	do_output: process (data,valid)
+	do_output: process (data,valid, data_out_cur, validout_cur)
 		constant factor : fixpoint := x"1e000000";
 		variable data_fixp : fixpoint;
 		constant v127 : signed(7 downto 0) := "01111111"; 
