@@ -131,17 +131,22 @@ IQfmdemod = fmdemod.*cos(2*pi*57000*t')+1i*fmdemod.*cos(2*pi*57000*t'+90);
 mixedsignal=IQfmdemod.*exp(-1i*2*pi*(-57000)*t');
 clear IQfmdemod decisignal
 
+%phase correction
+phaseCorrection = 0;
 for z = 1:size(mixedsignal)
-	phaseCorrection = angle(mixedsignal(z));
-	if (phaseCorrection > pi/2) & (phaseCorrection < 3*pi/2)
-		phaseCorrectedSig(z) = mixedsignal(z)*exp(-1*i*(phaseCorrection+pi));
+	phaseCorrectedSig(z) = mixedsignal(z) * exp(-1*i*phaseCorrection);
+	phase = angle(mixedsignal(z));
+	if (mod(phase-phaseCorrection, 2*pi) > pi/2) & (mod(phase - phaseCorrection, 2*pi) < 3*pi/2)
+		phaseCorrection = phaseCorrection + ((phase-phaseCorrection)-pi);
 	else
-		phaseCorrectedSig(z) = mixedsignal(z)*exp(-1*i*phaseCorrection);
+		phaseCorrection = phaseCorrection + (phase-phaseCorrection);
 	end;
 end
 
 figure
 plot(phaseCorrectedSig, 'g.');
+hold on
+plot(mixedsignal, 'r.');
 
 %Matched Filter
 load('RDSmatched.mat');
@@ -178,7 +183,7 @@ timeToZeroCrossing=0;
 corrector=0;
 index = 1;
 
-while index+1 < length(mfsignal)
+while index+53 < length(mfsignal)
       %zero-crossing detection
       if(real(mfsignal(index)) > 0 && real(mfsignal(index+1)) < 0) || (real(mfsignal(index)) < 0 && real(mfsignal(index+1)) > 0)
           index = index + 53;	%advance by the half the symbol duration
