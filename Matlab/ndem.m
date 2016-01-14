@@ -5,7 +5,7 @@ fileID = fopen('samples.bin');
 inputdata=fread(fileID,'uint8');
 fclose(fileID);
 %Einlesen und IQ aus Datenpunkten aufbauen
-anzsamp=size(inputdata);%Anz der einzulesenden Datenpunkte
+anzsamp=size(inputdata)/128;%Anz der einzulesenden Datenpunkte
 inputdata=inputdata-127;
 IQ=inputdata(1:2:anzsamp-1)+1i.*inputdata(2:2:anzsamp);
 clear inputdata anzsamp fileID
@@ -38,7 +38,7 @@ b=h';
 
 beforedecsignal=filter(b,1,mixedsignal99_9MHz);
 
-clear mixedsignal99_MHz
+clear mixedsignal99_9MHz
 
 %Dezimation naiv reicht, Parameter Nth muss genau austariert werden
 Nth=20;%nur jedes Nte bit nehmen
@@ -68,7 +68,7 @@ fmdemod = angle(conj(decisignal(1:end-1)).*decisignal(2:end));
 %    end
 % end
 % fmdemod = imag(filtereddecisignal.*conj(decisignal));
-%clear decisignal
+clear decisignal
 
 %Carrier-Frequency-Error ausgleichen! (Highpass 15-20Hz, IIR) Filter
 % load('15HfilterIIR3.mat');
@@ -119,17 +119,32 @@ b=h';
 %Filtervariablen Radioteil aufr�umen
 clear a b xhist yhist index
 
-sound(filteredtonsignal,floor(2.5*10^6/Nth));
+%sound(filteredtonsignal,floor(2.5*10^6/Nth));
 
 %RDS, ausgehend von fmdemod
 %Ab hier erste Versuche mit RDS
 % 
-f=[-60000:60000];
+f=[-6000:6000];
 plot(f,abs(fftshift(fft(fmdemod(1:length(f))))))
-t=(0:size(fmdemod)-1)*1/(floor(2.5*10^6));
-IQfmdemod = fmdemod.*cos(2*pi*57000*t')+1i*fmdemod.*cos(2*pi*57000*t'+90);
+t=(0:size(fmdemod)-1)*1/(floor(2.5*10^6/Nth));
+IQfmdemod = fmdemod.*cos(2*pi*57000*t')+1i*fmdemod.*sin(2*pi*57000*t');
 mixedsignal=IQfmdemod.*exp(-1i*2*pi*(-57000)*t');
-clear IQfmdemod decisignal
+clear IQfmdemod
+
+%synchronisation with respect to the 19kz
+%retrieve pilot frequency
+
+%TODO
+load('fir_bandpass_557_19kHz.mat');
+b=h';
+pilotTone = filter(b,1,mixedsignal);
+f=[-6000:6000];
+figure
+plot(f,abs(fftshift(fft(pilotTone(1:length(f))))),'r');
+hold on
+f=[-size(t,2)/2+1:size(t,2)/2];
+plot(f,abs(fftshift(fft(sin(2*pi*19000*t')/100))),'g');
+
 
 %phase correction
 phaseCorrection = 0;
@@ -143,10 +158,10 @@ for z = 1:size(mixedsignal)
 	end;
 end
 
-figure
-plot(phaseCorrectedSig, 'g.');
-hold on
-plot(mixedsignal, 'r.');
+%figure
+%plot(phaseCorrectedSig, 'g.');
+%hold on
+%plot(mixedsignal, 'r.');
 
 %Matched Filter
 load('RDSmatched.mat');
@@ -208,3 +223,4 @@ end
 %     intervalindexes(biphaseindex-1)=intervalmid;
 %     intervalmid=intervalmid+105-corrector;
 % end
+
