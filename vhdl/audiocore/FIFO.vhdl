@@ -13,7 +13,6 @@ entity FIFO is
 		in1 : in byte;
 		in2 : in byte;
 		validin : in std_logic;
-		inmode : in std_logic;
 
 		validout : out std_logic;
 		data_out : out byte
@@ -46,7 +45,7 @@ begin
 	------------------
 	-- FIFO action --
 	------------------
-	fifo_action: process (validin,inmode,in1,in2, fields_cur, rpos_cur, wpos_cur, data_out_cur, validout_cur)
+	fifo_action: process (validin,in1,in2, fields_cur, rpos_cur, wpos_cur, data_out_cur, validout_cur)
 	begin
 		-- to avoid latches
 		fields_next <= fields_cur;
@@ -57,14 +56,9 @@ begin
 
 		-- action at in
 		if validin = '1' then
-			if inmode = '0' then
-				fields_next(wpos_cur) <= in1;
-				wpos_next <= pos_plus1(wpos_cur);
-			else
-				fields_next(wpos_cur) <= in1;
-				fields_next(pos_plus1(wpos_cur)) <= in2;
-				wpos_next <= pos_plus1(pos_plus1(wpos_cur));
-			end if;
+			fields_next(wpos_cur) <= in1;
+			fields_next(pos_plus1(wpos_cur)) <= in2;
+			wpos_next <= pos_plus1(pos_plus1(wpos_cur));
 		end if;
 
 		-- action at out

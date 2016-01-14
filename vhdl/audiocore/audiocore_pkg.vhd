@@ -20,16 +20,13 @@ package audiocore_pkg is
 			endofpacket 	: in std_logic;
 
 			data_in 		: in sgdma_frame;
-
-			ready_in	: out std_logic;
 			
 			Iout1 			: out byte;
 			Iout2 			: out byte;
 			Qout1 			: out byte;
 			Qout2 			: out byte; 
 
-			validout 		: out std_logic; -- should FIFO take the data
-			outmode 		: out std_logic  -- enqueue 1 or 2
+			validout 		: out std_logic -- should FIFO take the data
 		);
 	end component;
 
@@ -42,7 +39,6 @@ package audiocore_pkg is
 			in1 : in byte;
 			in2 : in byte;
 			validin : in std_logic;
-			inmode : in std_logic;
 
 			validout : out std_logic;
 			data_out : out byte

@@ -35,7 +35,7 @@ architecture behavior of outputbuffer is
 
 	signal validout_cur, validout_next : std_logic;
 
-	signal packetcnt, packetcnt_next: integer range 0 to 64; 
+	signal packetcnt, packetcnt_next: integer range 0 to 255; 
 
 	
 	function pos_plus1(pos : bufferpos)
@@ -52,7 +52,7 @@ begin
 	------------------
 	-- FIFO action --
 	------------------
-	outputbuffer_action: process (validin,data_in,ready, fields_cur, rpos_cur, wpos_cur, data_out_cur, validout_cur)
+	outputbuffer_action: process (validin,data_in,ready, fields_cur, rpos_cur, wpos_cur, data_out_cur, validout_cur, packetcnt)
 	begin
 		-- to avoid latches
 		fields_next <= fields_cur;
@@ -60,6 +60,7 @@ begin
 		wpos_next <= wpos_cur;
 		data_out_next <= data_out_cur;
 		validout_next <= validout_cur;
+		packetcnt_next <= packetcnt;
 
 		-- action at in
 		if validin = '1' then
@@ -68,12 +69,12 @@ begin
 		end if;
 
 		-- action at out
-		if rpos_cur /= wpos_cur and packetcnt /= 64 and ready = '1' then
+		if rpos_cur /= wpos_cur and packetcnt /= 255 and ready = '1' then
 			data_out_next <= fields_cur(rpos_cur);
 			validout_next <= '1';
 			rpos_next <= pos_plus1(rpos_cur);
 			packetcnt_next <= pos_plus1(packetcnt);
-		elsif packetcnt = 64 then
+		elsif packetcnt = 255 then
 			packetcnt_next <= 0;
 			validout_next <= '0';
 		else
@@ -95,7 +96,6 @@ begin
 			wpos_cur <= 0;
 			data_out_cur <= (others=>'0');
 			validout_cur <= '0';
-
 			packetcnt <= 0;
 
 		elsif rising_edge(clk) then
@@ -105,7 +105,6 @@ begin
 			wpos_cur <= wpos_next;
 			data_out_cur <= data_out_next;
 			validout_cur <= validout_next;
-
 			packetcnt <= packetcnt_next;
 			
 			-- outputs

@@ -35,7 +35,7 @@ end entity;
 architecture rtl of audiocore is
 	signal clk_top, res_n_top : std_logic;
 	signal enq_Iout1, enq_Iout2, enq_Qout1, enq_Qout2 : byte;
-	signal enq_validout, enq_outmode : std_logic;
+	signal enq_validout : std_logic;
 	signal fifoI_validout, fifoQ_validout : std_logic;
 	signal fifoI_data_out, fifoQ_data_out : byte;
 	signal mixer_Iout, mixer_Qout : fixpoint;
@@ -50,6 +50,7 @@ architecture rtl of audiocore is
 begin
 	clk_top <= clk;
 	res_n_top <= res_n;
+	asin_ready<='1';
 
 	enq : enqueuer 
 	port map
@@ -60,14 +61,12 @@ begin
 		startofpacket	=> asin_startofpacket,	
 		endofpacket 	=> asin_endofpacket,	
 		data_in 		=> asin_data,
-		ready_in	=> asin_ready,
 		
 		Iout1 			=> enq_Iout1,			
 		Iout2 			=> enq_Iout2,		
 		Qout1 			=> enq_Qout1,		
 		Qout2 			=> enq_Qout2,		
-		validout 		=> enq_validout,		
-		outmode 		=> enq_outmode
+		validout 		=> enq_validout
 	);
 
 	
@@ -81,7 +80,6 @@ begin
 		in1 		=> enq_Iout1,
 		in2 		=> enq_Iout2,
 		validin 	=> enq_validout,
-		inmode 		=> enq_outmode,
 
 		validout 	=> fifoI_validout,
 		data_out 	=> fifoI_data_out
@@ -96,7 +94,6 @@ begin
 		in1 		=> enq_Qout1,
 		in2 		=> enq_Qout2,
 		validin 	=> enq_validout,
-		inmode 		=> enq_outmode,
 
 		validout 	=> fifoQ_validout,
 		data_out 	=> fifoQ_data_out
@@ -182,7 +179,7 @@ begin
 	outbuffer: outputbuffer
 	generic map
 	(
-		N => 32
+		N => 512
 	)
 	port map
 	(

@@ -12,7 +12,7 @@
 #include "system.h"
 #include "display.h"
                  
-#define BUF_SIZE 64
+#define BUF_SIZE 256
 
 // Allocate descriptors in the descriptor_memory (onchip memory) and rx frames (main memory)
 alt_sgdma_descriptor rx_descriptor[3]  __attribute__ (( section ( ".descriptor_memory" )));
@@ -31,7 +31,6 @@ int main(void)
 	
 	unsigned int avail = 0;	
 	unsigned int i = 0;
-	char outputBuffer[1000];
 	int status = 1;
 
 
@@ -116,10 +115,22 @@ int main(void)
 	alt_avalon_sgdma_do_async_transfer( sgdma_rx_dev, &rx_descriptor[0] );
 
 	act_frame = 0;
-char text[80];
-int zeigen=4;
-//int *show=NULL;
-int laststatus=status;
+	//#define DEBUGOUT
+	//#define DEBUGSTATUS
+	#ifdef DEBUGOUT
+		char outtext[80];
+		int zeigen=4;
+	#endif
+	#ifdef DEBUGDESCRIPTOR
+		char text[80];
+		int *show=NULL;
+		int zeigend=4;
+	#endif
+	#ifdef DEBUGSTATUS
+		int laststatus=status;
+		char outputBuffer[1000];
+	#endif
+
 	while(1) 
 	{
 		// Create sgdma receive descriptor
@@ -135,30 +146,37 @@ int laststatus=status;
 			song_ptr_b[i] = rx_audio[act_frame][i];
 		}
 
-		if(zeigen>0){
-			for (i = 0; i < BUF_SIZE; i ++)
-			{
-				sprintf(text, "%u|",song_ptr_b[i]);
-				//display_print(text);
-				alt_printf(text);
+		#ifdef DEBUGOUT
+			if(zeigen>0){
+				for (i = 0; i < BUF_SIZE; i ++)
+				{
+					sprintf(outtext, "%u|",song_ptr_b[i]);
+					//display_print(outtext);
+					alt_printf(outtext);
+				}
+				alt_printf("\n");
+				//zeigen--;
 			}
-			/*show=&rx_descriptor[act_frame];
-			sprintf(text,"\n%x",*show);
-			display_print(text);
-			sprintf(text,"\n%x",*(show+2));
-			display_print(text);
-			sprintf(text,"\n%x",*(show+4));
-			display_print(text);
-			sprintf(text,"\n%x",*(show+6));
-			display_print(text);
-			sprintf(text,"\n%x",*(show+7));
-			display_print(text);
-			sprintf(text,"\n%x",(alt_u32*)rx_audio[act_frame]);
-			display_print(text);*/
-			//display_print("\n");
-			alt_printf("\n");
-			//zeigen--;
-		}
+		#endif
+		#ifdef DEBUGDESCRIPTOR
+			if(zeigend>0){
+				show=&rx_descriptor[act_frame];
+				sprintf(text,"\n%x",*show);
+				display_print(text);
+				sprintf(text,"\n%x",*(show+2));
+				display_print(text);
+				sprintf(text,"\n%x",*(show+4));
+				display_print(text);
+				sprintf(text,"\n%x",*(show+6));
+				display_print(text);
+				sprintf(text,"\n%x",*(show+7));
+				display_print(text);
+				sprintf(text,"\n%x",(alt_u32*)rx_audio[act_frame]);
+				display_print(text);
+				display_print("\n");
+				//zeigend--;
+			}
+		#endif
 
 		
 		for (i = 0; i < BUF_SIZE/2; i ++)
@@ -181,12 +199,14 @@ int laststatus=status;
 		while (status != 0)
 		{
 			status = alt_avalon_sgdma_check_descriptor_status(&rx_descriptor[act_frame]);
-			if(laststatus!=status){
-				sprintf(outputBuffer, "avalon descriptor status: %d\n", status);//-119=EINPROGRESS
-				//display_print(outputBuffer);
-				alt_printf(outputBuffer);
-				laststatus=status;
-			}
+			#ifdef DEBUGSTATUS
+				if(laststatus!=status){
+					sprintf(outputBuffer, "avalon descriptor status: %d\n", status);//-119=EINPROGRESS
+					//display_print(outputBuffer);
+					alt_printf(outputBuffer);
+					laststatus=status;
+				}
+			#endif
 		}
 		status=1;
 	}
