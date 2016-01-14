@@ -34,7 +34,8 @@ architecture behavior of enqueuer is
 	(
 		IDLE,
 		HEADER,
-		DATA	
+		DATA,
+		SPILL	
 	);
 	
 	signal state_cur, state_next: state;
@@ -59,7 +60,7 @@ begin
 	---------------------
 	-- OUT & STATENEXT --
 	---------------------
-	out_statenext: process (state_cur,valid,startofpacket,endofpacket,data_in, ready_in_cur, Iout1_cur, Iout2_cur, Qout1_cur, Qout2_cur, validout_cur, outmode_cur, framecounter_cur)
+	out_statenext: process (state_cur,valid,startofpacket,endofpacket,data_in, Iout1_cur, Iout2_cur, Qout1_cur, Qout2_cur, validout_cur, outmode_cur, framecounter_cur, ready_in_cur)
 	begin
 		-- to avoid latches
 		state_next <= state_cur;
@@ -89,7 +90,7 @@ begin
 						if (byte3 = x"88") and (byte4 = x"b5") then 
 							state_next <= DATA;
 						else
-							state_next <= IDLE;
+							state_next <= SPILL;
 						end if;
 					else
 						framecounter_next <= framecounter_cur + 1;
@@ -106,6 +107,11 @@ begin
 					Qout2_next <= byte4;
 					validout_next <= '1';
 					outmode_next <= '1';
+				when SPILL =>
+					if endofpacket = '1' then
+						state_next <= IDLE;
+						ready_in_next <= '0';
+					end if;
 			end case;
 		end if;
 	end process out_statenext;

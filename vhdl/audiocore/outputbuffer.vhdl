@@ -35,6 +35,8 @@ architecture behavior of outputbuffer is
 
 	signal validout_cur, validout_next : std_logic;
 
+	signal packetcnt, packetcnt_next: integer range 0 to 64; 
+
 	
 	function pos_plus1(pos : bufferpos)
 		return bufferpos is
@@ -66,13 +68,17 @@ begin
 		end if;
 
 		-- action at out
-		if rpos_cur /= wpos_cur and ready = '1' then
+		if rpos_cur /= wpos_cur and packetcnt /= 64 and ready = '1' then
 			data_out_next <= fields_cur(rpos_cur);
 			validout_next <= '1';
 			rpos_next <= pos_plus1(rpos_cur);
+			packetcnt_next <= pos_plus1(packetcnt);
+		elsif packetcnt = 64 then
+			packetcnt_next <= 0;
+			validout_next <= '0';
 		else
 			validout_next <= '0';
-		end if;		
+		end if;	
 
 	end process outputbuffer_action;
 
@@ -90,6 +96,8 @@ begin
 			data_out_cur <= (others=>'0');
 			validout_cur <= '0';
 
+			packetcnt <= 0;
+
 		elsif rising_edge(clk) then
 			-- internal
 			fields_cur <= fields_next;
@@ -97,6 +105,8 @@ begin
 			wpos_cur <= wpos_next;
 			data_out_cur <= data_out_next;
 			validout_cur <= validout_next;
+
+			packetcnt <= packetcnt_next;
 			
 			-- outputs
 			data_out <= data_out_next;
