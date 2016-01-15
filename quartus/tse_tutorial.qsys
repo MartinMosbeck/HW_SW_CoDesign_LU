@@ -942,7 +942,7 @@
   <parameter name="AUTO_DEVICE_SPEEDGRADE" value="7" />
   <parameter name="core_variation" value="MAC_ONLY" />
   <parameter name="deviceFamilyName" value="Cyclone IV E" />
-  <parameter name="eg_addr" value="11" />
+  <parameter name="eg_addr" value="6" />
   <parameter name="ena_hash" value="false" />
   <parameter name="enable_alt_reconfig" value="false" />
   <parameter name="enable_ecc" value="false" />
@@ -961,7 +961,7 @@
   <parameter name="export_pwrdn" value="false" />
   <parameter name="ext_stat_cnt_ena" value="false" />
   <parameter name="ifGMII" value="RGMII" />
-  <parameter name="ing_addr" value="11" />
+  <parameter name="ing_addr" value="14" />
   <parameter name="max_channels" value="1" />
   <parameter name="mdio_clk_div" value="40" />
   <parameter name="nf_phyip_rcfg_enable" value="false" />

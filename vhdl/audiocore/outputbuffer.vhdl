@@ -24,6 +24,13 @@ entity outputbuffer is
 end outputbuffer;
 
 architecture behavior of outputbuffer is
+	type state is
+	(
+		IDLE,
+		WART
+	);
+	signal state_cur, state_next: state;
+
 	type buffer_type is array (N-1 downto 0) of byte;
 	subtype bufferpos is integer range 0 to N-1;
 
@@ -52,7 +59,7 @@ begin
 	------------------
 	-- FIFO action --
 	------------------
-	outputbuffer_action: process (validin,data_in,ready, fields_cur, rpos_cur, wpos_cur, data_out_cur, validout_cur, packetcnt)
+	outputbuffer_action: process (validin,data_in,ready, fields_cur, rpos_cur, wpos_cur, data_out_cur, validout_cur, packetcnt, state_cur)
 	begin
 		-- to avoid latches
 		fields_next <= fields_cur;
@@ -62,6 +69,8 @@ begin
 		validout_next <= validout_cur;
 		packetcnt_next <= packetcnt;
 
+		state_next <= state_cur;
+
 		-- action at in
 		if validin = '1' then
 			fields_next(wpos_cur) <= data_in;
@@ -70,10 +79,16 @@ begin
 
 		-- action at out
 		if rpos_cur /= wpos_cur and packetcnt /= 255 and ready = '1' then
-			data_out_next <= fields_cur(rpos_cur);
-			validout_next <= '1';
-			rpos_next <= pos_plus1(rpos_cur);
-			packetcnt_next <= pos_plus1(packetcnt);
+			case state_cur is
+				when IDLE=>
+					data_out_next <= fields_cur(rpos_cur);
+					validout_next <= '1';
+					rpos_next <= pos_plus1(rpos_cur);
+					packetcnt_next <= pos_plus1(packetcnt);
+					state_next <= WART;
+				when WART=>
+					state_next <= IDLE;
+			end case;
 		elsif packetcnt = 255 then
 			packetcnt_next <= 0;
 			validout_next <= '0';
@@ -98,6 +113,8 @@ begin
 			validout_cur <= '0';
 			packetcnt <= 0;
 
+			state_cur <= IDLE;
+
 		elsif rising_edge(clk) then
 			-- internal
 			fields_cur <= fields_next;
@@ -106,6 +123,8 @@ begin
 			data_out_cur <= data_out_next;
 			validout_cur <= validout_next;
 			packetcnt <= packetcnt_next;
+
+			state_cur <= state_next;
 			
 			-- outputs
 			data_out <= data_out_next;
