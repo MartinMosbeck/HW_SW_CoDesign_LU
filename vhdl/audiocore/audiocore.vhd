@@ -21,7 +21,7 @@ entity audiocore is
 		asin_ready : out std_logic;
 
 		-- stream output
-		asout_data : out std_logic_vector(7 downto 0);--!Sending bytewise to sgdma
+		asout_data : out std_logic_vector(31 downto 0);
 		asout_startofpacket : out std_logic;
 		asout_endofpacket : out std_logic;
 		asout_valid : out std_logic;

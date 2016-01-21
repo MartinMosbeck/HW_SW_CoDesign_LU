@@ -66,20 +66,6 @@ begin
 			validout_next <= '0';
 		else
 			validout_next <= '1';
-			
-			--sign extend
---			if(data(31) = '1' then
---				factor0(63 downto 56) := (others => '1');
---			else
---				factor0(63 downto 56) := (others => '0');
---			end if;
---			factor0(23 downto 0) := (others => '0');
---			factor0(55 downto 24) := data;
---
---			factor1(63 downto 48) := to_signed(30, 16);
---			factor1(47 downto 0) := (others => '0');
---			product := factor0 * factor1;
---			data_out_next <= product(103 downto 71);
 
 			data_fixp := fixpoint_mult(data,factor);
 			data_out_next <= std_logic_vector(data_fixp(31 downto 24) + v127);

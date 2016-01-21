@@ -95,6 +95,19 @@ package audiocore_pkg is
 		);
 	end component;
 
+	component outputlogic is
+		port 
+		(
+			clk : in std_logic;
+			res_n : in std_logic;
+
+			data_in : in fixpoint;
+			validin : in std_logic;
+			
+			data_out : out byte;
+			validout : out std_logic
+		);
+	end component;
 
 	component outputbuffer is
 		generic
@@ -111,22 +124,7 @@ package audiocore_pkg is
 			
 			ready: in std_logic;
 			validout : out std_logic;
-			data_out : out byte
+			data_out : out std_logic_vector(31 downto 0)
 		);
 	end component;
-
-	component outputlogic is
-		port 
-		(
-			clk : in std_logic;
-			res_n : in std_logic;
-
-			data_in : in fixpoint;
-			validin : in std_logic;
-			
-			data_out : out byte;
-			validout : out std_logic
-		);
-	end component;
-
 end package audiocore_pkg;
