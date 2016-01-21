@@ -5,6 +5,10 @@ library work;
 use work.audiocore_pkg.all;
 
 entity FIFO is
+	generic
+	(
+		N: natural := 32
+	);
 	port 
 	(
 		clk : in std_logic;
@@ -20,8 +24,8 @@ entity FIFO is
 end FIFO;
 
 architecture behavior of FIFO is
-	type buffer_type is array (31 downto 0) of byte;
-	subtype bufferpos is integer range 0 to 31;
+	type buffer_type is array (N-1 downto 0) of byte;
+	subtype bufferpos is integer range 0 to N-1;
 
 	signal fields_cur, fields_next : buffer_type;
 
@@ -34,7 +38,7 @@ architecture behavior of FIFO is
 	function pos_plus1(pos : bufferpos)
 		return bufferpos is
 	begin
-		if pos = 31 then
+		if pos = N-1 then
 			return 0;
 		else
 			return pos + 1;

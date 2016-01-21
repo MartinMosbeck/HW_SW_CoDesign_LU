@@ -72,6 +72,10 @@ begin
 	
 
 	fifoI : FIFO
+	generic map
+	(
+		N => 64--standard=32
+	)
 	port map
 	(
 		clk 		=> clk_top,
@@ -86,6 +90,10 @@ begin
 	);
 
 	fifoQ : FIFO
+	generic map
+	(
+		N => 64--standard=32
+	)
 	port map
 	(
 		clk 		=> clk_top,
@@ -179,7 +187,7 @@ begin
 	outbuffer: outputbuffer
 	generic map
 	(
-		N => 512
+		N => 2048
 	)
 	port map
 	(

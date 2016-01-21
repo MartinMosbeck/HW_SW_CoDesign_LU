@@ -31,6 +31,10 @@ package audiocore_pkg is
 	end component;
 
 	component FIFO is
+		generic
+		(
+			N: natural := 32
+		);
 		port
 		(
 			clk : in std_logic;
