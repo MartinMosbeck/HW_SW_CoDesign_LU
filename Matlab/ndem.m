@@ -5,7 +5,7 @@ fileID = fopen('samples.bin');
 inputdata=fread(fileID,'uint8');
 fclose(fileID);
 %Einlesen und IQ aus Datenpunkten aufbauen
-anzsamp=floor(size(inputdata)/(2^5));%Anz der einzulesenden Datenpunkte
+anzsamp=floor(size(inputdata)/(2^6));%Anz der einzulesenden Datenpunkte
 inputdata=inputdata-127;
 IQ=inputdata(1:2:anzsamp-1)+1i.*inputdata(2:2:anzsamp);
 clear inputdata anzsamp fileID
@@ -134,65 +134,91 @@ vco(1)=0;
 kp=0.15; %Proportional constant 
 ki=0.1; %Integrator constant 
 
-%PLL implementation 
+
+symbolRate = 1187.5;
+bitFreq = 2*symbolRate;
+bitDur = floor(fs/(bitFreq));
+vcoRiseEdgeCounter = 0;
+bitDurInVcoEdges = 19000/bitFreq;	%number of rising edges of the 19kHz vco during a bit duration
+phase = 2*pi*2/7;
+
+load('RDSmatched.mat');
+b=h.';
+xhist=zeros(length(b),1);
+samplePoints = zeros(size(pilotTone)) -0.3;
+
 for n=2:length(pilotTone) 
+	%PLL implementation 
 	vco(n)=conj(exp(j*(2*pi*n*f/fs+phi_hat(n-1))));	%Compute VCO 
 	phd_output(n)=imag(pilotTone(n)*vco(n));	%Complex multiply VCO x pilotTone input 
 	e(n)=e(n-1)+(kp+ki)*phd_output(n)-ki*phd_output(n-1);	%Filter integrator 
 	phi_hat(n)=phi_hat(n-1)+e(n);	%Update VCO 
-end; 
 
-%figure
-%plot(pilotTone,'r');
-%hold on
-%plot(0.55*real(vco),'g');
+	%figure
+	%plot(pilotTone,'r');
+	%hold on
+	%plot(0.55*real(vco),'g');
 
-%mixing
-t=(0:size(fmdemod)-1)/(floor(2.5*10^6/Nth));
-vco = vco.';
-vco = vco*exp(i*2*pi*2/7);
-mixedsignal = fmdemod .* vco;
-mixedsignal = mixedsignal .* vco;
-mixedsignal = mixedsignal .* vco;
+	%mixing
+	mixedsignal(n) = fmdemod(n) * vco(n) * exp(i*phase);
+	mixedsignal(n) = mixedsignal(n) * vco(n) * exp(i*phase);
+	mixedsignal(n) = mixedsignal(n) * vco(n) * exp(i*phase);
 
-clear vco pilotTone
+	%Matched Filter
+    xhist=circshift(xhist,[1,0]);
+    xhist(1)=mixedsignal(n);
+    mixedsignal(n)=sum(xhist.*b);
+	
+	%detect rising edge in vco
+	if(real(vco(n-1)) < 0 && real(vco(n)) > 0)
+		vcoRiseEdgeCounter = vcoRiseEdgeCounter + 1;
+	end
+	if vcoRiseEdgeCounter >= bitDurInVcoEdges
+		samplePoints(n) = 0.3;
+		a = sign(mixedsignal(n));
+		phase = phase - 0.3*angle(a*mixedsignal(n));
+		vcoRiseEdgeCounter = 0;
+	end
 
-%Matched Filter
-load('RDSmatched.mat');
-b=h.';
-mfsignal=filter(b,1,mixedsignal);
-clear mixedsignal
+	detect zero-crossing in the mixed signal
+	if(real(mixedsignal(n-1)) > 0 && real(mixedsignal(n)) < 0) || (real(mixedsignal(n-1)) < 0 && real(mixedsignal(n)) > 0)
+		a = sign(mixedsignal(n));
+		phase = phase - angle(a*mixedsignal(n));
+		vcoRiseEdgeCounter
+		vcoRiseEdgeCounter = 0;
+	end
 
-%figure
-%plot(real(mfsignal));
+end
+
+
+figure
+plot(real(mixedsignal),'g');
+hold on
+plot(samplePoints, 'r')
 
 %Symbol detection
-symbolRate = 1187.5;
-bitFreq = 2*symbolRate;
-bitDur = floor(fs/(bitFreq));
-
-biphasesymbols=zeros(ceil(length(mfsignal)/(bitDur+1)),1);
+biphasesymbols=zeros(ceil(length(mixedsignal)/(bitDur+1)),1);
 biphaseindex=1;
 index=1;
 timeToZeroCrossing=0;
 
-while index + floor(bitDur/2) < length(mfsignal)
+while index + floor(bitDur/2) < length(mixedsignal)
       %zero-crossing detection
-      if(real(mfsignal(index)) > 0 && real(mfsignal(index+1)) < 0) || (real(mfsignal(index)) < 0 && real(mfsignal(index+1)) > 0)
+      if(real(mixedsignal(index)) > 0 && real(mixedsignal(index+1)) < 0) || (real(mixedsignal(index)) < 0 && real(mixedsignal(index+1)) > 0)
           index = index + floor(bitDur/2);	%advance by the half the symbol duration
-		  biphasesymbols(biphaseindex) = mfsignal(index);
+		  biphasesymbols(biphaseindex) = mixedsignal(index);
 		  biphaseindex = biphaseindex + 1;
 		  timeToZeroCrossing = 0;
 
 		  %%phase correction? (the phase should actually be fed back to estimate the carrier...)
-		  %phase = (angle(mfsignal(index)) - phaseCorrection);
+		  %phase = (angle(mixedsignal(index)) - phaseCorrection);
 		  %if (mod(phase, 2*pi) > pi/2) & (mod(phase, 2*pi) < 3*pi/2)
 		  %  	phaseCorrection = phaseCorrection + phase-pi;
 		  %else
 		  %  	phaseCorrection = phaseCorrection + phase;
 		  %end;
 	  elseif timeToZeroCrossing > bitDur
-	      biphasesymbols(biphaseindex) = mfsignal(index);
+	      biphasesymbols(biphaseindex) = mixedsignal(index);
 		  timeToZeroCrossing = 0;
       end
 	timeToZeroCrossing = timeToZeroCrossing + 1;
