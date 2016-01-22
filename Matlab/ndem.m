@@ -112,75 +112,50 @@ clear a b xhist yhist index
 
 %synchronization with respect to the 19kHz pilot tone
 %retrieve the pilot tone
-load('fir_bandpass_557_19kHz.mat');
+load('fir_bandpass_165_19kHz.mat');
 b=h.';
 pilotTone = filter(b,1,fmdemod);
+
+f=[-6000:6000];
+%figure
+%f=[-size(t,2)/2+1:size(t,2)/2];
+%plot(f,abs(fftshift(fft(fmdemod(1:length(f))))));
+%hold on
 %plot(f,abs(fftshift(fft(pilotTone(1:length(f))))))
 
-%attempt to build a phase locked loop by hand
-%K0 = 200;	%frequency gain of the variable frequency generator
-%t=(0:size(fmdemod)-1)/(floor(2.5*10^6/Nth));
-%
-%%initialize filter
-%load('fir_lowpass_100_1kHz.mat');
-%b=h';
-%xhist = zeros(length(b),1);
-%filteredProduct = zeros(size(pilotTone));
-%for z = 1:length(pilotTone)
-%	%multiply the pilot tone with the synchronized signal
-%	if z == 1
-%		product = real(pilotTone(z))*0.0;
-%	else
-%		product = real(pilotTone(z))*synchronizedSig;
-%	end
-%
-%	%low pass filtering
-%	 xhist = circshift(xhist,[1,0]);
-%	 xhist(1) = product;
-%	 filteredProduct(z) = sum(xhist.*b);	%the phase difference as steady component in filteredProduct
-%
-%	 %variable frequency synthesis
-%	 synchronizedSig = cos((2*pi*19000 + K0*filteredProduct(z))*t(z));
-%end
-%clear xhist
-
-%Initilize PLL Loop 
+%Initialize PLL Loop 
 f = 19000;	%carrier frequency
 fs = (2.5*10^6)/Nth;
 phi_hat(1)=30; 
 e(1)=0; 
 phd_output(1)=0; 
 vco(1)=0; 
-%Define Loop Filter parameters(Sets damping)
+%Define Loop Filter parameters (sets damping)
 kp=0.15; %Proportional constant 
 ki=0.1; %Integrator constant 
 
 %PLL implementation 
 for n=2:length(pilotTone) 
-	vco(n)=conj(exp(j*(2*pi*n*f/fs+phi_hat(n-1))));%Compute VCO 
-	phd_output(n)=imag(pilotTone(n)*vco(n));%Complex multiply VCO x pilotTone input 
-	e(n)=e(n-1)+(kp+ki)*phd_output(n)-ki*phd_output(n-1);%Filter integrator 
-	phi_hat(n)=phi_hat(n-1)+e(n);%Update VCO 
+	vco(n)=conj(exp(j*(2*pi*n*f/fs+phi_hat(n-1))));	%Compute VCO 
+	phd_output(n)=imag(pilotTone(n)*vco(n));	%Complex multiply VCO x pilotTone input 
+	e(n)=e(n-1)+(kp+ki)*phd_output(n)-ki*phd_output(n-1);	%Filter integrator 
+	phi_hat(n)=phi_hat(n-1)+e(n);	%Update VCO 
 end; 
 
-figure
-plot(pilotTone,'r');
-hold on
-plot(0.55*real(vco),'g');
+%figure
+%plot(pilotTone,'r');
+%hold on
+%plot(0.55*real(vco),'g');
 
 %mixing
 t=(0:size(fmdemod)-1)/(floor(2.5*10^6/Nth));
 vco = vco.';
+vco = vco*exp(i*2*pi*2/7);
 mixedsignal = fmdemod .* vco;
 mixedsignal = mixedsignal .* vco;
 mixedsignal = mixedsignal .* vco;
 
-%f=[-600:600];
-%figure
-%f=[-size(t,2)/2+1:size(t,2)/2];
-%plot(f,abs(fftshift(fft(fmdemod(1:length(f))))),'r');
-
-clear fmdemod vco pilotTone
+clear vco pilotTone
 
 %Matched Filter
 load('RDSmatched.mat');
@@ -188,8 +163,8 @@ b=h.';
 mfsignal=filter(b,1,mixedsignal);
 clear mixedsignal
 
-figure
-plot(real(mfsignal));
+%figure
+%plot(real(mfsignal));
 
 %Symbol detection
 symbolRate = 1187.5;
