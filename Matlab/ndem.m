@@ -5,7 +5,7 @@ fileID = fopen('samples.bin');
 inputdata=fread(fileID,'uint8');
 fclose(fileID);
 %Einlesen und IQ aus Datenpunkten aufbauen
-anzsamp=floor(size(inputdata)/(2^7));%Anz der einzulesenden Datenpunkte
+anzsamp=floor(size(inputdata)/(2^5));%Anz der einzulesenden Datenpunkte
 inputdata=inputdata-127;
 IQ=inputdata(1:2:anzsamp-1)+1i.*inputdata(2:2:anzsamp);
 clear inputdata anzsamp fileID
@@ -20,7 +20,7 @@ clear IQ
 
 %Lowpass filter
 load('fir_lowpass_400_60kHz.mat');%b.mat=400 Punkte, b200.mat=200, b14.mat=14, Erstellt mit filterremeztest
-b=h';
+b=h.';
 % xhist=zeros(length(b),1);
 % for index=1:length(mixedsignal99_9MHz)
 %    xhist=circshift(xhist,[1,0]);
@@ -96,7 +96,7 @@ fmdemod = angle(conj(decisignal(1:end-1)).*decisignal(2:end));
 
 %lowpass filter the audio signal
 load('fir_lowpass_400_15kHz.mat');
-b=h';
+b=h.';
 % xhist=zeros(length(b),1);
 % for index=1:length(filteredtonsignal)
 %     xhist=circshift(xhist,[1,0]);
@@ -126,124 +126,110 @@ clear a b xhist yhist index
 %retrieve the pilot tone
 
 load('fir_bandpass_557_19kHz.mat');
-b=h';
+b=h.';
 pilotTone = filter(b,1,fmdemod);
 %plot(f,abs(fftshift(fft(pilotTone(1:length(f))))))
 
 %attempt to build a phase locked loop by hand
-K0 = 200;	%frequency gain of the variable frequency generator
-t=(0:size(fmdemod)-1)/(floor(2.5*10^6/Nth));
+%K0 = 200;	%frequency gain of the variable frequency generator
+%t=(0:size(fmdemod)-1)/(floor(2.5*10^6/Nth));
+%
+%%initialize filter
+%load('fir_lowpass_100_1kHz.mat');
+%b=h';
+%xhist = zeros(length(b),1);
+%filteredProduct = zeros(size(pilotTone));
+%for z = 1:length(pilotTone)
+%	%multiply the pilot tone with the synchronized signal
+%	if z == 1
+%		product = real(pilotTone(z))*0.0;
+%	else
+%		product = real(pilotTone(z))*synchronizedSig;
+%	end
+%
+%	%low pass filtering
+%	 xhist = circshift(xhist,[1,0]);
+%	 xhist(1) = product;
+%	 filteredProduct(z) = sum(xhist.*b);	%the phase difference as steady component in filteredProduct
+%
+%	 %variable frequency synthesis
+%	 synchronizedSig = cos((2*pi*19000 + K0*filteredProduct(z))*t(z));
+%end
+%clear xhist
 
-%initialize filter
-load('fir_lowpass_100_1kHz.mat');
-b=h';
-xhist = zeros(length(b),1);
-filteredProduct = zeros(size(pilotTone));
-for z = 1:length(pilotTone)
-	%multiply the pilot tone with the synchronized signal
-	if z == 1
-		product = real(pilotTone(z))*0.0;
-	else
-		product = real(pilotTone(z))*synchronizedSig;
-	end
+%Initilize PLL Loop 
+f = 19000;	%carrier frequency
+fs = (2.5*10^6)/Nth;
+phi_hat(1)=30; 
+e(1)=0; 
+phd_output(1)=0; 
+vco(1)=0; 
+%Define Loop Filter parameters(Sets damping)
+kp=0.15; %Proportional constant 
+ki=0.1; %Integrator constant 
 
-	%low pass filtering
-	 xhist = circshift(xhist,[1,0]);
-	 xhist(1) = product;
-	 filteredProduct(z) = sum(xhist.*b);	%the phase difference as steady component in filteredProduct
-
-	 %variable frequency synthesis
-	 synchronizedSig = cos((2*pi*19000 + K0*filteredProduct(z))*t(z));
-end
-clear xhist
+%PLL implementation 
+for n=2:length(pilotTone) 
+	vco(n)=conj(exp(j*(2*pi*n*f/fs+phi_hat(n-1))));%Compute VCO 
+	phd_output(n)=imag(pilotTone(n)*vco(n));%Complex multiply VCO x pilotTone input 
+	e(n)=e(n-1)+(kp+ki)*phd_output(n)-ki*phd_output(n-1);%Filter integrator 
+	phi_hat(n)=phi_hat(n-1)+e(n);%Update VCO 
+end; 
 
 figure
-plot(0.55*cos(2*pi*19000*t' + K0*filteredProduct.*t'), 'g');
+plot(pilotTone,'r');
 hold on
-plot(real(pilotTone),'r');
+plot(0.55*real(vco),'g');
 
 %mixing
 t=(0:size(fmdemod)-1)/(floor(2.5*10^6/Nth));
-mixedsignal = fmdemod.*cos(-2*pi*(57000 + K0*filteredProduct(z))*t')+1i*fmdemod.*sin(-2*pi*(57000 + K0*filteredProduct(z))*t');
-clear fmdemod
+vco = vco.';
+mixedsignal = fmdemod .* vco;
+mixedsignal = mixedsignal .* vco;
+mixedsignal = mixedsignal .* vco;
 
-
-%f=[-6000:6000];
+%f=[-600:600];
 %figure
 %f=[-size(t,2)/2+1:size(t,2)/2];
-%plot(f,abs(fftshift(fft(pilotTone(1:length(f))))),'r');
-%hold on
-%f=[-size(t,2)/2+1:size(t,2)/2];
-%plot(f,abs(fftshift(fft(sin(2*pi*19000*t')/100))),'g');
+%plot(f,abs(fftshift(fft(fmdemod(1:length(f))))),'r');
 
-
-%%"phase correction"
-%phaseCorrection = 0;
-%for z = 1:size(mixedsignal)
-%	phaseCorrectedSig(z) = mixedsignal(z) * exp(-1*i*phaseCorrection);
-%	phase = angle(mixedsignal(z));
-%	if (mod(phase-phaseCorrection, 2*pi) > pi/2) & (mod(phase - phaseCorrection, 2*pi) < 3*pi/2)
-%		phaseCorrection = phaseCorrection + ((phase-phaseCorrection)-pi);
-%	else
-%		phaseCorrection = phaseCorrection + (phase-phaseCorrection);
-%	end;
-%end
-
-%figure
-%plot(phaseCorrectedSig, 'g.');
-%hold on
-%plot(mixedsignal, 'r.');
+clear fmdemod vco pilotTone
 
 %Matched Filter
 load('RDSmatched.mat');
-b=h';
+b=h.';
 mfsignal=filter(b,1,mixedsignal);
 clear mixedsignal
 
-%Symbol detection
+figure
+plot(real(mfsignal));
 
-biphasesymbols=zeros(ceil(length(mfsignal)/52),1);
-indexliste=zeros(ceil(length(mfsignal)/52),1)-1;
+%Symbol detection
+symbolFreq = 1187.5;
+bitFreq = symbolFreq;
+bitDur = floor(fs/(bitFreq));
+
+biphasesymbols=zeros(ceil(length(mfsignal)/(bitDur+1)),1);
 biphaseindex=1;
 index=1;
-lastbiphase=0;
-startvalueindex1=1;
-startvalueindex2=1;
 timeToZeroCrossing=0;
-%Teil 1: guten Startwert finden durch suchen eines Zero-Crossings
-%while index+1<length(mfsignal)
-     %Debugausgabe
-%      if (real(mfsignal(index))>0 && real(mfsignal(index+1))<0)
-%         startvalue(1,startvalueindex1)=index;
-%         startvalueindex1=startvalueindex1+1;
-%      elseif (real(mfsignal(index))<0 && real(mfsignal(index+1))>0)
-%         startvalue(2,startvalueindex2)=index;
-%         startvalueindex2=startvalueindex2+1;
-%      end
-%      zero-crossing detection
-%     index=index+1;
-%end
-%intervalmid=53+startvalue(1,1);%Zero +53 ist ca. der h�chste (Daten-)wert
-corrector=0;
-index = 1;
-phaseCorrection = 0;
 
-while index+26< length(mfsignal)
+while index + floor(bitDur/2) < length(mfsignal)
       %zero-crossing detection
-      if(real(exp(1*i*phaseCorrection)*mfsignal(index)) > 0 && real(exp(1*i*phaseCorrection)*mfsignal(index+1)) < 0) || (real(exp(1*i*phaseCorrection)*mfsignal(index)) < 0 && real(exp(1*i*phaseCorrection)*mfsignal(index+1)) > 0)
-          index = index + 26;	%advance by the half the symbol duration
+      if(real(mfsignal(index)) > 0 && real(mfsignal(index+1)) < 0) || (real(mfsignal(index)) < 0 && real(mfsignal(index+1)) > 0)
+          index = index + floor(bitDur/2);	%advance by the half the symbol duration
 		  biphasesymbols(biphaseindex) = mfsignal(index);
 		  biphaseindex = biphaseindex + 1;
 		  timeToZeroCrossing = 0;
 
-		  %phase correction? (the phase should actually be fed back to estimate the carrier...)
-		  phase = (angle(mfsignal(index)) - phaseCorrection);
-		  if (mod(phase, 2*pi) > pi/2) & (mod(phase, 2*pi) < 3*pi/2)
-		    	phaseCorrection = phaseCorrection + phase-pi;
-		  else
-		    	phaseCorrection = phaseCorrection + phase;
-		  end;
-	  elseif timeToZeroCrossing > 52
+		  %%phase correction? (the phase should actually be fed back to estimate the carrier...)
+		  %phase = (angle(mfsignal(index)) - phaseCorrection);
+		  %if (mod(phase, 2*pi) > pi/2) & (mod(phase, 2*pi) < 3*pi/2)
+		  %  	phaseCorrection = phaseCorrection + phase-pi;
+		  %else
+		  %  	phaseCorrection = phaseCorrection + phase;
+		  %end;
+	  elseif timeToZeroCrossing > bitDur
 	      biphasesymbols(biphaseindex) = mfsignal(index);
 		  timeToZeroCrossing = 0;
       end
