@@ -97,18 +97,6 @@ fmdemod = angle(conj(decisignal(1:end-1)).*decisignal(2:end));
 %lowpass filter the audio signal
 load('fir_lowpass_400_15kHz.mat');
 b=h.';
-% xhist=zeros(length(b),1);
-% for index=1:length(filteredtonsignal)
-%     xhist=circshift(xhist,[1,0]);
-%     xhist(1)=filteredtonsignal(index);
-%     filteredtonsignal(index)=sum(xhist.*b);
-%     if mod(index,100000) == 0%"Fortschritts"balken
-%         fprintf('%i|',index);
-%     end
-%     if mod(index,1400000) == 0
-%         fprintf('\n');
-%     end
-% end
  filteredtonsignal=filter(b,1,fmdemod);
  
 
@@ -124,7 +112,6 @@ clear a b xhist yhist index
 
 %synchronization with respect to the 19kHz pilot tone
 %retrieve the pilot tone
-
 load('fir_bandpass_557_19kHz.mat');
 b=h.';
 pilotTone = filter(b,1,fmdemod);
@@ -205,8 +192,8 @@ figure
 plot(real(mfsignal));
 
 %Symbol detection
-symbolFreq = 1187.5;
-bitFreq = symbolFreq;
+symbolRate = 1187.5;
+bitFreq = 2*symbolRate;
 bitDur = floor(fs/(bitFreq));
 
 biphasesymbols=zeros(ceil(length(mfsignal)/(bitDur+1)),1);
@@ -239,16 +226,3 @@ end
 
 figure
 plot(biphasesymbols,'g.');
-
-%Teil 2: ca. alle 105 Werte einen RDS-Wert rauslesen, CLockphase und Carrier
-%Estimation implizit mit dem Korrektor
-% while intervalmid+abs(corrector)<length(mfsignal)
-%     [~,maxindex]=max(abs(real(mfsignal(intervalmid-4:intervalmid+4))));
-%     biphasesymbols(biphaseindex)=mfsignal(maxindex+intervalmid-5);
-%     indexliste(biphaseindex)=maxindex+intervalmid-5;
-%     biphaseindex=biphaseindex+1;
-%     corrector=maxindex-5;
-%     intervalindexes(biphaseindex-1)=intervalmid;
-%     intervalmid=intervalmid+105-corrector;
-% end
-
