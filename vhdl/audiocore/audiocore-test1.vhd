@@ -72,7 +72,7 @@ begin
 	fifoI : FIFO
 	generic map
 	(
-		N => 64--standard=32
+		N => 32--testweise 64
 	)
 	port map
 	(
@@ -87,113 +87,19 @@ begin
 		data_out 	=> fifoI_data_out
 	);
 
-	fifoQ : FIFO
-	generic map
-	(
-		N => 64--standard=32
-	)
-	port map
-	(
-		clk 		=> clk_top,
-		res_n 		=> res_n_top,
-
-		in1 		=> enq_Qout1,
-		in2 		=> enq_Qout2,
-		validin 	=> enq_validout,
-
-		validout 	=> fifoQ_validout,
-		data_out 	=> fifoQ_data_out
-	);
-
-	mix : mixerFM
-	port map
-	(
-		clk 		=> clk_top,
-		res_n 		=> res_n_top,
-
-		Iin 		=> fifoI_data_out,
-		Qin 		=> fifoQ_data_out,
-		validin		=> fifoI_validout,	--could also use fifoQ_validout
-			
-		Iout 		=> mixer_Iout,
-		Qout 		=> mixer_Qout,
-		validout 	=> mixer_validout
-	);
-
-	Ideci : decimator
-	generic map
-	(
-		N => 20
-	)
-	port map
-	(
-		clk 		=> clk_top,
-		res_n		=> res_n_top,
-
-		data_in 	=> mixer_Iout,
-		validin 	=> mixer_validout,
-			
-		data_out 	=> Ideci_data_out,
-		validout 	=> Ideci_validout
-	);
-
-	Qdeci : decimator
-	generic map
-	(
-		N => 20
-	)
-	port map
-	(
-		clk 		=> clk_top,
-		res_n		=> res_n_top,
-
-		data_in 	=> mixer_Qout,
-		validin 	=> mixer_validout,
-			
-		data_out 	=> Qdeci_data_out,
-		validout 	=> Qdeci_validout
-	);
-
-	FMdemod : demodulator
-	port map
-	(
-		clk			=> clk_top,
-		res_n		=> res_n_top,
-
-		data_in_I	=> Ideci_data_out,
-		data_in_Q	=> Qdeci_data_out,
-		validin_I	=> Ideci_validout,
-		validin_Q	=> Qdeci_validout,
-
-		data_out 	=> FMdemod_data_out,
-		validout 	=> FMdemod_validout
-	);
-
-	outlogic : outputlogic
-	port map
-	(
-		clk => clk_top,
-		res_n => res_n_top,
-
-		data_in => FMdemod_data_out,
-		validin => FMdemod_validout,
-
-		data_out => outlogic_data_out,
-		validout => outlogic_validout
-	);
-
+	--TEST 1
 	outbuffer: outputbuffer
 	generic map
 	(
-		N => 4096 --standard 512
+		N => 512--testweise 4096
 	)
 	port map
 	(
 		clk => clk_top,
 		res_n => res_n_top,
 
-		data_in => outlogic_data_out,
-		validin => outlogic_validout,
+		data_in => fifoI_data_out,
+		validin => fifoI_validout,
 		
 		ready => asout_ready,
 		validout => asout_valid,
