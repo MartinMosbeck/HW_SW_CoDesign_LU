@@ -10,9 +10,6 @@ inputdata=inputdata-127;
 IQ=inputdata(1:2:anzsamp-1)+1i.*inputdata(2:2:anzsamp);
 clear inputdata anzsamp fileID
 
-%f=[-6000000:6000000];
-%plot(f,abs(fftshift(fft(IQ(1:length(f))))))
-
 %Mixer
 t=(0:size(IQ)-1)*1/(2.5*10^6);%von 0-IQsize*1/Fs         
 mixedsignal99_9MHz=IQ.*exp(-1i*2*pi*(-0.6*10^6)*t');
@@ -50,49 +47,8 @@ clear beforedecsignal
 
 %FM-Demodulation
 fmdemod = angle(conj(decisignal(1:end-1)).*decisignal(2:end));
-%alternative - does not work
-% load('fmdemodulate30.mat');
-% b=hd';
-% xhist=zeros(length(b),1);
-% filtereddecisignal=decisignal;
-% for index=1:length(decisignal)
-%    xhist=circshift(xhist,[1,0]);
-%    xhist(1)=decisignal(index);
-%    filtereddecisignal(index)=sum(xhist.*b);
-%    if mod(index,100000) == 0%"Fortschritts"balken
-%        fprintf('%i|',index);
-%    end
-%    if mod(index,1400000) == 0
-%        fprintf('\n');
-%    end
-% end
-% fmdemod = imag(filtereddecisignal.*conj(decisignal));
-%clear decisignal
-
-%Carrier-Frequency-Error ausgleichen! (Highpass 15-20Hz, IIR) Filter
-% load('15HfilterIIR3.mat');
-% b=b';
-% a=a';
-% b=b.*(1/a(1));
-% a=a.*(1/a(1));
-% a=a(2:end);
-% a=-1*a;
-% xhist=zeros(length(b),1);
-% yhist=zeros(length(a),1);
-% for index=1:length(fmdemod)
-%     xhist=circshift(xhist,[1,0]);
-%     xhist(1)=fmdemod(index);
-%     fmdemod(index)=sum(xhist.*b)+sum(yhist.*a);
-%     yhist=circshift(yhist,[1,0]);
-%     yhist(1)=fmdemod(index);
-%     if mod(index,100000) == 0%"Fortschritts"balken
-%         fprintf('%i|',index);
-%     end
-%     if mod(index,1400000) == 0
-%         fprintf('\n');
-%     end
-% end
-%Bis hier Filter auskommentieren
+%eig ja fmdemod = imag(conj(decisignal(1:end-1)).*decisignal(2:end)); in HW
+clear decisignal
 
 %lowpass filter the audio signal
 load('fir_lowpass_400_15kHz.mat');
@@ -107,21 +63,12 @@ clear a b xhist yhist index
 
 
 %RDS from fmdemod
-%f=[-600:600];
-%plot(f,abs(fftshift(fft(fmdemod(1:length(f))))))
 
 %synchronization with respect to the 19kHz pilot tone
 %retrieve the pilot tone
 load('fir_bandpass_165_19kHz.mat');
 b=h.';
 pilotTone = filter(b,1,fmdemod);
-
-f=[-6000:6000];
-%figure
-%f=[-size(t,2)/2+1:size(t,2)/2];
-%plot(f,abs(fftshift(fft(fmdemod(1:length(f))))));
-%hold on
-%plot(f,abs(fftshift(fft(pilotTone(1:length(f))))))
 
 %Initialize PLL Loop 
 f = 19000;	%carrier frequency
@@ -228,7 +175,7 @@ for n=2:length(pilotTone)
 	%reset samples
 	if timeAfterZeroCrossing == 0 || timeAfterZeroCrossing == bitDur
 		samples = zeros(100,1);
-	end
+    end
 
 	%bit interpretation
 	if timeAfterZeroCrossing == floor(11/16*bitDur)		%11/16 should make sure that we sample over the peak but not too far after that
@@ -277,34 +224,36 @@ for n=2:length(pilotTone)
 		samples(timeAfterZeroCrossing) = mixedsignal(n);
 	end;
 end
+clear a b e f n fs locked phd_output phi_hat pilotTone sampleCounter ki kp
+clear samples startOfSymbol t symbCurSign symbOldSign symbolRate h phase
+clear validThreshold vco vcoRiseEdgeCounter xhist bitDur bitDurInVcoEdges
+clear biphaseindex bitFreq index timeAfterZeroCrossing fmdemod symbolsIndex
 
-
+draw=0;
+if draw==1
 figure
 plot(real(mixedsignal),'g');
 hold on
 plot(samplePoints, 'r.')
 hold on
 plot(samplePointsBiphase, 'b.');
+end
+clear mixedsignal samplePoints samplePointsBiphase
 
-%Symbol detection
-
-%while index + floor(bitDur/2) < length(mixedsignal)
-%      %zero-crossing detection
-%      if(real(mixedsignal(index)) > 0 && real(mixedsignal(index+1)) < 0) || (real(mixedsignal(index)) < 0 && real(mixedsignal(index+1)) > 0)
-%          index = index + floor(bitDur/2);	%advance by the half the symbol duration
-%		  biphasesymbols(biphaseindex) = mixedsignal(index);
-%		  biphaseindex = biphaseindex + 1;
-%		  timeAfterZeroCrossing = 0;
-%	  elseif timeAfterZeroCrossing > bitDur
-%	      biphasesymbols(biphaseindex) = mixedsignal(index);
-%		  biphaseindex = biphaseindex + 1;
-%		  timeAfterZeroCrossing = 0;
-%      end
-%	timeAfterZeroCrossing = timeAfterZeroCrossing + 1;
-%    index = index + 1;
-%end
-
+if draw == 1
 figure
 plot(biphasesymbols,'b.');
 hold on
 plot(symbols,'g.');
+end
+clear biphasesymbols
+
+%In Binärrepresentation bringen
+bitsymbols=sign(real(symbols));
+bitsymbols(bitsymbols(:,1)==-1)=0;
+clear symbols
+%Decodieren (=Aufruf des C-Teils, ein Teil soll dann aber HW werden)
+fileID = fopen('decodedaten.txt','w');
+fprintf(fileID,'%d\n',bitsymbols);
+fclose(fileID);
+!./RDSDecoder < decodedaten.txt
