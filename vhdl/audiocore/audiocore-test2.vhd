@@ -106,7 +106,7 @@ begin
 	);
 
 	--TEST 2
-	FII-FOO : FIFO
+	FII_FOO : FIFO
 	generic map
 	(
 		N => 32
