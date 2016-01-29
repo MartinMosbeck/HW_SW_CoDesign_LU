@@ -83,10 +83,10 @@ ki=0.1; %Integrator constant
 
 
 symbolRate = 1187.5;
-bitFreq = 2*symbolRate;
-bitDur = floor(fs/(bitFreq));
+bitRate = 2*symbolRate;
+bitDur = floor(fs/(bitRate));
 vcoRiseEdgeCounter = 0;
-bitDurInVcoEdges = 19000/bitFreq;	%number of rising edges of the 19kHz vco during a bit duration
+bitDurInVcoEdges = 19000/bitRate;	%number of rising edges of the 19kHz vco during a bit duration
 phase = 2*pi*5/12;
 
 %matched filter
@@ -266,7 +266,7 @@ end
 clear a b e f n fs phd_output phi_hat sampleCounter ki kp
 clear startOfSymbol t symbCurSign symbOldSign symbolRate h phase
 clear sampleDur vcoRiseEdgeCounter xhist bitDur bitDurInVcoEdges
-clear bitFreq index timeAfterZeroCrossing fmdemod
+clear bitRate index timeAfterZeroCrossing fmdemod
 
 draw = 1;
 if draw == 1
