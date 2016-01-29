@@ -12,7 +12,7 @@
 #include "system.h"
 #include "display.h"
                  
-#define BUF_SIZE 256
+#define BUF_SIZE 32768
 
 // Allocate descriptors in the descriptor_memory (onchip memory) and rx frames (main memory)
 alt_sgdma_descriptor rx_descriptor[3]  __attribute__ (( section ( ".descriptor_memory" )));
@@ -102,24 +102,32 @@ int main(void)
 		display_print("Could not allocate memory for audio file!\n");
 		return -1;
 	}
-	
+
 	// Set a pointer (byte-access) to the song
 	song_ptr_b = (unsigned char*)song;
-	
+	//Speicherbereich löschen um ihn sicher leer zu haben
+	for(i=0; i<BUF_SIZE; i++){
+		song_ptr_b[i]=0;
+	}
+
 	// Create sgdma receive descriptor
 	alt_avalon_sgdma_construct_stream_to_mem_desc( &rx_descriptor[0], &rx_descriptor[1], (alt_u32 *)rx_audio[0], BUF_SIZE, 0 );
-	
+
 	//display_print ("Ready to receive data!\n");
 	
 	// Set up non-blocking transfer of sgdma receive descriptor
 	alt_avalon_sgdma_do_async_transfer( sgdma_rx_dev, &rx_descriptor[0] );
+	//Auch am Anfang auf Daten warten
+	while (alt_avalon_sgdma_check_descriptor_status(&rx_descriptor[act_frame])!=0);
 
 	act_frame = 0;
-	//#define DEBUGOUT
+	#define DEBUGOUT
 	//#define DEBUGSTATUS
 	#ifdef DEBUGOUT
 		char outtext[80];
 		int zeigen=4;
+		sprintf(outtext, "%02x\n\n",NULL);
+		alt_printf(outtext);
 	#endif
 	#ifdef DEBUGDESCRIPTOR
 		char text[80];
@@ -149,11 +157,11 @@ int main(void)
 			if(zeigen>0){
 				for (i = 0; i < BUF_SIZE; i ++)
 				{
-					sprintf(outtext, "%u|",song_ptr_b[i]);
+					sprintf(outtext, "%02x",song_ptr_b[i]);
 					//display_print(outtext);
 					alt_printf(outtext);
 				}
-				alt_printf("\n");
+				//alt_printf("\n");
 				//zeigen--;
 			}
 		#endif

@@ -72,7 +72,7 @@ begin
 	fifoI : FIFO
 	generic map
 	(
-		N => 64--standard=32
+		N => 128--standard=32
 	)
 	port map
 	(
@@ -90,7 +90,7 @@ begin
 	fifoQ : FIFO
 	generic map
 	(
-		N => 64--standard=32
+		N => 128--standard=32
 	)
 	port map
 	(
