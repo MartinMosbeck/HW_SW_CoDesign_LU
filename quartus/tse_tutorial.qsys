@@ -333,6 +333,11 @@
    internal="audio_and_video_config_0.external_interface"
    type="conduit"
    dir="end" />
+ <interface
+   name="audiocore"
+   internal="audiocore.conduits"
+   type="conduit"
+   dir="end" />
  <interface name="clk" internal="sys_clk.clk_in" type="clock" dir="end" />
  <interface name="clk_125" internal="altpll.c1" type="clock" dir="start" />
  <interface

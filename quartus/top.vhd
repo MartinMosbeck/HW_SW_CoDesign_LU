@@ -46,7 +46,9 @@ entity top is
 		AUD_BCLK      : in    std_logic  := 'X'; 
 		AUD_DACDAT    : out   std_logic; 
 		AUD_DACLRCK   : in    std_logic  := 'X';
-		AUD_XCK       : out   std_logic
+		AUD_XCK       : out   std_logic;
+		
+		GPIO		  : out std_logic_vector(35 downto 0)
 );
 end entity;
 
@@ -108,7 +110,12 @@ architecture arch of top is
             audio_BCLK                          : in    std_logic                     := 'X';             -- BCLK
             audio_DACDAT                        : out   std_logic;                                        -- DACDAT
             audio_DACLRCK                       : in    std_logic                     := 'X';             -- DACLRCK
-				audio_clk_clk                       : out   std_logic                                         -- audio clock
+				audio_clk_clk                       : out   std_logic;                                         -- audio clock
+				
+			audiocore_valid                     : out   std_logic;                                        -- valid
+            audiocore_ready                     : out   std_logic;                                        -- ready
+            audiocore_data                      : out   std_logic_vector(31 downto 0);                    -- data
+            audiocore_clk                       : out   std_logic   
         );
     end component tse_tutorial;
 	
@@ -205,7 +212,12 @@ begin
 			audio_BCLK                          => AUD_BCLK,
 			audio_DACDAT                        => AUD_DACDAT,
 			audio_DACLRCK                       => AUD_DACLRCK,
-			audio_clk_clk                       => AUD_XCK
+			audio_clk_clk                       => AUD_XCK,
+			
+			audiocore_valid                     => GPIO(32),                     --                       audiocore.valid
+            audiocore_ready                     => GPIO(33),                     --                                .ready
+            audiocore_data                      => GPIO(31 downto 0),                      --                                .data
+            audiocore_clk                       => GPIO(34)
 		);
 		
 		LTM_CLK <= clk_25;
