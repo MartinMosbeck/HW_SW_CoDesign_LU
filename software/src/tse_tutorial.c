@@ -12,7 +12,7 @@
 #include "system.h"
 #include "display.h"
                  
-#define BUF_SIZE 32768
+#define BUF_SIZE 32768//*256=8388608 Daten im DBGOUT-Mode
 
 // Allocate descriptors in the descriptor_memory (onchip memory) and rx frames (main memory)
 alt_sgdma_descriptor rx_descriptor[3]  __attribute__ (( section ( ".descriptor_memory" )));
@@ -96,17 +96,18 @@ int main(void)
 			 );
 
 	// Allocate memory for the song (SDRAM)
-	song = (short*)malloc(BUF_SIZE);
+	song = (short*)malloc(BUF_SIZE*256);
 	if (song == NULL)
 	{
 		display_print("Could not allocate memory for audio file!\n");
 		return -1;
 	}
+	int versatz=0;
 
 	// Set a pointer (byte-access) to the song
 	song_ptr_b = (unsigned char*)song;
 	//Speicherbereich löschen um ihn sicher leer zu haben
-	for(i=0; i<BUF_SIZE; i++){
+	for(i=0; i<BUF_SIZE*256; i++){
 		song_ptr_b[i]=0;
 	}
 
@@ -121,11 +122,17 @@ int main(void)
 	while (alt_avalon_sgdma_check_descriptor_status(&rx_descriptor[act_frame])!=0);
 
 	act_frame = 0;
-	#define DEBUGOUT
+	//#define DEBUGOUT
+	#define DBGOUT
 	//#define DEBUGSTATUS
 	#ifdef DEBUGOUT
 		char outtext[80];
 		int zeigen=4;
+		sprintf(outtext, "%02x\n\n",NULL);
+		alt_printf(outtext);
+	#endif
+	#ifdef DBGOUT
+		char outtext[80];
 		sprintf(outtext, "%02x\n\n",NULL);
 		alt_printf(outtext);
 	#endif
@@ -139,7 +146,13 @@ int main(void)
 		char outputBuffer[1000];
 	#endif
 
-	while(1) 
+	#ifdef DBGOUT
+	int runs;
+	for(runs=0; runs<256; runs++)
+	#endif
+	#ifndef DBGOUT
+	while(1)
+	#endif 
 	{
 		// Create sgdma receive descriptor
 		alt_avalon_sgdma_construct_stream_to_mem_desc( &rx_descriptor[1-act_frame], &rx_descriptor[2-act_frame], (alt_u32 *)rx_audio[1-act_frame], BUF_SIZE, 0 );
@@ -150,8 +163,16 @@ int main(void)
 		// Copy received frame to song 
 		for (i = 0; i < BUF_SIZE; i ++)
 		{
+			#ifdef DBGOUT
+			song_ptr_b[versatz+i] = rx_audio[act_frame][i];
+			#endif
+			#ifndef DBGOUT
 			song_ptr_b[i] = rx_audio[act_frame][i];
+			#endif
 		}
+		#ifdef DBGOUT
+		versatz+=BUF_SIZE;
+		#endif
 
 		#ifdef DEBUGOUT
 			if(zeigen>0){
@@ -185,7 +206,7 @@ int main(void)
 			}
 		#endif
 
-		
+		#ifndef DBGOUT
 		for (i = 0; i < BUF_SIZE/2; i ++)
 		{
 			//Play the received frame
@@ -199,6 +220,7 @@ int main(void)
 			// and write it to the FIFO for left channel
 			IOWR_32DIRECT(AUDIO_BASE,12,sample);
 		}
+		#endif
 		
 		act_frame = 1-act_frame;
 		
@@ -217,5 +239,17 @@ int main(void)
 		}
 		status=1;
 	}
+
+	#ifdef DBGOUT
+		for (i = 0; i < BUF_SIZE*256; i ++)
+		{
+			sprintf(outtext, "%02x",song_ptr_b[i]);
+			//display_print(outtext);
+			alt_printf(outtext);
+		}
+		alt_printf("\n\nENDE");
+		sprintf(outtext, "%c",4);
+		alt_printf(outtext);
+	#endif
 	return 0;
 }
