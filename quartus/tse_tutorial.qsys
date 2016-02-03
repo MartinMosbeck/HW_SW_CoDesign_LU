@@ -29,7 +29,7 @@
    {
       datum baseAddress
       {
-         value = "135275712";
+         value = "135288000";
          type = "String";
       }
    }
@@ -45,7 +45,7 @@
    {
       datum baseAddress
       {
-         value = "135275744";
+         value = "135288032";
          type = "String";
       }
    }
@@ -61,7 +61,7 @@
    {
       datum baseAddress
       {
-         value = "135275728";
+         value = "135288016";
          type = "String";
       }
    }
@@ -125,7 +125,7 @@
    {
       datum baseAddress
       {
-         value = "135275760";
+         value = "135288048";
          type = "String";
       }
    }
@@ -157,7 +157,7 @@
    {
       datum baseAddress
       {
-         value = "135272448";
+         value = "135284736";
          type = "String";
       }
    }
@@ -189,7 +189,7 @@
    {
       datum baseAddress
       {
-         value = "135275648";
+         value = "135287872";
          type = "String";
       }
    }
@@ -205,7 +205,7 @@
    {
       datum baseAddress
       {
-         value = "135275584";
+         value = "135287808";
          type = "String";
       }
    }
@@ -229,7 +229,7 @@
    {
       datum baseAddress
       {
-         value = "135275520";
+         value = "135287936";
          type = "String";
       }
    }
@@ -245,7 +245,7 @@
    {
       datum baseAddress
       {
-         value = "135274496";
+         value = "135286784";
          type = "String";
       }
    }
@@ -627,7 +627,7 @@
   <parameter name="initMemContent" value="true" />
   <parameter name="initializationFileName" value="onchip_mem.hex" />
   <parameter name="instanceID" value="NONE" />
-  <parameter name="memorySize" value="4096" />
+  <parameter name="memorySize" value="8300" />
   <parameter name="readDuringWriteMode" value="DONT_CARE" />
   <parameter name="resetrequest_enabled" value="true" />
   <parameter name="simAllowMRAMContentsFile" value="false" />
@@ -707,7 +707,7 @@
   <parameter name="dataAddrWidth" value="28" />
   <parameter name="dataMasterHighPerformanceAddrWidth" value="1" />
   <parameter name="dataMasterHighPerformanceMapParam" value="" />
-  <parameter name="dataSlaveMapParam"><![CDATA[<address-map><slave name='sdram.s1' start='0x0' end='0x8000000' /><slave name='main_memory.s1' start='0x8080000' end='0x80CB000' /><slave name='descriptor_memory.s1' start='0x8100000' end='0x8101000' /><slave name='nios2.debug_mem_slave' start='0x8101800' end='0x8102000' /><slave name='tse.control_port' start='0x8102000' end='0x8102400' /><slave name='textmode_controller.avalon_slave' start='0x8102400' end='0x8102440' /><slave name='sgdma_tx.csr' start='0x8102440' end='0x8102480' /><slave name='sgdma_rx.csr' start='0x8102480' end='0x81024C0' /><slave name='altpll.pll_slave' start='0x81024C0' end='0x81024D0' /><slave name='audio_and_video_config_0.avalon_av_config_slave' start='0x81024D0' end='0x81024E0' /><slave name='audio.avalon_audio_slave' start='0x81024E0' end='0x81024F0' /><slave name='jtag_uart.avalon_jtag_slave' start='0x81024F0' end='0x81024F8' /></address-map>]]></parameter>
+  <parameter name="dataSlaveMapParam"><![CDATA[<address-map><slave name='sdram.s1' start='0x0' end='0x8000000' /><slave name='main_memory.s1' start='0x8080000' end='0x80CB000' /><slave name='descriptor_memory.s1' start='0x8100000' end='0x810206C' /><slave name='nios2.debug_mem_slave' start='0x8104800' end='0x8105000' /><slave name='tse.control_port' start='0x8105000' end='0x8105400' /><slave name='sgdma_tx.csr' start='0x8105400' end='0x8105440' /><slave name='sgdma_rx.csr' start='0x8105440' end='0x8105480' /><slave name='textmode_controller.avalon_slave' start='0x8105480' end='0x81054C0' /><slave name='altpll.pll_slave' start='0x81054C0' end='0x81054D0' /><slave name='audio_and_video_config_0.avalon_av_config_slave' start='0x81054D0' end='0x81054E0' /><slave name='audio.avalon_audio_slave' start='0x81054E0' end='0x81054F0' /><slave name='jtag_uart.avalon_jtag_slave' start='0x81054F0' end='0x81054F8' /></address-map>]]></parameter>
   <parameter name="data_master_high_performance_paddr_base" value="0" />
   <parameter name="data_master_high_performance_paddr_size" value="0" />
   <parameter name="data_master_paddr_base" value="0" />
@@ -746,7 +746,7 @@
   <parameter name="icache_tagramBlockType" value="Automatic" />
   <parameter name="impl" value="Fast" />
   <parameter name="instAddrWidth" value="28" />
-  <parameter name="instSlaveMapParam"><![CDATA[<address-map><slave name='main_memory.s1' start='0x8080000' end='0x80CB000' /><slave name='nios2.debug_mem_slave' start='0x8101800' end='0x8102000' /></address-map>]]></parameter>
+  <parameter name="instSlaveMapParam"><![CDATA[<address-map><slave name='main_memory.s1' start='0x8080000' end='0x80CB000' /><slave name='nios2.debug_mem_slave' start='0x8104800' end='0x8105000' /></address-map>]]></parameter>
   <parameter name="instructionMasterHighPerformanceAddrWidth" value="1" />
   <parameter name="instructionMasterHighPerformanceMapParam" value="" />
   <parameter name="instruction_master_high_performance_paddr_base" value="0" />
@@ -989,7 +989,7 @@
    start="nios2.data_master"
    end="audio.avalon_audio_slave">
   <parameter name="arbitrationPriority" value="1" />
-  <parameter name="baseAddress" value="0x081024e0" />
+  <parameter name="baseAddress" value="0x081054e0" />
   <parameter name="defaultConnection" value="false" />
  </connection>
  <connection
@@ -998,7 +998,7 @@
    start="nios2.data_master"
    end="audio_and_video_config_0.avalon_av_config_slave">
   <parameter name="arbitrationPriority" value="1" />
-  <parameter name="baseAddress" value="0x081024d0" />
+  <parameter name="baseAddress" value="0x081054d0" />
   <parameter name="defaultConnection" value="false" />
  </connection>
  <connection
@@ -1007,7 +1007,7 @@
    start="nios2.data_master"
    end="jtag_uart.avalon_jtag_slave">
   <parameter name="arbitrationPriority" value="1" />
-  <parameter name="baseAddress" value="0x081024f0" />
+  <parameter name="baseAddress" value="0x081054f0" />
   <parameter name="defaultConnection" value="false" />
  </connection>
  <connection
@@ -1016,7 +1016,7 @@
    start="nios2.data_master"
    end="textmode_controller.avalon_slave">
   <parameter name="arbitrationPriority" value="1" />
-  <parameter name="baseAddress" value="0x08102400" />
+  <parameter name="baseAddress" value="0x08105480" />
   <parameter name="defaultConnection" value="false" />
  </connection>
  <connection
@@ -1025,7 +1025,7 @@
    start="nios2.data_master"
    end="tse.control_port">
   <parameter name="arbitrationPriority" value="1" />
-  <parameter name="baseAddress" value="0x08102000" />
+  <parameter name="baseAddress" value="0x08105000" />
   <parameter name="defaultConnection" value="false" />
  </connection>
  <connection
@@ -1034,7 +1034,7 @@
    start="nios2.data_master"
    end="sgdma_rx.csr">
   <parameter name="arbitrationPriority" value="1" />
-  <parameter name="baseAddress" value="0x08102480" />
+  <parameter name="baseAddress" value="0x08105440" />
   <parameter name="defaultConnection" value="false" />
  </connection>
  <connection
@@ -1043,7 +1043,7 @@
    start="nios2.data_master"
    end="sgdma_tx.csr">
   <parameter name="arbitrationPriority" value="1" />
-  <parameter name="baseAddress" value="0x08102440" />
+  <parameter name="baseAddress" value="0x08105400" />
   <parameter name="defaultConnection" value="false" />
  </connection>
  <connection
@@ -1052,7 +1052,7 @@
    start="nios2.data_master"
    end="nios2.debug_mem_slave">
   <parameter name="arbitrationPriority" value="1" />
-  <parameter name="baseAddress" value="0x08101800" />
+  <parameter name="baseAddress" value="0x08104800" />
   <parameter name="defaultConnection" value="false" />
  </connection>
  <connection
@@ -1061,7 +1061,7 @@
    start="nios2.data_master"
    end="altpll.pll_slave">
   <parameter name="arbitrationPriority" value="1" />
-  <parameter name="baseAddress" value="0x081024c0" />
+  <parameter name="baseAddress" value="0x081054c0" />
   <parameter name="defaultConnection" value="false" />
  </connection>
  <connection
@@ -1129,7 +1129,7 @@
    start="nios2.instruction_master"
    end="nios2.debug_mem_slave">
   <parameter name="arbitrationPriority" value="1" />
-  <parameter name="baseAddress" value="0x08101800" />
+  <parameter name="baseAddress" value="0x08104800" />
   <parameter name="defaultConnection" value="false" />
  </connection>
  <connection
