@@ -14,13 +14,15 @@
                  
 #define BUF_SIZE 32768//*256=8388608 Daten im DBGOUT-Mode
 
+#define DBGOUT_SIZE 32
+
 //#define DEBUGOUT
 #define DBGOUT
 //#define DEBUGSTATUS
 
 // Allocate descriptors in the descriptor_memory (onchip memory) and rx frames (main memory)
 //alt_sgdma_descriptor rx_descriptor[3]  __attribute__ (( section ( ".descriptor_memory" )));
-alt_sgdma_descriptor rx_descriptor[257]  __attribute__ (( section ( ".descriptor_memory" )));//NUR FÜR DBGOUT!!! descripter memory standard 4096 bytes
+alt_sgdma_descriptor rx_descriptor[DBGOUT_SIZE+1]  __attribute__ (( section ( ".descriptor_memory" )));//NUR FÜR DBGOUT!!! descripter memory standard 4096 bytes
 unsigned char rx_audio[2][BUF_SIZE]    __attribute__ (( section ( ".main_memory" )));
 
 int main(void)
@@ -101,7 +103,7 @@ int main(void)
 			 );
 
 	// Allocate memory for the song (SDRAM)
-	song = (short*)malloc(BUF_SIZE*256);
+	song = (short*)malloc(BUF_SIZE*DBGOUT_SIZE);
 	if (song == NULL)
 	{
 		display_print("Could not allocate memory for audio file!\n");
@@ -112,7 +114,7 @@ int main(void)
 	// Set a pointer (byte-access) to the song
 	song_ptr_b = (unsigned char*)song;
 	//Speicherbereich löschen um ihn sicher leer zu haben
-	for(i=0; i<BUF_SIZE*256; i++){
+	for(i=0; i<BUF_SIZE*DBGOUT_SIZE; i++){
 		song_ptr_b[i]=0;
 	}
 
@@ -144,7 +146,7 @@ int main(void)
 
 	#ifdef DBGOUT
 	int runs;
-	for(runs=0; runs<256; runs++){
+	for(runs=0; runs<DBGOUT_SIZE; runs++){
 		alt_avalon_sgdma_construct_stream_to_mem_desc( &rx_descriptor[runs], &rx_descriptor[runs+1],&song_ptr_b[runs*BUF_SIZE] , BUF_SIZE, 0 );
 	}
 	alt_avalon_sgdma_do_async_transfer(sgdma_rx_dev, &rx_descriptor[0]);
@@ -164,7 +166,7 @@ int main(void)
 	
 	#ifdef DBGOUT_ALT
 	int runs;
-	for(runs=1; runs<255; runs++)
+	for(runs=1; runs<DBGOUT_SIZE-1; runs++)
 	#endif
 	#ifndef DBGOUT_ALT
 	while(1)
@@ -258,7 +260,7 @@ int main(void)
 	#endif
 
 	#ifdef DBGOUT//und DBGOUT_ALT
-		for (i = 0; i < BUF_SIZE*256; i ++)
+		for (i = 0; i < BUF_SIZE*DBGOUT_SIZE; i ++)
 		{
 			sprintf(outtext, "%02x",song_ptr_b[i]);
 			//display_print(outtext);

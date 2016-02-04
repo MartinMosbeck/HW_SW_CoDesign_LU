@@ -52,6 +52,8 @@ architecture rtl of audiocore is
 	signal FMdemod_validout : std_logic;
 	signal outlogic_data_out: byte;
 	signal outlogic_validout: std_logic;
+
+	signal fifoIbyte, fifoQbyte: fixpoint;
 	
 	signal outvalid: std_logic;
 	signal outdata: std_logic_vector(31 downto 0);
@@ -120,6 +122,40 @@ begin
 		data_out 	=> fifoQ_data_out
 	);
 
+	Ideci : decimator
+	generic map
+	(
+		N => 20
+	)
+	port map
+	(
+		clk 		=> clk_top,
+		res_n		=> res_n_top,
+
+		data_in (7 downto 0)	=> signed(fifoI_data_out),
+		validin 	=> fifoI_validout,
+			
+		data_out 	=> fifoIbyte,
+		validout 	=> Ideci_validout
+	);
+
+	Qdeci : decimator
+	generic map
+	(
+		N => 20
+	)
+	port map
+	(
+		clk 		=> clk_top,
+		res_n		=> res_n_top,
+
+		data_in(7 downto 0) 	=> signed(fifoQ_data_out),
+		validin 	=> fifoQ_validout,
+			
+		data_out 	=> fifoQbyte,
+		validout 	=> Qdeci_validout
+	);
+
 	--TEST 2
 	FII_FOO : FIFO
 	generic map
@@ -131,9 +167,9 @@ begin
 		clk 		=> clk_top,
 		res_n 		=> res_n_top,
 
-		in1 		=> fifoI_data_out,
-		in2 		=> fifoQ_data_out,
-		validin 	=> fifoI_validout,
+		in1 		=> std_logic_vector(fifoIbyte(7 downto 0)),
+		in2 		=> std_logic_vector(fifoQbyte(7 downto 0)),
+		validin 	=> Ideci_validout,
 
 		validout 	=> outlogic_validout,
 		data_out 	=> outlogic_data_out

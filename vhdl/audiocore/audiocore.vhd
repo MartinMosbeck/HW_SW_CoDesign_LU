@@ -72,7 +72,7 @@ begin
 	fifoI : FIFO
 	generic map
 	(
-		N => 128--standard=32
+		N => 32--standard=32
 	)
 	port map
 	(
@@ -90,7 +90,7 @@ begin
 	fifoQ : FIFO
 	generic map
 	(
-		N => 128--standard=32
+		N => 32--standard=32
 	)
 	port map
 	(
@@ -185,7 +185,7 @@ begin
 	outbuffer: outputbuffer
 	generic map
 	(
-		N => 4096 --standard 512
+		N => 512 --standard 512
 	)
 	port map
 	(
