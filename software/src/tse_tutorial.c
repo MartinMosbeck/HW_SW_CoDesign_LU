@@ -262,6 +262,9 @@ int main(void)
 	#ifdef DBGOUT//und DBGOUT_ALT
 		for (i = 0; i < BUF_SIZE*DBGOUT_SIZE; i ++)
 		{
+			/*if(i%64==0){
+				alt_printf("\n");
+			}*/
 			sprintf(outtext, "%02x",song_ptr_b[i]);
 			//display_print(outtext);
 			alt_printf(outtext);
