@@ -12,9 +12,6 @@
 #include "system.h"
 #include "display.h"
 #include "graphics.h"
-
-extern const char *snowman;
-extern const char *bunny;
                  
 #define BUF_SIZE 32768//*256=8388608 Daten im DBGOUT-Mode
 
@@ -85,7 +82,7 @@ int main(void)
 	display_clear();
 	
 	// Print a message
-	display_print(bunny);
+	display_print(bunny);//bunny || snowman
 
 	// Allocate memory for the song (SDRAM)
 	song = (short*)malloc(BUF_SIZE*DBGOUT_SIZE);
@@ -105,7 +102,7 @@ int main(void)
 
 	#ifndef DBGOUT
 	// Create sgdma receive descriptor
-	alt_avalon_sgdma_construct_stream_to_mem_desc( &rx_descriptor[0], &rx_descriptor[1], &song_ptr_b[0], BUF_SIZE, 0 );//(alt_u32 *)rx_audio[0] orignal
+	alt_avalon_sgdma_construct_stream_to_mem_desc( &rx_descriptor[0], &rx_descriptor[1], (alt_u32 *)rx_audio[0], BUF_SIZE, 0 );
 
 	//display_print ("Ready to receive data!\n");
 	
@@ -117,14 +114,9 @@ int main(void)
 
 	act_frame = 0;
 
-	#ifdef DEBUGOUT
+	#if defined(DEBUGOUT)||defined(DBGOUT)
 		char outtext[80];
 		int zeigen=4;
-		sprintf(outtext, "%02x\n\n",NULL);
-		alt_printf(outtext);
-	#endif
-	#ifdef DBGOUT//und DBGOUT_ALT
-		char outtext[80];
 		sprintf(outtext, "%02x\n\n",NULL);
 		alt_printf(outtext);
 	#endif
@@ -139,26 +131,15 @@ int main(void)
 	#endif
 
 	#ifndef DBGOUT
-	#ifdef DEBUGDESCRIPTOR
-		char text[80];
-		int *show=NULL;
-		int zeigend=4;
-	#endif
 	#ifdef DEBUGSTATUS
 		int laststatus=status;
 		char outputBuffer[1000];
 	#endif
 	
-	#ifdef DBGOUT_ALT
-	int runs;
-	for(runs=1; runs<DBGOUT_SIZE-1; runs++)
-	#endif
-	#ifndef DBGOUT_ALT
 	while(1)
-	#endif 
 	{
 		// Create sgdma receive descriptor
-		alt_avalon_sgdma_construct_stream_to_mem_desc( &rx_descriptor[1-act_frame], &rx_descriptor[2-act_frame],&song_ptr_b[runs*BUF_SIZE] , BUF_SIZE, 0 );//(alt_u32 *)rx_audio[1-act_frame] original
+		alt_avalon_sgdma_construct_stream_to_mem_desc( &rx_descriptor[1-act_frame], &rx_descriptor[2-act_frame],(alt_u32 *)rx_audio[1-act_frame] , BUF_SIZE, 0 );
 
 		// Set up non-blocking transfer of sgdma receive descriptor
 		alt_avalon_sgdma_do_async_transfer( sgdma_rx_dev, &rx_descriptor[1-act_frame] );
@@ -166,16 +147,8 @@ int main(void)
 		// Copy received frame to song ///HIER
 		for (i = 0; i < BUF_SIZE; i ++)
 		{
-			#ifdef DBGOUT_ALT
-			song_ptr_b[versatz+i] = rx_audio[act_frame][i];
-			#endif
-			#ifndef DBGOUT_ALT
 			song_ptr_b[i] = rx_audio[act_frame][i];
-			#endif
 		}
-		#ifdef DBGOUT_ALT
-		versatz+=BUF_SIZE;
-		#endif /// BIS HIER auskommentieren für DBGOUT_ALT mit song_ptr_b sgdma statt dem originalem rx_audio
 
 		#ifdef DEBUGOUT
 			if(zeigen>0){
@@ -189,27 +162,7 @@ int main(void)
 				//zeigen--;
 			}
 		#endif
-		#ifdef DEBUGDESCRIPTOR
-			if(zeigend>0){
-				show=&rx_descriptor[act_frame];
-				sprintf(text,"\n%x",*show);
-				display_print(text);
-				sprintf(text,"\n%x",*(show+2));
-				display_print(text);
-				sprintf(text,"\n%x",*(show+4));
-				display_print(text);
-				sprintf(text,"\n%x",*(show+6));
-				display_print(text);
-				sprintf(text,"\n%x",*(show+7));
-				display_print(text);
-				sprintf(text,"\n%x",(alt_u32*)rx_audio[act_frame]);
-				display_print(text);
-				display_print("\n");
-				//zeigend--;
-			}
-		#endif
 
-		#ifndef DBGOUT_ALT
 		for (i = 0; i < BUF_SIZE/2; i ++)
 		{
 			//Play the received frame
@@ -223,7 +176,6 @@ int main(void)
 			// and write it to the FIFO for left channel
 			IOWR_32DIRECT(AUDIO_BASE,12,sample);
 		}
-		#endif
 		
 		act_frame = 1-act_frame;
 		
@@ -244,7 +196,7 @@ int main(void)
 	}
 	#endif
 
-	#ifdef DBGOUT//und DBGOUT_ALT
+	#ifdef DBGOUT
 		for (i = 0; i < BUF_SIZE*DBGOUT_SIZE; i ++)
 		{
 			/*if(i%64==0){
