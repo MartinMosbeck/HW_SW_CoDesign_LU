@@ -44,7 +44,8 @@ architecture behavior of outputbuffer is
 
 	signal packetcnt, packetcnt_next: integer range 0 to 255; 
 
-	signal data_cnt_next, data_cnt_cur: bufferpos;
+	subtype cntpos is integer range 0 to N;
+	signal data_cnt_next, data_cnt_cur: cntpos;
 
 	
 	function pos_plus1(pos : bufferpos)

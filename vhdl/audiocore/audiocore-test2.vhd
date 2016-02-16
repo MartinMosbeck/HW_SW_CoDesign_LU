@@ -25,13 +25,7 @@ entity audiocore is
 		asout_startofpacket : out std_logic;
 		asout_endofpacket : out std_logic;
 		asout_valid : out std_logic;
-		asout_ready : in std_logic;
-		
-		--debug output
-		gpio_0_31 : out std_logic_vector(31 downto 0);--asout_data
-		gpio_32 : out std_logic;--valid
-		gpio_33 : out std_logic;--ready
-		gpio_34 : out std_logic--clk
+		asout_ready : in std_logic
 	);
 end entity;
 
@@ -54,20 +48,11 @@ architecture rtl of audiocore is
 	signal outlogic_validout: std_logic;
 
 	signal fifoIbyte, fifoQbyte: fixpoint;
-	
-	signal outvalid: std_logic;
-	signal outdata: std_logic_vector(31 downto 0);
 
 begin
 	clk_top <= clk;
 	res_n_top <= res_n;
 	asin_ready<='1';
-
-	--debug
-	gpio_0_31 <= outdata;
-	gpio_32 <= outvalid;
-	gpio_33 <= asout_ready;
-	gpio_34 <= clk;
 	
 	enq : enqueuer 
 	port map
@@ -189,11 +174,9 @@ begin
 		validin => outlogic_validout,
 		
 		ready => asout_ready,
-		validout => outvalid,
-		data_out => outdata
+		validout => asout_valid,
+		data_out => asout_data
 	);
-	asout_valid<=outvalid;
-	asout_data<=outdata;
 
 	--Buffer does not send start/end
 	asout_startofpacket <= '0';

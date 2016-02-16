@@ -127,21 +127,3 @@ set_interface_property reset CMSIS_SVD_VARIABLES ""
 set_interface_property reset SVD_ADDRESS_GROUP ""
 
 add_interface_port reset res_n reset_n Input 1
-
-
-# 
-# connection point conduits
-# 
-add_interface conduits conduit end
-set_interface_property conduits associatedClock ""
-set_interface_property conduits associatedReset ""
-set_interface_property conduits ENABLED true
-set_interface_property conduits EXPORT_OF ""
-set_interface_property conduits PORT_NAME_MAP ""
-set_interface_property conduits CMSIS_SVD_VARIABLES ""
-set_interface_property conduits SVD_ADDRESS_GROUP ""
-
-add_interface_port conduits gpio_32 valid Output 1
-add_interface_port conduits gpio_33 ready Output 1
-add_interface_port conduits gpio_0_31 data Output 32
-add_interface_port conduits gpio_34 clk Output 1
