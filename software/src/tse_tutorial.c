@@ -11,6 +11,10 @@
 #include "altera_eth_tse_regs.h"
 #include "system.h"
 #include "display.h"
+#include "graphics.h"
+
+extern const char *snowman;
+extern const char *bunny;
                  
 #define BUF_SIZE 32768//*256=8388608 Daten im DBGOUT-Mode
 
@@ -81,26 +85,7 @@ int main(void)
 	display_clear();
 	
 	// Print a message
-	display_print(
-	"                      ::::::    .-~~\\        ::::::\n"
-    "                      |::::|   /     \\ _     |::::|\n"
-    "              _ _     l~~~~!   ~x   .-~_)_   l~~~~!\n"
-    "           .-~   ~-.   \\  /      ~x\\\".-~   ~-. \\  /\n"
-    "    _     /         \\   ||    _  ( /         \\ ||\n"
-    "    ||   T  o  o     Y  ||    ||  T o  o      Y||\n"
-    "  ==:l   l   <       !  (3  ==:l  l  <        !(3\n"
-    "     \\\\   \\  .__/   /  /||     \\\\  \\  ._/    / ||\n"
-    "      \\\\ ,r\\\"-,___.-'r.//||      \\\\,r\\\"-,___.-'r/||\n"
-    "       }^ \\.( )   _.'//.||      }^\\. ( )  _.-//||\n"
-    "      /    }~Xi--~  //  ||     /   }~Xi--~  // ||\\\\\n"
-    "     Y    Y I\\ \\    \\\"   ||    Y   Y I\\ \\    \\\"  || Y\n"
-    "     |    | |o\\ \\       ||    |   | |o\\ \\      || |\n"
-    "     |    l_l  Y T      ||    |   l_l  Y T     || |\n"
-    "     l      'o l_j      |!    l     \\\"o l_j     || !\n"
-    "      \\                 ||     \\               ||/\n"
-    "    .--^.     o       .^||.  .--^.     o       ||--. -   \n"
-    "         \\\\           ~  `'        \\\"           ~`'"
-			 );
+	display_print(bunny);
 
 	// Allocate memory for the song (SDRAM)
 	song = (short*)malloc(BUF_SIZE*DBGOUT_SIZE);
