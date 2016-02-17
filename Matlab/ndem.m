@@ -1,11 +1,18 @@
 clear
 close all
 
+debugread=0;
+if debugread==0
 fileID = fopen('samples.bin');
 inputdata=fread(fileID,'uint8');
 fclose(fileID);
+else
+%! nur hexwerte in einer Zeile erlaubt!!!
+inputdata=textread('ethtst.txt','%2c');
+inputdata=hex2dec(char(inputdata));
+end
 %Einlesen und IQ aus Datenpunkten aufbauen
-anzsamp=floor(size(inputdata)/(2^8));%Anz der einzulesenden Datenpunkte
+anzsamp=floor(size(inputdata)/(2^0));%Anz der einzulesenden Datenpunkte
 inputdata=inputdata-127;
 IQ=inputdata(1:2:anzsamp-1)+1i.*inputdata(2:2:anzsamp);
 clear inputdata anzsamp fileID
@@ -268,7 +275,7 @@ clear startOfSymbol t symbCurSign symbOldSign symbolRate h phase
 clear sampleDur vcoRiseEdgeCounter xhist bitDur bitDurInVcoEdges
 clear bitRate index timeAfterZeroCrossing fmdemod
 
-draw = 1;
+draw = 0;
 if draw == 1
 	figure
 	plot(real(mixedsignal),'g');
