@@ -144,5 +144,5 @@ int main(int argc, char *argv[]){
 		printf("%02x",outputvector[i]);
 	}
 	free(outputvector);
-	return 0;
+	return EXIT_SUCCESS;
 }
