@@ -1,4 +1,6 @@
 #include <stdio.h>
+#include <stdint.h>
+#include <stdlib.h>
 
 int lookup_sin[25]={
 	0b00000000000000000000000000000000,
@@ -54,34 +56,36 @@ int lookup_cos[25]={
 	0b11111111000000100000010011000110,
 	0b00000000000100000001001100001010
 };
-
+//########PROBLEM!!!#########################################################
 int fixpoint_mult(int a, int b){
-	long ergebnis=a*b;
-	return (int)ergebnis>>24;
+	//((long)a*(long)b)>>24, dann aber nur die ersten 32 nehmen ohne ieine Konvertierung
+	//(((long)0xFF000000*(long)Qout)>>24)&0xFFFFFFFF bei Aufruf von 128
+	//Bzw. (((long)0xFF000000*(long)Qout)&0x00FFFFFFFF000000)>>24
+	long ergebnis=(long)a*(long)b;
+	return (ergebnis&0x00FFFFFFFF000000)>>24;
 }
 
 int main(int argc, char *argv[]){
-	//!!!x86 ist Little Endian
+	//!!!x86 ist Little Endian, ist aber egal
 	//Einlesen der Enqueuerten Daten (I,Q,I,Q,...)
 	FILE *eingabeDatei;
 	eingabeDatei=fopen(argv[1],"r");
 	if(NULL==eingabeDatei)printf("Datei kann nicht geöffnet werden!\n");
 	fseek(eingabeDatei,0L,SEEK_END);
 	size_t anzBytes=ftell(eingabeDatei)/2;
-	fseek(eingabeDatei,0L,SEEK_SET);
-	char c[2];
-	//char bytes[anzBytes];
-	char I[anzBytes/2];
-	char Q[anzBytes/2];
+	fseek(eingabeDatei,0L,SEEK_SET);//rewind(eingabeDatei);
+	uint8_t c[2]="";
+	uint8_t * I=malloc(anzBytes/2);
+	uint8_t * Q=malloc(anzBytes/2);
 	int i=0;
-	do{
+	for(;i<anzBytes/2;){
 		c[0]=fgetc(eingabeDatei);
 		c[1]=fgetc(eingabeDatei);
 		I[i]=strtol(c, NULL, 16);
 		c[0]=fgetc(eingabeDatei);
 		c[1]=fgetc(eingabeDatei);
 		Q[i++]=strtol(c,NULL,16);
-	}while(c[0] != EOF);
+	}
 	fclose(eingabeDatei);
 	
 	//Decoding bis zum Output
@@ -95,7 +99,7 @@ int main(int argc, char *argv[]){
 	
 	int validvalid=0;
 	int data_fixp;
-	char outputvector[anzBytes/2/20/2];
+	uint8_t * outputvector=malloc(anzBytes/2/20/2);
 	int outputpos=0;
 	for(i=0; i<anzBytes/2; ++i){
 		//Mixer
@@ -133,9 +137,12 @@ int main(int argc, char *argv[]){
 			}
 		}
 	}
+	free(I);
+	free(Q);
 	
 	for(i=0; i<=outputpos; i++){
-		printf("%02x\n",outputvector[i]);
+		printf("%02x",outputvector[i]);
 	}
+	free(outputvector);
 	return 0;
 }
