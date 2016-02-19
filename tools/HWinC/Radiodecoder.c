@@ -56,12 +56,14 @@ int lookup_cos[25]={
 	0b11111111000000100000010011000110,
 	0b00000000000100000001001100001010
 };
-//########PROBLEM!!!#########################################################
-int fixpoint_mult(int a, int b){
-	//((long)a*(long)b)>>24, dann aber nur die ersten 32 nehmen ohne ieine Konvertierung
-	//(((long)0xFF000000*(long)Qout)>>24)&0xFFFFFFFF bei Aufruf von 128
-	//Bzw. (((long)0xFF000000*(long)Qout)&0x00FFFFFFFF000000)>>24
-	long ergebnis=(long)a*(long)b;
+
+uint32_t fixpoint_mult(uint32_t a, uint32_t b){
+	uint64_t ergebnis=0, i;
+	for(i=0; i<32; i++){
+		if(1<<i & b){
+			ergebnis+=((uint64_t)a<<i);
+		}
+	}
 	return (ergebnis&0x00FFFFFFFF000000)>>24;
 }
 
@@ -89,16 +91,16 @@ int main(int argc, char *argv[]){
 	fclose(eingabeDatei);
 	
 	//Decoding bis zum Output
-	int Itemp, Qtemp;//"Signale"
-	int Iout, Qout;
+	uint32_t Itemp, Qtemp;//"Signale"
+	uint32_t Iout, Qout;
 	int t_cur=0;
 	int deci_cnt=0;
 	int valid=0;
-	int I_con=0, Q_con=0;
-	int demodulated;
+	uint32_t I_con=0, Q_con=0;
+	uint32_t demodulated;
 	
 	int validvalid=0;
-	int data_fixp;
+	uint32_t data_fixp;
 	uint8_t * outputvector=malloc(anzBytes/2/20/2);
 	int outputpos=0;
 	for(i=0; i<anzBytes/2; ++i){
