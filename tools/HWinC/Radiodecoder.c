@@ -99,7 +99,7 @@ int main(int argc, char *argv[]){
 	uint32_t I_con=0, Q_con=0;
 	uint32_t demodulated;
 	
-	int validvalid=0;
+	int validvalid=1;
 	uint32_t data_fixp;
 	uint8_t * outputvector=malloc(anzBytes/2/20/2);
 	int outputpos=0;
