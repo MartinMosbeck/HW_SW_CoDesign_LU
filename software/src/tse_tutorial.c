@@ -14,8 +14,9 @@
 #include "graphics.h"
                  
 #define BUF_SIZE 32768//*256=8388608 Daten im DBGOUT-Mode
+#define BUF_SIZE_DBGOUT 65532//65532 is das max was ein SGDMA kann
 
-#define DBGOUT_SIZE 32
+#define DBGOUT_SIZE 1024//1 wenn kein DBG -max derzeit 1024
 
 //#define DEBUGOUT
 #define DBGOUT
@@ -24,7 +25,9 @@
 // Allocate descriptors in the descriptor_memory (onchip memory) and rx frames (main memory)
 //alt_sgdma_descriptor rx_descriptor[3]  __attribute__ (( section ( ".descriptor_memory" )));
 alt_sgdma_descriptor rx_descriptor[DBGOUT_SIZE+1]  __attribute__ (( section ( ".descriptor_memory" )));//NUR FÜR DBGOUT!!! descripter memory standard 4096 bytes
+#ifndef DBGOUT
 unsigned char rx_audio[2][BUF_SIZE]    __attribute__ (( section ( ".main_memory" )));
+#endif
 
 int main(void)
 {	
@@ -85,7 +88,11 @@ int main(void)
 	display_print(bunny);//bunny || snowman
 
 	// Allocate memory for the song (SDRAM)
+	#ifdef DBGOUT
+	song= (short*)malloc(BUF_SIZE_DBGOUT*DBGOUT_SIZE);
+	#else
 	song = (short*)malloc(BUF_SIZE*DBGOUT_SIZE);
+	#endif
 	if (song == NULL)
 	{
 		display_print("Could not allocate memory for audio file!\n");
@@ -96,7 +103,11 @@ int main(void)
 	// Set a pointer (byte-access) to the song
 	song_ptr_b = (unsigned char*)song;
 	//Speicherbereich löschen um ihn sicher leer zu haben
+	#ifdef DBGOUT
+	for(i=0; i<BUF_SIZE_DBGOUT*DBGOUT_SIZE; i++){
+	#else
 	for(i=0; i<BUF_SIZE*DBGOUT_SIZE; i++){
+	#endif
 		song_ptr_b[i]=0;
 	}
 
@@ -124,7 +135,7 @@ int main(void)
 	#ifdef DBGOUT
 	int runs;
 	for(runs=0; runs<DBGOUT_SIZE; runs++){
-		alt_avalon_sgdma_construct_stream_to_mem_desc( &rx_descriptor[runs], &rx_descriptor[runs+1],&song_ptr_b[runs*BUF_SIZE] , BUF_SIZE, 0 );
+		alt_avalon_sgdma_construct_stream_to_mem_desc( &rx_descriptor[runs], &rx_descriptor[runs+1],&song_ptr_b[runs*BUF_SIZE_DBGOUT] , BUF_SIZE_DBGOUT, 0 );
 	}
 	alt_avalon_sgdma_do_async_transfer(sgdma_rx_dev, &rx_descriptor[0]);
 	while (alt_avalon_sgdma_check_descriptor_status(&rx_descriptor[0])!=0);
@@ -197,7 +208,7 @@ int main(void)
 	#endif
 
 	#ifdef DBGOUT
-		for (i = 0; i < BUF_SIZE*DBGOUT_SIZE; i ++)
+		for (i = 0; i < BUF_SIZE_DBGOUT*DBGOUT_SIZE; i ++)
 		{
 			/*if(i%64==0){
 				alt_printf("\n");

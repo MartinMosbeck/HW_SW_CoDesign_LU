@@ -107,39 +107,39 @@ begin
 		data_out 	=> fifoQ_data_out
 	);
 
-	Ideci : decimator
-	generic map
-	(
-		N => 20
-	)
-	port map
-	(
-		clk 		=> clk_top,
-		res_n		=> res_n_top,
+--	Ideci : decimator
+--	generic map
+--	(
+--		N => 20
+--	)
+--	port map
+--	(
+--		clk 		=> clk_top,
+--		res_n		=> res_n_top,
+--
+--		data_in (7 downto 0)	=> signed(fifoI_data_out),
+--		validin 	=> fifoI_validout,
+--			
+--		data_out 	=> fifoIbyte,
+--		validout 	=> Ideci_validout
+--	);
 
-		data_in (7 downto 0)	=> signed(fifoI_data_out),
-		validin 	=> fifoI_validout,
-			
-		data_out 	=> fifoIbyte,
-		validout 	=> Ideci_validout
-	);
-
-	Qdeci : decimator
-	generic map
-	(
-		N => 20
-	)
-	port map
-	(
-		clk 		=> clk_top,
-		res_n		=> res_n_top,
-
-		data_in(7 downto 0) 	=> signed(fifoQ_data_out),
-		validin 	=> fifoQ_validout,
-			
-		data_out 	=> fifoQbyte,
-		validout 	=> Qdeci_validout
-	);
+--	Qdeci : decimator
+--	generic map
+--	(
+--		N => 20
+--	)
+--	port map
+--	(
+--		clk 		=> clk_top,
+--		res_n		=> res_n_top,
+--
+--		data_in(7 downto 0) 	=> signed(fifoQ_data_out),
+--		validin 	=> fifoQ_validout,
+--			
+--		data_out 	=> fifoQbyte,
+--		validout 	=> Qdeci_validout
+--	);
 
 	--TEST 2
 	FII_FOO : FIFO
@@ -152,9 +152,9 @@ begin
 		clk 		=> clk_top,
 		res_n 		=> res_n_top,
 
-		in1 		=> std_logic_vector(fifoIbyte(7 downto 0)),
-		in2 		=> std_logic_vector(fifoQbyte(7 downto 0)),
-		validin 	=> Ideci_validout,
+		in1 		=> fifoI_data_out,--std_logic_vector(fifoIbyte(7 downto 0)),
+		in2 		=> fifoQ_data_out,--std_logic_vector(fifoQbyte(7 downto 0)),
+		validin 	=> fifoI_validout,--Ideci_validout,
 
 		validout 	=> outlogic_validout,
 		data_out 	=> outlogic_data_out
