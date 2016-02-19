@@ -56,8 +56,8 @@ int lookup_cos[25]={
 	0b11111111000000100000010011000110,
 	0b00000000000100000001001100001010
 };
-
-uint32_t fixpoint_mult(uint32_t a, uint32_t b){
+//Mathematisch korrekt?
+/*uint32_t fixpoint_mult(uint32_t a, uint32_t b){
 	uint64_t ergebnis=0, i;
 	for(i=0; i<32; i++){
 		if(1<<i & b){
@@ -65,6 +65,11 @@ uint32_t fixpoint_mult(uint32_t a, uint32_t b){
 		}
 	}
 	return (ergebnis&0x00FFFFFFFF000000)>>24;
+}*/
+//Mit signconvert, was unsere FPGA-HW auch macht
+int fixpoint_mult(int a, int b){
+	long ergebnis=(long)a*(long)b;
+	return ergebnis>>24;
 }
 
 int main(int argc, char *argv[]){
@@ -125,7 +130,10 @@ int main(int argc, char *argv[]){
 		
 		//Demodulator - ab hier nur wenns decimiertes ist weiterverarbeiten
 		if(valid){
+			//HW-Original (es wird damit der Realteil=I genommen)
 			demodulated=fixpoint_mult(Iout,I_con) - fixpoint_mult(Qout,Q_con);
+			//Eigentlich soll aber der Imaginärteil(=Q) des Programmes genommen werden
+			//demodulated=fixpoint_mult(Iout,Q_con) + fixpoint_mult(Qout,I_con);
 			I_con=Iout;
 			Q_con=fixpoint_mult(0xFF000000,Qout);
 		}
