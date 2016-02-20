@@ -60,8 +60,8 @@ begin
 			data_out_cur <= (others =>'0');
 			validout_cur <= '0';
 
-			--data_con_I <= (others => '0');
-			--data_con_Q <= (others => '0');
+			data_con_I <= (others => '0');
+			data_con_Q <= (others => '0');
 		elsif rising_edge(clk) then
 			--internals
 				data_out_cur <= data_out_next;
