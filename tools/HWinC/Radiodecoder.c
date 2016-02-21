@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include <math.h>//Für pow()
 
 int lookup_sin[25]={
 	0b00000000000000000000000000000000,
@@ -56,6 +57,22 @@ int lookup_cos[25]={
 	0b11111111000000100000010011000110,
 	0b00000000000100000001001100001010
 };
+//dafür ist -lm beim compilieren nötig
+//==gcc Radiodecoder.c -lm -g -o Radiodecoder
+float zeigeFixpoint(uint32_t x){
+	float zahl=0;
+	int i;
+	if(x&0x80000000){//Negative Zahl
+		zahl=-128;
+	}
+	for(i=0; i<31; i++){
+		if(1<<i & x){
+			zahl+=pow(2,i-24);
+		}
+	}
+	//printf("%3.12f\n",zahl);
+	return zahl;
+}
 //Mathematisch korrekt?
 /*uint32_t fixpoint_mult(uint32_t a, uint32_t b){
 	uint64_t ergebnis=0, i;
