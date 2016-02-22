@@ -228,7 +228,7 @@ int main(int argc, char *argv[]){
 				//data_fixp=fixpoint_mult(demodulated,0x001E0000);//0x1E000000);
 				data_fixp=fixpoint_mult(demodulated,0x00000300);
 				//printf("data_fixp = %f\n",zeigeFixpoint(data_fixp));
-				outputvector[outputpos++]=(data_fixp + 0b01111111000000000000000000000000)>>24;//>>24;
+				outputvector[outputpos++]=(data_fixp + 0b00000000011111110000000000000000)>>16;//0b01111111000000000000000000000000)>>24;
 				//printf("\n");
 			}
 		}
