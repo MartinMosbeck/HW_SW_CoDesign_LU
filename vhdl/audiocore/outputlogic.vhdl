@@ -65,7 +65,7 @@ begin
 			validout_next <= '1';
 
 			data_fixp := fixpoint_mult(data,factor);
-			data_out_next <= std_logic_vector(data_fixp(31 downto 24) + v127);
+			data_out_next <= std_logic_vector(data_fixp(23 downto 16) + v127);
 			
 		end if; 
 	end process do_output;
