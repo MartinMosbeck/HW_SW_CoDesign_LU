@@ -29,7 +29,7 @@ architecture behavior of outputlogic is
 	begin
 		result_full := a * b;
 
-		return result_full(55 downto 24);
+		return result_full(47 downto 16);
 	end function;
 begin
 
@@ -52,12 +52,9 @@ begin
 
 
 	do_output: process (data,valid, data_out_cur, validout_cur)
-		constant factor : fixpoint := x"1e000000";
+		constant factor : fixpoint := x"00000300";
 		variable data_fixp : fixpoint;
-		constant v127 : signed(7 downto 0) := "01111111"; 
-		
-		variable factor0 : fixpoint;
-		variable product : fixpoint_product;
+		constant v127 : signed(7 downto 0) := "01111111";
 	begin
 		data_out_next <= data_out_cur;
 		validout_next <= validout_cur;

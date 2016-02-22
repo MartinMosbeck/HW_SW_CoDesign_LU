@@ -16,7 +16,7 @@
 #define BUF_SIZE 32768//*256=8388608 Daten im DBGOUT-Mode
 #define BUF_SIZE_DBGOUT 65532//65532 is das max was ein SGDMA kann
 
-#define DBGOUT_SIZE 1024//1 wenn kein DBG -max derzeit 1024
+#define DBGOUT_SIZE 32//1 wenn kein DBG -max derzeit 1024
 
 //#define DEBUGOUT
 #define DBGOUT
@@ -220,6 +220,21 @@ int main(void)
 		alt_printf("\n\nENDE");
 		sprintf(outtext, "%c",4);
 		alt_printf(outtext);
+	/*while(1){
+	for (i = 0; i < BUF_SIZE_DBGOUT*DBGOUT_SIZE/2; i ++)
+		{
+			//Play the received frame
+			avail = (unsigned int)((IORD_32DIRECT(AUDIO_BASE,4)&0xFF000000)>>24);
+			while(avail <= 0)avail = (unsigned int)((IORD_32DIRECT(AUDIO_BASE,4)&0xFF000000)>>24);
+			// Read sample from SDRAM
+			sample = (int)song[i];
+			// and write it to the FIFO for left channel
+			IOWR_32DIRECT(AUDIO_BASE,8,sample);
+
+			// and write it to the FIFO for left channel
+			IOWR_32DIRECT(AUDIO_BASE,12,sample);
+		}
+	}*/
 	#endif
 	return 0;
 }
