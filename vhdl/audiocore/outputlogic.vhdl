@@ -54,7 +54,8 @@ begin
 	do_output: process (data,valid, data_out_cur, validout_cur)
 		constant factor : fixpoint := x"00000300";
 		variable data_fixp : fixpoint;
-		constant v127 : signed(7 downto 0) := "01111111";
+		variable data_out_fixp: fixpoint;
+		constant v127 : fixpoint := "00000000011111110000000000000000";
 	begin
 		data_out_next <= data_out_cur;
 		validout_next <= validout_cur;
@@ -65,7 +66,8 @@ begin
 			validout_next <= '1';
 
 			data_fixp := fixpoint_mult(data,factor);
-			data_out_next <= std_logic_vector(data_fixp(23 downto 16) + v127);
+			data_out_fixp := data_fixp + v127;
+			data_out_next <= std_logic_vector(data_out_fixp(23 downto 16));
 			
 		end if; 
 	end process do_output;

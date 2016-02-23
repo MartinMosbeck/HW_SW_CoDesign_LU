@@ -28,6 +28,9 @@ architecture behavior of mixerFM is
 	signal validout_cur, validout_next : std_logic;
 	signal t_cur,t_next : index_time; 
 
+	signal validintern_next, validintern_cur: std_logic;
+	signal Itemp1_next, Itemp1_cur, Itemp2_next, Itemp2_cur, Qtemp1_next, Qtemp1_cur, Qtemp2_next, Qtemp2_cur: fixpoint;
+
 
 	function fixpoint_mult(a,b:fixpoint) return fixpoint is
 				variable result_full : fixpoint_product;
@@ -156,7 +159,7 @@ architecture behavior of mixerFM is
 	end function;
 
 begin
-	mix_it: process (Iin,QIn,validin, Iout_cur, Qout_cur, t_cur, validout_cur)
+	mix_it: process (Iin,QIn,validin, Iout_cur, Qout_cur, t_cur, validout_cur, Itemp1_cur, Itemp2_cur, Qtemp1_cur, Qtemp2_cur, validintern_cur)
 		variable I_temp : fixpoint;
 		variable Q_temp : fixpoint;
 	begin
@@ -164,17 +167,25 @@ begin
 		Qout_next <= Qout_cur;
 		validout_next <= validout_cur;
 		t_next <= t_cur;
+
+		validintern_next <= validintern_cur;
+		Itemp1_next <= Itemp1_cur;
+		Itemp2_next <= Itemp2_cur;
+		Qtemp1_next <= Qtemp1_cur;
+		Qtemp2_next <= Qtemp2_cur;
 		
 		if(validin = '1') then
 			I_temp := (others => '0');
 			Q_temp := (others => '0');
 
-			validout_next <= '1';
+			validintern_next <= '1';
 			I_temp(23 downto 16) := signed(unsigned(Iin) - to_unsigned(127,8)); 
 			Q_temp(23 downto 16) := signed(unsigned(Qin) - to_unsigned(127,8));
 
-			Iout_next <= fixpoint_mult(I_temp,lookup_cos(t_cur)) - fixpoint_mult(Q_temp,lookup_sin(t_cur));
-			Qout_next <= fixpoint_mult(I_temp,lookup_sin(t_cur)) + fixpoint_mult(Q_temp,lookup_cos(t_cur));
+			Itemp1_next <= fixpoint_mult(I_temp,lookup_cos(t_cur));
+			Itemp2_next <= fixpoint_mult(Q_temp,lookup_sin(t_cur));
+			Qtemp1_next <= fixpoint_mult(I_temp,lookup_sin(t_cur));
+			Qtemp2_next <= fixpoint_mult(Q_temp,lookup_cos(t_cur));
 
 			if(t_cur = 24) then
 				t_next <= 0;
@@ -182,6 +193,14 @@ begin
 				t_next <= t_cur + 1;
 			end if;
 
+		else
+			validintern_next <= '0';
+		end if;
+
+		if(validintern_cur = '1') then
+			Iout_next <= Itemp1_cur - Itemp2_cur;
+			Qout_next <= Qtemp1_cur + Qtemp2_cur;
+			validout_next <= '1';
 		else
 			validout_next <= '0';
 		end if;
@@ -195,12 +214,24 @@ begin
 			Qout_cur <= (others => '1');
 			validout_cur <= '0';
 			t_cur <= 0;
+
+			validintern_cur <= '0';
+			Itemp1_cur <= (others => '0');
+			Itemp2_cur <= (others => '0');
+			Qtemp1_cur <= (others => '0');
+			Qtemp2_cur <= (others => '0');
 		elsif rising_edge(clk) then
 			--internals
 			Iout_cur <= Iout_next;
 			Qout_cur <= Qout_next;
 			validout_cur <= validout_next;
 			t_cur <= t_next;
+
+			validintern_cur <= validintern_next;
+			Itemp1_cur <= Itemp1_next;
+			Itemp2_cur <= Itemp2_next;
+			Qtemp1_cur <= Qtemp1_next;
+			Qtemp2_cur <= Qtemp2_next;
 
 			--outputs
 			validout <= validout_next;
