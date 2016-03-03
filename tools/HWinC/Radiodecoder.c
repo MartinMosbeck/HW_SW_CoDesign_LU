@@ -115,9 +115,12 @@ int main(int argc, char *argv[]){
 	
 	int validvalid=1;
 	uint32_t data_fixp;
-	uint8_t * outputvector=malloc(anzBytes/2/20/2);
+	uint8_t * outputvector=malloc(anzBytes/2/20/2);//Standard
+	//uint8_t * outputvector=malloc(anzBytes/2/2);//DEBUG1
+	//uint32_t * outputvector=malloc(anzBytes/20*4);//DEBUG2
 	int outputpos=0;
 	for(i=0; i<anzBytes/2; ++i){
+		//Von hierher fürs DEBUG1 auskommentieren
 		//printf("I[%i]=%i, Q[%i]=%i\n",i,I[i],i,Q[i]);
 		//Mixer
 		Itemp=(I[i]-127)<<16;
@@ -144,7 +147,24 @@ int main(int argc, char *argv[]){
 			valid=0;
 			deci_cnt++;
 		}
+		//Bis hierher fürs DEBUG1 auskommentieren
 		
+		//DEBUG1 vom Decimator zum Ende
+		/*if(i<anzBytes/2-4){
+		  Iout=(((I[i]<<24)&0xFF000000)|((Q[i]<<16)&0x00FF0000)|((I[i+1]<<8)&0x0000FF00)|((Q[i+1])&0x000000FF));
+		  Qout=(((I[i+2]<<24)&0xFF000000)|((Q[i+2]<<16)&0x00FF0000)|((I[i+3]<<8)&0x0000FF00)|((Q[i+3])&0x000000FF));
+		}
+		valid=1;*/
+		//Ende DEBUG1
+		
+		//DEBUG2 vom Anfang zum Decimator(inklusive)
+		/*if(valid){
+		  outputvector[outputpos++]=Iout;
+		  outputvector[outputpos++]=Qout;
+		}*/
+		//Ende DEBUG2
+		
+		//Von hierher fürs DEBUG2 auskommentieren
 		//Demodulator - ab hier nur wenns decimiertes ist weiterverarbeiten
 		if(valid){
 			demodulated=fixpoint_mult(Iout,Q_con) + fixpoint_mult(Qout,I_con);
@@ -164,6 +184,7 @@ int main(int argc, char *argv[]){
 				//printf("\n");
 			}
 		}
+		//Bis hierher vom DEBUG2 auskommentieren
 	}
 	free(I);
 	free(Q);

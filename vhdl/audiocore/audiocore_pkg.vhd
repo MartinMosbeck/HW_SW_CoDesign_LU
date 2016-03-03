@@ -49,6 +49,26 @@ package audiocore_pkg is
 		);
 	end component;
 
+	--Temp fürs Debuggen (fixpointFIFO)
+	component fixFIFO is
+		generic
+		(
+			N: natural := 32
+		);
+		port
+		(
+			clk : in std_logic;
+			res_n : in std_logic;
+
+			in1 : in fixpoint;
+			in2 : in fixpoint;
+			validin : in std_logic;
+
+			validout : out std_logic;
+			data_out : out fixpoint
+		);
+	end component;
+
 	component mixerFM is
 		port
 		(
@@ -123,7 +143,7 @@ package audiocore_pkg is
 			clk : in std_logic;
 			res_n : in std_logic;
 
-			data_in : in byte;
+			data_in : in fixpoint;
 			validin : in std_logic;
 			
 			ready: in std_logic;
