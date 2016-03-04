@@ -1,0 +1,45 @@
+C:/Users/ZECK/Documents/#TU/HWSWCoDLU/Maintask/HW_SW_CoDesign_LU/vhdl/audiocore/audiocore_pkg.vhd {1 {vcom -work work -2002 -explicit -stats=none C:/Users/ZECK/Documents/#TU/HWSWCoDLU/Maintask/HW_SW_CoDesign_LU/vhdl/audiocore/audiocore_pkg.vhd
+Model Technology ModelSim ALTERA vcom 10.3d Compiler 2014.10 Oct  7 2014
+-- Loading package STANDARD
+-- Loading package TEXTIO
+-- Loading package std_logic_1164
+-- Loading package NUMERIC_STD
+-- Compiling package audiocore_pkg
+
+} {} {}} C:/Users/ZECK/Documents/#TU/HWSWCoDLU/Maintask/HW_SW_CoDesign_LU/vhdl/audiocore/demodulator.vhdl {2 {vcom -work work -2002 -explicit -stats=none C:/Users/ZECK/Documents/#TU/HWSWCoDLU/Maintask/HW_SW_CoDesign_LU/vhdl/audiocore/demodulator.vhdl
+Model Technology ModelSim ALTERA vcom 10.3d Compiler 2014.10 Oct  7 2014
+-- Loading package STANDARD
+-- Loading package TEXTIO
+-- Loading package std_logic_1164
+-- Loading package NUMERIC_STD
+-- Loading package audiocore_pkg
+-- Compiling entity demodulator
+-- Compiling architecture behavior of demodulator
+** Warning: C:/Users/ZECK/Documents/#TU/HWSWCoDLU/Maintask/HW_SW_CoDesign_LU/vhdl/audiocore/demodulator.vhdl(37): (vcom-1200) Function "fixpoint_mult" return type index bounds do not match RETURN value index bounds.
+
+
+} {} {}} C:/Users/ZECK/Documents/#TU/HWSWCoDLU/Maintask/HW_SW_CoDesign_LU/vhdl/audiocore/mixerFM.vhdl {2 {vcom -work work -2002 -explicit -stats=none C:/Users/ZECK/Documents/#TU/HWSWCoDLU/Maintask/HW_SW_CoDesign_LU/vhdl/audiocore/mixerFM.vhdl
+Model Technology ModelSim ALTERA vcom 10.3d Compiler 2014.10 Oct  7 2014
+-- Loading package STANDARD
+-- Loading package TEXTIO
+-- Loading package std_logic_1164
+-- Loading package NUMERIC_STD
+-- Loading package audiocore_pkg
+-- Compiling entity mixerFM
+-- Compiling architecture behavior of mixerFM
+** Warning: C:/Users/ZECK/Documents/#TU/HWSWCoDLU/Maintask/HW_SW_CoDesign_LU/vhdl/audiocore/mixerFM.vhdl(40): (vcom-1200) Function "fixpoint_mult" return type index bounds do not match RETURN value index bounds.
+
+
+} {} {}} C:/Users/ZECK/Documents/#TU/HWSWCoDLU/Maintask/HW_SW_CoDesign_LU/vhdl/audiocore/outputlogic.vhdl {2 {vcom -work work -2002 -explicit -stats=none C:/Users/ZECK/Documents/#TU/HWSWCoDLU/Maintask/HW_SW_CoDesign_LU/vhdl/audiocore/outputlogic.vhdl
+Model Technology ModelSim ALTERA vcom 10.3d Compiler 2014.10 Oct  7 2014
+-- Loading package STANDARD
+-- Loading package TEXTIO
+-- Loading package std_logic_1164
+-- Loading package NUMERIC_STD
+-- Loading package audiocore_pkg
+-- Compiling entity outputlogic
+-- Compiling architecture behavior of outputlogic
+** Warning: C:/Users/ZECK/Documents/#TU/HWSWCoDLU/Maintask/HW_SW_CoDesign_LU/vhdl/audiocore/outputlogic.vhdl(32): (vcom-1200) Function "fixpoint_mult" return type index bounds do not match RETURN value index bounds.
+
+
+} {} {}}
