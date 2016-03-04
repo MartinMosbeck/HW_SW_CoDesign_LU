@@ -181,6 +181,13 @@ begin
 			validintern_next <= '1';
 			I_temp(23 downto 16) := signed(unsigned(Iin) - to_unsigned(127,8)); 
 			Q_temp(23 downto 16) := signed(unsigned(Qin) - to_unsigned(127,8));
+			
+			if(I_temp(23) = '1') then
+			  I_temp(31 downto 24) := (others => '1');
+			end if;
+			if(Q_temp(23) = '1') then
+			  Q_temp(31 downto 24) := (others => '1');
+			end if;
 
 			Itemp1_next <= fixpoint_mult(I_temp,lookup_cos(t_cur));
 			Itemp2_next <= fixpoint_mult(Q_temp,lookup_sin(t_cur));

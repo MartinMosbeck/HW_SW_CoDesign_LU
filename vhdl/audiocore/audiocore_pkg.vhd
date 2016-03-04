@@ -143,7 +143,7 @@ package audiocore_pkg is
 			clk : in std_logic;
 			res_n : in std_logic;
 
-			data_in : in fixpoint;
+			data_in : in byte;
 			validin : in std_logic;
 			
 			ready: in std_logic;
