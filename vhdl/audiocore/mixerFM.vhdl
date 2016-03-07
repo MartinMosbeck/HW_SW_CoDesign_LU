@@ -182,10 +182,10 @@ begin
 			I_temp(23 downto 16) := signed(unsigned(Iin) - to_unsigned(127,8)); 
 			Q_temp(23 downto 16) := signed(unsigned(Qin) - to_unsigned(127,8));
 			
-			if(I_temp(23) = '1') then
+			if(I_temp(23) = '1' and I_temp(23 downto 16) /= "10000000") then
 			  I_temp(31 downto 24) := (others => '1');
 			end if;
-			if(Q_temp(23) = '1') then
+			if(Q_temp(23) = '1' and Q_temp(23 downto 16) /= "10000000") then
 			  Q_temp(31 downto 24) := (others => '1');
 			end if;
 
