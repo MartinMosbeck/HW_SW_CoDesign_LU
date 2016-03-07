@@ -1,0 +1,536 @@
+# //  ModelSim SE-64 10.4c Jul 19 2015 Linux 3.10.0-327.10.1.el7.x86_64
+# //
+# //  Copyright 1991-2015 Mentor Graphics Corporation
+# //  All Rights Reserved.
+# //
+# //  THIS WORK CONTAINS TRADE SECRET AND PROPRIETARY INFORMATION
+# //  WHICH IS THE PROPERTY OF MENTOR GRAPHICS CORPORATION OR ITS
+# //  LICENSORS AND IS SUBJECT TO LICENSE TERMS.
+# //  THIS DOCUMENT CONTAINS TRADE SECRETS AND COMMERCIAL OR FINANCIAL
+# //  INFORMATION THAT ARE PRIVILEGED, CONFIDENTIAL, AND EXEMPT FROM
+# //  DISCLOSURE UNDER THE FREEDOM OF INFORMATION ACT, 5 U.S.C. SECTION 552.
+# //  FURTHERMORE, THIS INFORMATION IS PROHIBITED FROM DISCLOSURE UNDER
+# //  THE TRADE SECRETS ACT, 18 U.S.C. SECTION 1905.
+# //
+# reading modelsim.ini
+# ** Error: (vish-7) Failed to open ini file "C:/Program Files/Quartus15x64/modelsim_ase/modelsim.ini" in read mode.
+# No such file or directory. (errno = ENOENT)
+# Loading project audiocore-Simulation
+# Compile of audiocore_pkg.vhd was successful.
+# Compile of demodulator.vhdl was successful with warnings.
+# Compile of mixerFM.vhdl was successful with warnings.
+# Compile of outputlogic.vhdl was successful with warnings.
+# Compile of testbench.vhdl was successful.
+# 5 compiles, 0 failed with no errors.
+vsim work.audiocore_simulation
+# vsim work.audiocore_simulation 
+# Start time: 13:35:34 on Mar 07,2016
+# ** Note: (vsim-3812) Design is being optimized...
+# Loading std.standard
+# Loading std.textio(body)
+# Loading ieee.std_logic_1164(body)
+# Loading ieee.numeric_std(body)
+# Loading work.audiocore_pkg
+# Loading work.audiocore_simulation(testbench)#1
+add wave  \
+sim:/audiocore_simulation/dut/Iin \
+sim:/audiocore_simulation/dut/Qin \
+sim:/audiocore_simulation/dut/Iout \
+sim:/audiocore_simulation/dut/Qout
+run
+add wave  \
+sim:/audiocore_simulation/dut/validout_cur
+run
+run
+restart
+# ** Note: (vsim-8009) Loading existing optimized design _opt
+run
+# Compile of audiocore_pkg.vhd was successful.
+# Compile of demodulator.vhdl was successful with warnings.
+# Compile of mixerFM.vhdl was successful with warnings.
+# Compile of outputlogic.vhdl was successful with warnings.
+# Compile of testbench.vhdl failed with 7 errors.
+# 5 compiles, 1 failed with 7 errors.
+# Compile of audiocore_pkg.vhd was successful.
+# Compile of demodulator.vhdl was successful with warnings.
+# Compile of mixerFM.vhdl was successful with warnings.
+# Compile of outputlogic.vhdl was successful with warnings.
+# Compile of testbench.vhdl failed with 7 errors.
+# 5 compiles, 1 failed with 7 errors.
+# Compile of audiocore_pkg.vhd was successful.
+# Compile of demodulator.vhdl was successful with warnings.
+# Compile of mixerFM.vhdl was successful with warnings.
+# Compile of outputlogic.vhdl was successful with warnings.
+# Compile of testbench.vhdl failed with 7 errors.
+# 5 compiles, 1 failed with 7 errors.
+# Compile of audiocore_pkg.vhd was successful.
+# Compile of demodulator.vhdl was successful with warnings.
+# Compile of mixerFM.vhdl was successful with warnings.
+# Compile of outputlogic.vhdl was successful with warnings.
+# Compile of testbench.vhdl failed with 7 errors.
+# 5 compiles, 1 failed with 7 errors.
+# Compile of audiocore_pkg.vhd was successful.
+# Compile of demodulator.vhdl was successful with warnings.
+# Compile of mixerFM.vhdl was successful with warnings.
+# Compile of outputlogic.vhdl was successful with warnings.
+# Compile of testbench.vhdl failed with 5 errors.
+# 5 compiles, 1 failed with 5 errors.
+# Compile of audiocore_pkg.vhd was successful.
+# Compile of demodulator.vhdl was successful with warnings.
+# Compile of mixerFM.vhdl was successful with warnings.
+# Compile of outputlogic.vhdl was successful with warnings.
+# Compile of testbench.vhdl failed with 3 errors.
+# 5 compiles, 1 failed with 3 errors.
+# Compile of audiocore_pkg.vhd was successful.
+# Compile of demodulator.vhdl was successful with warnings.
+# Compile of mixerFM.vhdl was successful with warnings.
+# Compile of outputlogic.vhdl was successful with warnings.
+# Compile of testbench.vhdl was successful.
+# 5 compiles, 0 failed with no errors.
+restart
+# ** Note: (vsim-3813) Design is being optimized due to module recompilation...
+# Loading std.standard
+# Loading std.textio(body)
+# Loading ieee.std_logic_1164(body)
+# Loading ieee.numeric_std(body)
+# Loading work.audiocore_pkg
+# Loading work.audiocore_simulation(testbench)#1
+run
+run
+# ** Warning: (vsim-151) NUMERIC_STD.TO_INTEGER: Value -8166 is not in bounds of subtype NATURAL.
+#    Time: 2040 ns  Iteration: 0  Instance: /audiocore_simulation
+# ** Note: -8165
+#    Time: 2040 ns  Iteration: 0  Instance: /audiocore_simulation
+# ** Warning: (vsim-151) NUMERIC_STD.TO_INTEGER: Value -3804456 is not in bounds of subtype NATURAL.
+#    Time: 2040 ns  Iteration: 0  Instance: /audiocore_simulation
+# ** Note: -3804455
+#    Time: 2040 ns  Iteration: 0  Instance: /audiocore_simulation
+# Compile of audiocore_pkg.vhd was successful.
+# Compile of demodulator.vhdl was successful with warnings.
+# Compile of mixerFM.vhdl was successful with warnings.
+# Compile of outputlogic.vhdl was successful with warnings.
+# Compile of testbench.vhdl failed with 3 errors.
+# 5 compiles, 1 failed with 3 errors.
+# Compile of audiocore_pkg.vhd was successful.
+# Compile of demodulator.vhdl was successful with warnings.
+# Compile of mixerFM.vhdl was successful with warnings.
+# Compile of outputlogic.vhdl was successful with warnings.
+# Compile of testbench.vhdl failed with 3 errors.
+# 5 compiles, 1 failed with 3 errors.
+# Compile of audiocore_pkg.vhd was successful.
+# Compile of demodulator.vhdl was successful with warnings.
+# Compile of mixerFM.vhdl was successful with warnings.
+# Compile of outputlogic.vhdl was successful with warnings.
+# Compile of testbench.vhdl failed with 5 errors.
+# 5 compiles, 1 failed with 5 errors.
+# Compile of audiocore_pkg.vhd was successful.
+# Compile of demodulator.vhdl was successful with warnings.
+# Compile of mixerFM.vhdl was successful with warnings.
+# Compile of outputlogic.vhdl was successful with warnings.
+# Compile of testbench.vhdl failed with 5 errors.
+# 5 compiles, 1 failed with 5 errors.
+# Compile of audiocore_pkg.vhd was successful.
+# Compile of demodulator.vhdl was successful with warnings.
+# Compile of mixerFM.vhdl was successful with warnings.
+# Compile of outputlogic.vhdl was successful with warnings.
+# Compile of testbench.vhdl failed with 3 errors.
+# 5 compiles, 1 failed with 3 errors.
+# Compile of audiocore_pkg.vhd was successful.
+# Compile of demodulator.vhdl was successful with warnings.
+# Compile of mixerFM.vhdl was successful with warnings.
+# Compile of outputlogic.vhdl was successful with warnings.
+# Compile of testbench.vhdl was successful.
+# 5 compiles, 0 failed with no errors.
+restart
+# ** Note: (vsim-8009) Loading existing optimized design _opt
+run
+# ** Warning: (vsim-151) NUMERIC_STD.TO_INTEGER: Value -8166 is not in bounds of subtype NATURAL.
+#    Time: 2040 ns  Iteration: 0  Instance: /audiocore_simulation
+# ** Note: -8165
+#    Time: 2040 ns  Iteration: 0  Instance: /audiocore_simulation
+# ** Warning: (vsim-151) NUMERIC_STD.TO_INTEGER: Value -3804456 is not in bounds of subtype NATURAL.
+#    Time: 2040 ns  Iteration: 0  Instance: /audiocore_simulation
+# ** Note: -3804455
+#    Time: 2040 ns  Iteration: 0  Instance: /audiocore_simulation
+write list -window .main_pane.list.interior.cs.body /homes/areznicek/Desktop/HW_SW_CoDesign_LU/Simulation/list.lst
+write list -window .main_pane.list.interior.cs.body /homes/areznicek/Desktop/HW_SW_CoDesign_LU/Simulation/list.lst
+# Compile of audiocore_pkg.vhd was successful.
+# Compile of demodulator.vhdl was successful with warnings.
+# Compile of mixerFM.vhdl was successful with warnings.
+# Compile of outputlogic.vhdl was successful with warnings.
+# Compile of testbench.vhdl failed with 1 errors.
+# 5 compiles, 1 failed with 1 error.
+# Compile of audiocore_pkg.vhd was successful.
+# Compile of demodulator.vhdl was successful with warnings.
+# Compile of mixerFM.vhdl was successful with warnings.
+# Compile of outputlogic.vhdl was successful with warnings.
+# Compile of testbench.vhdl was successful.
+# 5 compiles, 0 failed with no errors.
+restart
+# ** Note: (vsim-3813) Design is being optimized due to module recompilation...
+# Loading std.standard
+# Loading std.textio(body)
+# Loading ieee.std_logic_1164(body)
+# Loading ieee.numeric_std(body)
+# Loading work.audiocore_pkg
+# Loading work.audiocore_simulation(testbench)#1
+run
+# ** Note: 6721080
+#    Time: 1040 ns  Iteration: 0  Instance: /audiocore_simulation
+# ** Warning: (vsim-151) NUMERIC_STD.TO_INTEGER: Value -4455610 is not in bounds of subtype NATURAL.
+#    Time: 1040 ns  Iteration: 0  Instance: /audiocore_simulation
+# ** Note: -4455610
+#    Time: 1040 ns  Iteration: 0  Instance: /audiocore_simulation
+restart
+# ** Note: (vsim-8009) Loading existing optimized design _opt
+run
+restart
+# ** Note: (vsim-8009) Loading existing optimized design _opt
+run
+restart
+# ** Note: (vsim-8009) Loading existing optimized design _opt
+run
+# ** Note: 6721080
+#    Time: 1040 ns  Iteration: 0  Instance: /audiocore_simulation
+# ** Warning: (vsim-151) NUMERIC_STD.TO_INTEGER: Value -4455610 is not in bounds of subtype NATURAL.
+#    Time: 1040 ns  Iteration: 0  Instance: /audiocore_simulation
+# ** Note: -4455610
+#    Time: 1040 ns  Iteration: 0  Instance: /audiocore_simulation
+restart
+# ** Note: (vsim-8009) Loading existing optimized design _opt
+run
+# ** Note: 6721080
+#    Time: 1040 ns  Iteration: 0  Instance: /audiocore_simulation
+# ** Warning: (vsim-151) NUMERIC_STD.TO_INTEGER: Value -4455610 is not in bounds of subtype NATURAL.
+#    Time: 1040 ns  Iteration: 0  Instance: /audiocore_simulation
+# ** Note: -4455610
+#    Time: 1040 ns  Iteration: 0  Instance: /audiocore_simulation
+write list -window .main_pane.list.interior.cs.body /homes/areznicek/Desktop/HW_SW_CoDesign_LU/Simulation/list.lst
+write list -window .main_pane.list.interior.cs.body /homes/areznicek/Desktop/HW_SW_CoDesign_LU/Simulation/list.lst
+# Compile of audiocore_pkg.vhd was successful.
+# Compile of demodulator.vhdl was successful with warnings.
+# Compile of mixerFM.vhdl was successful with warnings.
+# Compile of outputlogic.vhdl was successful with warnings.
+# Compile of testbench.vhdl was successful.
+# 5 compiles, 0 failed with no errors.
+restart
+# ** Note: (vsim-3813) Design is being optimized due to module recompilation...
+# Loading std.standard
+# Loading std.textio(body)
+# Loading ieee.std_logic_1164(body)
+# Loading ieee.numeric_std(body)
+# Loading work.audiocore_pkg
+# Loading work.audiocore_simulation(testbench)#1
+add wave -position end  sim:/audiocore_simulation/counter
+run
+# ** Note: 6721080
+#    Time: 1040 ns  Iteration: 0  Instance: /audiocore_simulation
+# ** Warning: (vsim-151) NUMERIC_STD.TO_INTEGER: Value -4455610 is not in bounds of subtype NATURAL.
+#    Time: 1040 ns  Iteration: 0  Instance: /audiocore_simulation
+# ** Note: -4455610
+#    Time: 1040 ns  Iteration: 0  Instance: /audiocore_simulation
+# Compile of audiocore_pkg.vhd was successful.
+# Compile of demodulator.vhdl was successful with warnings.
+# Compile of mixerFM.vhdl was successful with warnings.
+# Compile of outputlogic.vhdl was successful with warnings.
+# Compile of testbench.vhdl was successful.
+# 5 compiles, 0 failed with no errors.
+restart
+# ** Note: (vsim-3813) Design is being optimized due to module recompilation...
+# Loading std.standard
+# Loading std.textio(body)
+# Loading ieee.std_logic_1164(body)
+# Loading ieee.numeric_std(body)
+# Loading work.audiocore_pkg
+# Loading work.audiocore_simulation(testbench)#1
+run
+# ** Note: 6721080
+#    Time: 1040 ns  Iteration: 0  Instance: /audiocore_simulation
+# ** Warning: (vsim-151) NUMERIC_STD.TO_INTEGER: Value -4455610 is not in bounds of subtype NATURAL.
+#    Time: 1040 ns  Iteration: 0  Instance: /audiocore_simulation
+# ** Note: -4455610
+#    Time: 1040 ns  Iteration: 0  Instance: /audiocore_simulation
+# Compile of audiocore_pkg.vhd was successful.
+# Compile of demodulator.vhdl was successful with warnings.
+# Compile of mixerFM.vhdl was successful with warnings.
+# Compile of outputlogic.vhdl was successful with warnings.
+# Compile of testbench.vhdl was successful.
+# 5 compiles, 0 failed with no errors.
+restart
+# ** Note: (vsim-3813) Design is being optimized due to module recompilation...
+# Loading std.standard
+# Loading std.textio(body)
+# Loading ieee.std_logic_1164(body)
+# Loading ieee.numeric_std(body)
+# Loading work.audiocore_pkg
+# Loading work.audiocore_simulation(testbench)#1
+run
+# ** Note: 6721080
+#    Time: 1040 ns  Iteration: 0  Instance: /audiocore_simulation
+# ** Warning: (vsim-151) NUMERIC_STD.TO_INTEGER: Value -4455610 is not in bounds of subtype NATURAL.
+#    Time: 1040 ns  Iteration: 0  Instance: /audiocore_simulation
+# ** Note: -4455610
+#    Time: 1040 ns  Iteration: 0  Instance: /audiocore_simulation
+restart
+# ** Note: (vsim-8009) Loading existing optimized design _opt
+run
+# ** Note: 6721080
+#    Time: 1040 ns  Iteration: 0  Instance: /audiocore_simulation
+# ** Warning: (vsim-151) NUMERIC_STD.TO_INTEGER: Value -4455610 is not in bounds of subtype NATURAL.
+#    Time: 1040 ns  Iteration: 0  Instance: /audiocore_simulation
+# ** Note: -4455610
+#    Time: 1040 ns  Iteration: 0  Instance: /audiocore_simulation
+# Compile of audiocore_pkg.vhd was successful.
+# Compile of demodulator.vhdl was successful with warnings.
+# Compile of mixerFM.vhdl was successful with warnings.
+# Compile of outputlogic.vhdl was successful with warnings.
+# Compile of testbench.vhdl was successful.
+# 5 compiles, 0 failed with no errors.
+restart
+# ** Note: (vsim-8009) Loading existing optimized design _opt
+run
+# ** Note: 6721080
+#    Time: 1040 ns  Iteration: 0  Instance: /audiocore_simulation
+# ** Warning: (vsim-151) NUMERIC_STD.TO_INTEGER: Value -4455610 is not in bounds of subtype NATURAL.
+#    Time: 1040 ns  Iteration: 0  Instance: /audiocore_simulation
+# ** Note: -4455610
+#    Time: 1040 ns  Iteration: 0  Instance: /audiocore_simulation
+restart -f
+# ** Note: (vsim-8009) Loading existing optimized design _opt
+run -continue
+# ** Note: 6721080
+#    Time: 1040 ns  Iteration: 0  Instance: /audiocore_simulation
+# ** Warning: (vsim-151) NUMERIC_STD.TO_INTEGER: Value -4455610 is not in bounds of subtype NATURAL.
+#    Time: 1040 ns  Iteration: 0  Instance: /audiocore_simulation
+# ** Note: -4455610
+#    Time: 1040 ns  Iteration: 0  Instance: /audiocore_simulation
+# Causality operation skipped due to absence of debug database file
+restart
+# ** Note: (vsim-8009) Loading existing optimized design _opt
+run
+# ** Note: 6721080
+#    Time: 1040 ns  Iteration: 0  Instance: /audiocore_simulation
+# ** Warning: (vsim-151) NUMERIC_STD.TO_INTEGER: Value -4455610 is not in bounds of subtype NATURAL.
+#    Time: 1040 ns  Iteration: 0  Instance: /audiocore_simulation
+# ** Note: -4455610
+#    Time: 1040 ns  Iteration: 0  Instance: /audiocore_simulation
+restart
+# ** Note: (vsim-8009) Loading existing optimized design _opt
+run
+# Break in Process stimulus at /homes/areznicek/Desktop/HW_SW_CoDesign_LU/Simulation/testbench.vhdl line 342
+step
+step
+step
+step
+step
+step -out
+step -out
+step -out
+# Next activity is in 5 ns.
+step -over
+step -over
+step -over
+step -over
+# Next activity is in 5 ns.
+step -over
+step -over
+step -over
+step -over
+step -over
+step -over
+step -over
+step -over
+step -over
+step -over
+step -out
+step -out
+step -out
+# Next activity is in 5 ns.
+step -over
+step -over
+step -over
+step -over
+# Next activity is in 5 ns.
+step -over
+step -over
+step -over
+step -over
+step -over
+step -over
+step
+step
+step
+step
+step
+step
+step
+step
+step
+step
+step
+step
+step
+step
+step
+step
+step
+print I_temp
+# ambiguous command name "print": print_dbg_time print_stacktrace printarray printenv
+step
+step
+step
+step
+step
+step
+step
+step
+step
+step
+step
+step
+step
+step
+step
+step
+step
+step
+step
+step
+step
+step
+step
+step
+step
+step
+step
+step
+step
+step
+step
+step
+step
+step
+step
+step
+step
+step
+step
+step
+step -out
+step -out
+step -out
+# Next activity is in 5 ns.
+step -out
+step -over
+step -over
+step -over
+# Next activity is in 5 ns.
+step -over
+step
+step
+step
+step
+step
+step
+restart
+# ** Note: (vsim-8009) Loading existing optimized design _opt
+# Compile of audiocore_pkg.vhd was successful.
+# Compile of demodulator.vhdl was successful with warnings.
+# Compile of mixerFM.vhdl was successful with warnings.
+# Compile of outputlogic.vhdl was successful with warnings.
+# Compile of testbench.vhdl was successful.
+# 5 compiles, 0 failed with no errors.
+run
+# Break in Process stimulus at /homes/areznicek/Desktop/HW_SW_CoDesign_LU/Simulation/testbench.vhdl line 342
+run -continue
+# ** Note: 6721080
+#    Time: 1040 ns  Iteration: 0  Instance: /audiocore_simulation
+# ** Warning: (vsim-151) NUMERIC_STD.TO_INTEGER: Value -4455610 is not in bounds of subtype NATURAL.
+#    Time: 1040 ns  Iteration: 0  Instance: /audiocore_simulation
+# ** Note: -4455610
+#    Time: 1040 ns  Iteration: 0  Instance: /audiocore_simulation
+write list -window .main_pane.list.interior.cs.body /homes/areznicek/Desktop/HW_SW_CoDesign_LU/Simulation/list.lst
+restart
+# ** Note: (vsim-3813) Design is being optimized due to module recompilation...
+# Loading std.standard
+# Loading std.textio(body)
+# Loading ieee.std_logic_1164(body)
+# Loading ieee.numeric_std(body)
+# Loading work.audiocore_pkg
+# Loading work.audiocore_simulation(testbench)#1
+run
+# Break in Process mix_it at /homes/areznicek/Desktop/HW_SW_CoDesign_LU/vhdl/audiocore/mixerFM.vhdl line 178
+step
+step
+step
+step
+step
+step
+step
+step
+step
+step
+step
+step
+step
+step
+step
+step
+step
+step
+step
+step
+step
+step
+step
+step
+step
+step
+step
+step
+step
+step
+step
+step
+step
+step
+step
+step
+step
+step
+step
+step
+step
+# Next activity is in 5 ns.
+# Compile of audiocore_pkg.vhd was successful.
+# Compile of demodulator.vhdl was successful with warnings.
+# Compile of mixerFM.vhdl failed with 5 errors.
+# Compile of outputlogic.vhdl was successful with warnings.
+# Compile of testbench.vhdl was successful.
+# 5 compiles, 1 failed with 5 errors.
+# Compile of audiocore_pkg.vhd was successful.
+# Compile of demodulator.vhdl was successful with warnings.
+# Compile of mixerFM.vhdl was successful with warnings.
+# Compile of outputlogic.vhdl was successful with warnings.
+# Compile of testbench.vhdl was successful.
+# 5 compiles, 0 failed with no errors.
+restart
+# ** Note: (vsim-3813) Design is being optimized due to module recompilation...
+# Loading std.standard
+# Loading std.textio(body)
+# Loading ieee.std_logic_1164(body)
+# Loading ieee.numeric_std(body)
+# Loading work.audiocore_pkg
+# Loading work.audiocore_simulation(testbench)#1
+run
+# ** Note: 6721080
+#    Time: 1040 ns  Iteration: 0  Instance: /audiocore_simulation
+# ** Warning: (vsim-151) NUMERIC_STD.TO_INTEGER: Value -4455610 is not in bounds of subtype NATURAL.
+#    Time: 1040 ns  Iteration: 0  Instance: /audiocore_simulation
+# ** Note: -4455610
+#    Time: 1040 ns  Iteration: 0  Instance: /audiocore_simulation
+write list -window .main_pane.list.interior.cs.body /homes/areznicek/Desktop/HW_SW_CoDesign_LU/Simulation/list.lst
+write format wave -window .main_pane.wave.interior.cs.body.pw.wf /homes/areznicek/Desktop/HW_SW_CoDesign_LU/Simulation/wave.do
+write format list -window .main_pane.list.interior.cs.body /homes/areznicek/Desktop/HW_SW_CoDesign_LU/Simulation/Simulation.do
+# End time: 16:18:05 on Mar 07,2016, Elapsed time: 2:42:31
+# Errors: 1, Warnings: 17
