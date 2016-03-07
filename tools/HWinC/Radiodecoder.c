@@ -65,7 +65,7 @@ float zeigeFixpoint(uint32_t x){
 	float zahl=0;
 	int i;
 	if(x&0x80000000){//Negative Zahl
-		zahl-=pow(2,32-ANZ_NACHKOMMA);
+		zahl-=pow(2,31-ANZ_NACHKOMMA);
 	}
 	for(i=0; i<31; i++){
 		if(1<<i & x){
@@ -75,6 +75,25 @@ float zeigeFixpoint(uint32_t x){
 	//printf("%3.12f\n",zahl);
 	return zahl;
 }
+void testbenchPrint(int index, uint8_t I, uint8_t Q){
+	char bitvektor[9];
+	bitvektor[8]=0;
+	int i;
+	for(i=0; i<8; ++i){
+		bitvektor[7-i]= (I & 1) + '0';
+		I>>=1;
+	}
+	printf("\t\t--%d\n",index);
+	printf("\t\tIin <= \"%s\";\n",bitvektor);
+	for(i=0; i<8; ++i){
+		bitvektor[7-i]= (Q & 1) + '0';
+		Q>>=1;
+	}
+	printf("\t\tQin <= \"%s\";\n",bitvektor);
+	printf("\t\tclk <= '1'; wait for 10 ns;\n");
+	printf("\t\tclk <= '0'; wait for 10 ns;\n");
+}
+
 //Mit signconvert, was unsere FPGA-HW auch macht
 int fixpoint_mult(int a, int b){
 	long ergebnis=(long)a*(long)b;
@@ -126,10 +145,13 @@ int main(int argc, char *argv[]){
 		Itemp=(I[i]-127)<<16;
 		Qtemp=(Q[i]-127)<<16;
 		//printf("I[%i]-127=%i, Q[%i]-127=%i\n",i,I[i]-127,i,Q[i]-127);
+		//testbenchPrint(i,I[i],Q[i]);
+		//printf("Itemp = %u, Qtemp = %u\n", Itemp, Qtemp);
 		//printf("Itemp = %f, Qtemp = %f\n", zeigeFixpoint(Itemp), zeigeFixpoint(Qtemp));
 		
 		Iout=fixpoint_mult(Itemp,lookup_cos16[t_cur]) - fixpoint_mult(Qtemp,lookup_sin16[t_cur]);
 		Qout=fixpoint_mult(Itemp,lookup_sin16[t_cur]) + fixpoint_mult(Qtemp,lookup_cos16[t_cur]);
+		//printf("Iout = %u, Qout = %u\n", Iout, Qout);
 		//printf("Iout = %f, Qout = %f\n", zeigeFixpoint(Iout), zeigeFixpoint(Qout));
 		
 		if (24==t_cur) t_cur=0;
@@ -185,6 +207,7 @@ int main(int argc, char *argv[]){
 			}
 		}
 		//Bis hierher vom DEBUG2 auskommentieren
+		//printf("\n");
 	}
 	free(I);
 	free(Q);
