@@ -75,24 +75,6 @@ float zeigeFixpoint(uint32_t x){
 	//printf("%3.12f\n",zahl);
 	return zahl;
 }
-void testbenchPrint(int index, uint8_t I, uint8_t Q){
-	char bitvektor[9];
-	bitvektor[8]=0;
-	int i;
-	for(i=0; i<8; ++i){
-		bitvektor[7-i]= (I & 1) + '0';
-		I>>=1;
-	}
-	printf("\t\t--%d\n",index);
-	printf("\t\tIin <= \"%s\";\n",bitvektor);
-	for(i=0; i<8; ++i){
-		bitvektor[7-i]= (Q & 1) + '0';
-		Q>>=1;
-	}
-	printf("\t\tQin <= \"%s\";\n",bitvektor);
-	printf("\t\tclk <= '1'; wait for 10 ns;\n");
-	printf("\t\tclk <= '0'; wait for 10 ns;\n");
-}
 
 //Mit signconvert, was unsere FPGA-HW auch macht
 int fixpoint_mult(int a, int b){
@@ -134,12 +116,9 @@ int main(int argc, char *argv[]){
 	
 	int validvalid=1;
 	uint32_t data_fixp;
-	uint8_t * outputvector=malloc(anzBytes/2/20/2);//Standard
-	//uint8_t * outputvector=malloc(anzBytes/2/2);//DEBUG1
-	//uint32_t * outputvector=malloc(anzBytes/20*4);//DEBUG2
+	uint8_t * outputvector=malloc(anzBytes/2/20/2);
 	int outputpos=0;
 	for(i=0; i<anzBytes/2; ++i){
-		//Von hierher fürs DEBUG1 auskommentieren
 		//printf("I[%i]=%i, Q[%i]=%i\n",i,I[i],i,Q[i]);
 		//Mixer
 		Itemp=(I[i]-127)<<16;
@@ -151,6 +130,7 @@ int main(int argc, char *argv[]){
 		
 		Iout=fixpoint_mult(Itemp,lookup_cos16[t_cur]) - fixpoint_mult(Qtemp,lookup_sin16[t_cur]);
 		Qout=fixpoint_mult(Itemp,lookup_sin16[t_cur]) + fixpoint_mult(Qtemp,lookup_cos16[t_cur]);
+		//printf("Itemp1 = %u, Itemp2 = %u, Qtemp1 = %u, Qtemp2 = %u\n",fixpoint_mult(Itemp,lookup_cos16[t_cur]),fixpoint_mult(Qtemp,lookup_sin16[t_cur]),fixpoint_mult(Itemp,lookup_sin16[t_cur]),fixpoint_mult(Qtemp,lookup_cos16[t_cur]));
 		//printf("Iout = %u, Qout = %u\n", Iout, Qout);
 		//printf("Iout = %f, Qout = %f\n", zeigeFixpoint(Iout), zeigeFixpoint(Qout));
 		
@@ -169,24 +149,7 @@ int main(int argc, char *argv[]){
 			valid=0;
 			deci_cnt++;
 		}
-		//Bis hierher fürs DEBUG1 auskommentieren
 		
-		//DEBUG1 vom Decimator zum Ende
-		/*if(i<anzBytes/2-4){
-		  Iout=(((I[i]<<24)&0xFF000000)|((Q[i]<<16)&0x00FF0000)|((I[i+1]<<8)&0x0000FF00)|((Q[i+1])&0x000000FF));
-		  Qout=(((I[i+2]<<24)&0xFF000000)|((Q[i+2]<<16)&0x00FF0000)|((I[i+3]<<8)&0x0000FF00)|((Q[i+3])&0x000000FF));
-		}
-		valid=1;*/
-		//Ende DEBUG1
-		
-		//DEBUG2 vom Anfang zum Decimator(inklusive)
-		/*if(valid){
-		  outputvector[outputpos++]=Iout;
-		  outputvector[outputpos++]=Qout;
-		}*/
-		//Ende DEBUG2
-		
-		//Von hierher fürs DEBUG2 auskommentieren
 		//Demodulator - ab hier nur wenns decimiertes ist weiterverarbeiten
 		if(valid){
 			demodulated=fixpoint_mult(Iout,Q_con) + fixpoint_mult(Qout,I_con);
@@ -206,7 +169,6 @@ int main(int argc, char *argv[]){
 				//printf("\n");
 			}
 		}
-		//Bis hierher vom DEBUG2 auskommentieren
 		//printf("\n");
 	}
 	free(I);

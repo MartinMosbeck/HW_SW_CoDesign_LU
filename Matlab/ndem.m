@@ -1,14 +1,14 @@
 clear
 close all
 
-debugread=0;
+debugread=1;
 if debugread==0
 fileID = fopen('samples.bin');
 inputdata=fread(fileID,'uint8');
 fclose(fileID);
 else
 %! nur hexwerte in einer Zeile erlaubt!!!
-inputdata=textread('ethtst.txt','%2c');
+inputdata=textread('ethtst_normal.txt','%2c');
 inputdata=hex2dec(char(inputdata));
 end
 %Einlesen und IQ aus Datenpunkten aufbauen
@@ -23,8 +23,8 @@ mixedsignal99_9MHz=IQ.*exp(-1i*2*pi*(-0.6*10^6)*t');
 clear IQ
 
 %Lowpass filter
-load('fir_lowpass_400_60kHz.mat');%b.mat=400 Punkte, b200.mat=200, b14.mat=14, Erstellt mit filterremeztest
-b=h.';
+%load('fir_lowpass_400_60kHz.mat');%b.mat=400 Punkte, b200.mat=200, b14.mat=14, Erstellt mit filterremeztest
+%b=h.';
 % xhist=zeros(length(b),1);
 % for index=1:length(mixedsignal99_9MHz)
 %    xhist=circshift(xhist,[1,0]);
@@ -39,7 +39,8 @@ b=h.';
 % end
 %Bis hier um den Filter auszukommentieren
 
-beforedecsignal=filter(b,1,mixedsignal99_9MHz);
+%beforedecsignal=filter(b,1,mixedsignal99_9MHz);
+beforedecsignal=mixedsignal99_9MHz;
 
 clear mixedsignal99_9MHz
 
@@ -53,14 +54,16 @@ end
 clear beforedecsignal
 
 %FM-Demodulation
-fmdemod = angle(conj(decisignal(1:end-1)).*decisignal(2:end));
+%fmdemod = angle(conj(decisignal(1:end-1)).*decisignal(2:end));
+fmdemod = imag(conj(decisignal(1:end-1)).*decisignal(2:end));
 %eig ja fmdemod = imag(conj(decisignal(1:end-1)).*decisignal(2:end)); in HW
 clear decisignal
 
 %lowpass filter the audio signal
-load('fir_lowpass_400_15kHz.mat');
-b=h.';
- filteredtonsignal=filter(b,1,fmdemod);
+%load('fir_lowpass_400_15kHz.mat');
+%b=h.';
+%filteredtonsignal=filter(b,1,fmdemod);
+filteredtonsignal=fmdemod;
  
 
 %clear up the audio signals
