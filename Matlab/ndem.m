@@ -30,14 +30,28 @@ clear IQ
 %    xhist=circshift(xhist,[1,0]);
 %    xhist(1)=mixedsignal99_9MHz(index);
 %    mixedsignal99_9MHz(index)=sum(xhist.*b);
-%    if mod(index,100000) == 0%"Fortschritts"balken
-%        fprintf('%i|',index);
-%    end
-%    if mod(index,1400000) == 0
-%        fprintf('\n');
-%    end
 % end
 %Bis hier um den Filter auszukommentieren
+
+%IIR Filter als Referenz
+% load('.mat');
+% b=b';
+% a=a';
+% b=b.*(1/a(1));
+% a=a.*(1/a(1));
+% a=a(2:end);
+% a=-1*a;
+% xhist=zeros(length(b),1);
+% yhist=zeros(length(a),1);
+% for index=1:length(fmdemod)
+%     xhist=circshift(xhist,[1,0]);
+%     xhist(1)=fmdemod(index);
+%     fmdemod(index)=sum(xhist.*b)+sum(yhist.*a);
+%     yhist=circshift(yhist,[1,0]);
+%     yhist(1)=fmdemod(index);
+% end
+%Bis hier Filter auskommentieren
+
 
 %beforedecsignal=filter(b,1,mixedsignal99_9MHz);
 beforedecsignal=mixedsignal99_9MHz;

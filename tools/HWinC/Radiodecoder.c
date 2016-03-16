@@ -118,6 +118,46 @@ int main(int argc, char *argv[]){
 	uint32_t data_fixp;
 	uint8_t * outputvector=malloc(anzBytes/2/20/2);
 	int outputpos=0;
+	
+	//for Filter Lowpass IIR 60KHz
+        #define filterOrder 10
+	uint32_t xhistI[filterOrder+1];
+	uint32_t yhistI[filterOrder];
+	
+	uint32_t xhistQ[filterOrder+1];
+	uint32_t yhistQ[filterOrder];
+	
+	uint32_t a[filterOrder] = {
+	0b11111111111101110000000100001101,
+	0b00000000001001000111011010011010,
+	0b11111111101010000100111100101000,
+	0b00000000100010101000111101010101,
+	0b11111111011010011011001010101010,
+	0b00000000011100010101100101000100,
+	0b11111111110001010101001000100111,
+	0b00000000000100111111010011010000,
+	0b11111111111110111111100101011001,
+	0b00000000000000000101110110101011
+	};
+	
+	uint32_t b[filterOrder+1] = {
+	0b00000000000000000000000000000000,
+	0b00000000000000000000000000000000,
+	0b00000000000000000000000000000000,
+	0b00000000000000000000000000000000,
+	0b00000000000000000000000000000000,
+	0b00000000000000000000000000000000,
+	0b00000000000000000000000000000000,
+	0b00000000000000000000000000000000,
+	0b00000000000000000000000000000000,
+	0b00000000000000000000000000000000,
+	0b00000000000000000000000000000000	  
+	};
+	
+	int j = 0;
+	
+	//START PROCESSING//
+	
 	for(i=0; i<anzBytes/2; ++i){
 		//printf("I[%i]=%i, Q[%i]=%i\n",i,I[i],i,Q[i]);
 		//Mixer
@@ -136,6 +176,52 @@ int main(int argc, char *argv[]){
 		
 		if (24==t_cur) t_cur=0;
 		else t_cur++;
+		
+		////////////////////////////
+		//Filter Lowpass IIR 60kHz//
+		////////////////////////////
+		
+		//FOR I//
+                /////////
+		
+		//shift xhist
+		for(j=1; j < filterOrder + 1; j++)
+		  xhistI[j] = xhistI[j-1];
+		
+		//add up
+		xhistI[0] = Iout;
+		Iout = 0;
+		for(j=0; j< filterOrder + 1; j++)
+		  Iout += xhistI[j] * b[j];
+		for(j=0; j< filterOrder; j++)
+		  Iout += yhistI[j] * a[j];
+		
+		//shift yhist
+		for(j=1; j < filterOrder; j++)
+		  yhistI[j] = yhistI[j-1];
+		yhistI[0] = Iout;
+		
+		//FOR Q//
+		/////////
+		
+		//shift xhist
+		for(j=1; j < filterOrder + 1; j++)
+		  xhistQ[j] = xhistQ[j-1];
+		
+		//add up
+		xhistQ[0] = Qout;
+		Qout = 0;
+		for(j=0; j< filterOrder + 1; j++)
+		  Qout += xhistQ[j] * b[j];
+		for(j=0; j< filterOrder; j++)
+		  Qout += yhistQ[j] * a[j];
+		
+		//shift yhist
+		for(j=1; j < filterOrder; j++)
+		  yhistQ[j] = yhistQ[j-1];
+		yhistQ[0] = Qout;
+		
+		
 	
 		//Decimator
 		if(20-1==deci_cnt){
