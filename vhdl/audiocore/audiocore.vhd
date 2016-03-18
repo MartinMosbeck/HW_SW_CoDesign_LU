@@ -46,6 +46,8 @@ architecture rtl of audiocore is
 	signal FMdemod_validout : std_logic;
 	signal outlogic_data_out: byte;
 	signal outlogic_validout: std_logic;
+	signal fmixer_Iout, fmixer_Qout: fixpoint;
+	signal fmixer_Ivalidout, fmixer_Qvalidout: std_logic;
 
 begin
 	clk_top <= clk;
@@ -119,6 +121,32 @@ begin
 		Qout 		=> mixer_Qout,
 		validout 	=> mixer_validout
 	);
+	
+	filter60KHzI : IIRFilter
+	port map
+	(
+		clk => clk_top,
+		res_n => res_n_top,
+
+		data_in => mixer_Iout,
+		validin => mixer_validout,
+
+		data_out => fmixer_Iout,
+		validout => fmixer_Ivalidout
+	);
+	
+	filter60KHzQ : IIRFilter
+	port map
+	(
+		clk => clk_top,
+		res_n => res_n_top,
+
+		data_in => mixer_Qout,
+		validin => mixer_validout,
+
+		data_out => fmixer_Qout,
+		validout => fmixer_Qvalidout
+	);
 
 	Ideci : decimator
 	generic map
@@ -130,8 +158,8 @@ begin
 		clk 		=> clk_top,
 		res_n		=> res_n_top,
 
-		data_in 	=> mixer_Iout,
-		validin 	=> mixer_validout,
+		data_in 	=> fmixer_Iout,
+		validin 	=> fmixer_Ivalidout,
 			
 		data_out 	=> Ideci_data_out,
 		validout 	=> Ideci_validout
@@ -147,8 +175,8 @@ begin
 		clk 		=> clk_top,
 		res_n		=> res_n_top,
 
-		data_in 	=> mixer_Qout,
-		validin 	=> mixer_validout,
+		data_in 	=> fmixer_Qout,
+		validin 	=> fmixer_Qvalidout,
 			
 		data_out 	=> Qdeci_data_out,
 		validout 	=> Qdeci_validout
