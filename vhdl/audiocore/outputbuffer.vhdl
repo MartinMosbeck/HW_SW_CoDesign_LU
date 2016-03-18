@@ -1,5 +1,7 @@
 library IEEE;
 use IEEE.std_logic_1164.all;
+use ieee.numeric_std.all;
+use work.math_pkg.all;
 
 library work;
 use work.audiocore_pkg.all;
@@ -30,24 +32,18 @@ architecture behavior of outputbuffer is
 		WART
 	);
 	signal state_cur, state_next: state;
-
-	--is array (0 to (2**9)-1) of byte;
-	type buffer_type is array (N-1 downto 0) of byte;
+	
 	subtype bufferpos is integer range 0 to N-1;
-
-	signal fields_cur, fields_next : buffer_type;-- := (others => x"00")
-
 	signal rpos_cur, rpos_next , wpos_cur, wpos_next : bufferpos; 
 
 	signal data_out_cur, data_out_next : std_logic_vector(31 downto 0);
-
 	signal validout_cur, validout_next : std_logic;
 
 	signal packetcnt, packetcnt_next: integer range 0 to 255; 
 
-	subtype cntpos is integer range 0 to N-1;
-	signal data_cnt_next, data_cnt_cur: cntpos;
-
+	signal data_cnt_next, data_cnt_cur: integer range 0 to N-1;
+	
+	signal data1,data2,data3,data4: byte;
 	
 	function pos_plus1(pos : bufferpos)
 		return bufferpos is
@@ -60,28 +56,47 @@ architecture behavior of outputbuffer is
 	end pos_plus1;
 	
 begin
+
+	ram: qp_ram
+	generic map
+	(
+	  ADDR_WIDTH => log2c(N),
+	  DATA_WIDTH => 8
+	)
+	port map
+	(
+	clk=>clk,
+	address1 => std_logic_vector(to_unsigned(rpos_cur,log2c(N))),
+	address2 => std_logic_vector(to_unsigned(pos_plus1(rpos_cur),log2c(N))),
+	address3 => std_logic_vector(to_unsigned(pos_plus1(pos_plus1(rpos_cur)),log2c(N))),
+	address4 => std_logic_vector(to_unsigned(pos_plus1(pos_plus1(pos_plus1(rpos_cur))),log2c(N))),
+	data_out1 => data1,
+	data_out2 => data2,
+	data_out3 => data3,
+	data_out4 => data4,
+	address5 => std_logic_vector(to_unsigned(wpos_cur,log2c(N))),
+	wr => validin,
+	data_in => data_in
+	);
+
 	------------------
 	-- FIFO action --
 	------------------
-	outputbuffer_action: process (validin,data_in,ready, fields_cur, rpos_cur, wpos_cur, data_out_cur, validout_cur, packetcnt, state_cur, data_cnt_cur)
-	variable data1,data2,data3,data4: byte;
+	outputbuffer_action: process (validin,data_in,ready, rpos_cur, wpos_cur, data_out_cur, validout_cur, packetcnt, state_cur, data_cnt_cur)
 	begin
 		-- to avoid latches
-		fields_next <= fields_cur;
 		rpos_next <= rpos_cur;
 		wpos_next <= wpos_cur;
 		data_out_next <= data_out_cur;
 		validout_next <= validout_cur;
 		packetcnt_next <= packetcnt;
-
 		data_cnt_next<=data_cnt_cur;
-
 		state_next <= state_cur;
 
 		if validin = '1' and data_cnt_cur > 4 and state_cur = IDLE and packetcnt /= 255 and ready = '1' then
 			data_cnt_next <= data_cnt_cur - 3;
 		elsif validin = '1' then
-			if data_cnt_cur = N-1 then
+			if data_cnt_cur = N-1 then--Überlaufbehandlung: Immer aktuellste Daten vorhalten
 				rpos_next <= pos_plus1(rpos_cur);
 			else
 				data_cnt_next <= data_cnt_cur + 1;
@@ -92,7 +107,6 @@ begin
 
 		-- action at in
 		if validin = '1' then
-			fields_next(wpos_cur) <= data_in;
 			wpos_next <= pos_plus1(wpos_cur);
 		end if;
 
@@ -100,10 +114,6 @@ begin
 		if data_cnt_cur > 4 and packetcnt /= 255 and ready = '1' then
 			case state_cur is
 				when IDLE=>
-					data1:=fields_cur(rpos_cur);
-					data2:=fields_cur(pos_plus1(rpos_cur));
-					data3:=fields_cur(pos_plus1(pos_plus1(rpos_cur)));
-					data4:=fields_cur(pos_plus1(pos_plus1(pos_plus1(rpos_cur))));
 					data_out_next <= data1 & data2 & data3 & data4;
 					validout_next <= '1';
 					rpos_next <= pos_plus1(pos_plus1(pos_plus1(pos_plus1(rpos_cur))));
@@ -129,27 +139,21 @@ begin
 	begin
 		if res_n = '0' then
 			--defaults
-			fields_cur <= (others=>(others=>'0'));
 			rpos_cur <= 0;
 			wpos_cur <= 0;
 			data_out_cur <= (others=>'0');
 			validout_cur <= '0';
 			packetcnt <= 0;
 			data_cnt_cur<=0;
-
 			state_cur <= IDLE;
-
 		elsif rising_edge(clk) then
 			-- internal
-			fields_cur <= fields_next;
 			rpos_cur <= rpos_next;
 			wpos_cur <= wpos_next;
 			data_out_cur <= data_out_next;
 			validout_cur <= validout_next;
 			packetcnt <= packetcnt_next;
-
 			data_cnt_cur <= data_cnt_next;
-
 			state_cur <= state_next;
 			
 			-- outputs

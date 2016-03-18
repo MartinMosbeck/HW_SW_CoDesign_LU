@@ -994,6 +994,8 @@ set_global_assignment -name CYCLONEII_OPTIMIZATION_TECHNIQUE SPEED
 set_global_assignment -name PHYSICAL_SYNTHESIS_COMBO_LOGIC ON
 set_global_assignment -name PHYSICAL_SYNTHESIS_REGISTER_DUPLICATION ON
 set_global_assignment -name PHYSICAL_SYNTHESIS_REGISTER_RETIMING ON
+set_global_assignment -name VHDL_FILE ../vhdl/common/math/src/math_pkg.vhd
+set_global_assignment -name VHDL_FILE ../vhdl/audiocore/qp_ram.vhdl
 set_global_assignment -name VHDL_FILE ../vhdl/audiocore/outputlogic.vhdl
 set_global_assignment -name VHDL_FILE ../vhdl/audiocore/outputbuffer.vhdl
 set_global_assignment -name VHDL_FILE ../vhdl/audiocore/demodulator.vhdl
