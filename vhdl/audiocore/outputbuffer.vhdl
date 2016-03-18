@@ -31,10 +31,11 @@ architecture behavior of outputbuffer is
 	);
 	signal state_cur, state_next: state;
 
+	--is array (0 to (2**9)-1) of byte;
 	type buffer_type is array (N-1 downto 0) of byte;
 	subtype bufferpos is integer range 0 to N-1;
 
-	signal fields_cur, fields_next : buffer_type;
+	signal fields_cur, fields_next : buffer_type;-- := (others => x"00")
 
 	signal rpos_cur, rpos_next , wpos_cur, wpos_next : bufferpos; 
 
@@ -44,7 +45,7 @@ architecture behavior of outputbuffer is
 
 	signal packetcnt, packetcnt_next: integer range 0 to 255; 
 
-	subtype cntpos is integer range 0 to N;
+	subtype cntpos is integer range 0 to N-1;
 	signal data_cnt_next, data_cnt_cur: cntpos;
 
 	
@@ -64,7 +65,6 @@ begin
 	------------------
 	outputbuffer_action: process (validin,data_in,ready, fields_cur, rpos_cur, wpos_cur, data_out_cur, validout_cur, packetcnt, state_cur, data_cnt_cur)
 	variable data1,data2,data3,data4: byte;
-	variable full:std_logic:='0';
 	begin
 		-- to avoid latches
 		fields_next <= fields_cur;
@@ -78,24 +78,20 @@ begin
 
 		state_next <= state_cur;
 
-		--FUNZT NOCH NED
-		--if data_cnt_cur = N then
-		--	full:='1';
-		--end if;
-		--if data_cnt_cur = 0 then
-		--	full:='0';
-		--end if;
-
-		if validin = '1' and data_cnt_cur > 4 and state_cur = IDLE and packetcnt /= 255 and ready = '1' then-- and full='0' then
+		if validin = '1' and data_cnt_cur > 4 and state_cur = IDLE and packetcnt /= 255 and ready = '1' then
 			data_cnt_next <= data_cnt_cur - 3;
-		elsif validin = '1' then --and full='0' then
-			data_cnt_next <= data_cnt_cur + 1;
+		elsif validin = '1' then
+			if data_cnt_cur = N-1 then
+				rpos_next <= pos_plus1(rpos_cur);
+			else
+				data_cnt_next <= data_cnt_cur + 1;
+			end if;
 		elsif data_cnt_cur > 4 and state_cur = IDLE and packetcnt /= 255 and ready = '1' then
 			data_cnt_next <= data_cnt_cur - 4;
 		end if;
 
 		-- action at in
-		if validin = '1' then --and full='0' then
+		if validin = '1' then
 			fields_next(wpos_cur) <= data_in;
 			wpos_next <= pos_plus1(wpos_cur);
 		end if;
