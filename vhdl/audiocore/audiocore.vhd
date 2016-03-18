@@ -185,7 +185,7 @@ begin
 	outbuffer: outputbuffer
 	generic map
 	(
-		N => 512 --standard 512
+		N => 512 --standard 512, max fittbar 8192
 	)
 	port map
 	(

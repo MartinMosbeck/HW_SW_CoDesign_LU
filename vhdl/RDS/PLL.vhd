@@ -22,7 +22,7 @@ port
 );
 end PLL;
 
-architecture PLL_beh is
+architecture PLL_beh of PLL is
 	constant kp : fixpoint := "00000000001001100110011001100110";
 	constant ki : fixpoint := "00000000000110011001100110011001";
 	
