@@ -9,6 +9,8 @@ package audiocore_pkg is
 	subtype fixpoint is signed(31 downto 0);
 	subtype fixpoint_product is signed(63 downto 0);
 
+	type fixpoint_array is array(natural range <>) of fixpoint; 
+
 	component enqueuer is
 		port
 		(
