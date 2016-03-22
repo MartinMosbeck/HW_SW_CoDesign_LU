@@ -1,7 +1,9 @@
 clear
 close all
 
-debugread=1;
+AUDIO_ONLY = 0;		%skips the RDS part
+
+debugread=0;
 if debugread==0
 fileID = fopen('samples.bin');
 inputdata=fread(fileID,'uint8');
@@ -12,7 +14,7 @@ inputdata=textread('ethtst_normal.txt','%2c');
 inputdata=hex2dec(char(inputdata));
 end
 %Einlesen und IQ aus Datenpunkten aufbauen
-anzsamp=floor(size(inputdata)/(2^0));%Anz der einzulesenden Datenpunkte
+anzsamp=floor(size(inputdata)/(2^9));%Anz der einzulesenden Datenpunkte
 inputdata=inputdata-127;
 IQ=inputdata(1:2:anzsamp-1)+1i.*inputdata(2:2:anzsamp);
 clear inputdata anzsamp fileID
@@ -34,27 +36,27 @@ clear IQ
 %Bis hier um den Filter auszukommentieren
 
 %IIR Filter als Referenz
-% load('.mat');
-% b=b';
-% a=a';
-% b=b.*(1/a(1));
-% a=a.*(1/a(1));
-% a=a(2:end);
-% a=-1*a;
-% xhist=zeros(length(b),1);
-% yhist=zeros(length(a),1);
-% for index=1:length(fmdemod)
-%     xhist=circshift(xhist,[1,0]);
-%     xhist(1)=fmdemod(index);
-%     fmdemod(index)=sum(xhist.*b)+sum(yhist.*a);
-%     yhist=circshift(yhist,[1,0]);
-%     yhist(1)=fmdemod(index);
-% end
+load('iir_lowpass_5_60kHz_num.mat');
+b=num';
+load('iir_lowpass_5_60kHz_den.mat');
+a=den';
+%b=b.*(1/a(1));
+%a=a.*(1/a(1));
+%a=a(2:end);
+%a=-1*a;
+%xhist=zeros(length(b),1);
+%yhist=zeros(length(a),1);
+%for index=1:length(mixedsignal99_9MHz)
+%    xhist=circshift(xhist,[1,0]);
+%    xhist(1)=mixedsignal99_9MHz(index);
+%    mixedsignal99_9MHz(index)=sum(xhist.*b)+sum(yhist.*a);
+%    yhist=circshift(yhist,[1,0]);
+%    yhist(1)=mixedsignal99_9MHz(index);
+%end
 %Bis hier Filter auskommentieren
 
-
-%beforedecsignal=filter(b,1,mixedsignal99_9MHz);
-beforedecsignal=mixedsignal99_9MHz;
+beforedecsignal=filter(b,a,mixedsignal99_9MHz);
+%beforedecsignal=mixedsignal99_9MHz;
 
 clear mixedsignal99_9MHz
 
@@ -90,9 +92,11 @@ clear a b xhist yhist index
 
 %synchronization with respect to the 19kHz pilot tone
 %retrieve the pilot tone
-load('fir_bandpass_165_19kHz.mat');
-b=h.';
-pilotTone = filter(b,1,fmdemod);
+load('iir_bandpass_7_19kHz_den.mat');
+a=den.';
+load('iir_bandpass_7_19kHz_num.mat');
+b=num.';
+pilotTone = filter(b,a,fmdemod);
 
 %Initialize PLL Loop
 f = 19000;	%carrier frequency
@@ -143,9 +147,10 @@ bitsymbols = zeros(ceil(length(biphasesymbols)/2),1) - 1;
 sampleBitSymb = zeros(size(pilotTone)) - 0.3;
 lockedHere = zeros(size(pilotTone));
 
+if AUDIO_ONLY == 0
 for n=2:length(pilotTone) 
 	%PLL implementation 
-	vco(n)=conj(exp(j*(2*pi*n*f/fs+phi_hat(n-1))));	%Compute VCO 
+	vco(n)=500*conj(exp(j*(2*pi*n*f/fs+phi_hat(n-1))));	%Compute VCO 
 	phd_output(n)=imag(pilotTone(n)*vco(n));	%Complex multiply VCO x pilotTone input 
 	e(n)=e(n-1)+(kp+ki)*phd_output(n)-ki*phd_output(n-1);	%Filter integrator 
 	phi_hat(n)=phi_hat(n-1)+e(n);	%Update VCO 
@@ -287,12 +292,13 @@ for n=2:length(pilotTone)
 	%	samples(sampleCounter) = mixedsignal(n);
 	%end;
 end
+end
 clear a b e f n fs phd_output phi_hat sampleCounter ki kp
 clear startOfSymbol t symbCurSign symbOldSign symbolRate h phase
 clear sampleDur vcoRiseEdgeCounter xhist bitDur bitDurInVcoEdges
 clear bitRate index timeAfterZeroCrossing fmdemod
 
-draw = 0;
+draw = 1;
 if draw == 1
 	figure
 	plot(real(mixedsignal),'g');
@@ -303,10 +309,10 @@ if draw == 1
 	hold on
 	plot(real(lockedHere), 'y');
 
-	%figure
-	%plot(pilotTone,'r');
-	%hold on
-	%plot(0.55*real(vco),'g');
+	figure
+	plot(pilotTone,'r');
+	hold on
+	plot(real(vco),'g');
 end
 clear mixedsignal samplePoints samplePointsBiphase
 
@@ -316,6 +322,7 @@ if draw == 1
 	hold on
 	plot(symbols,'g.');
 end
+
 %clear biphasesymbols
 
 %clear symbols
