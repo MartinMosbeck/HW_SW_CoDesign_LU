@@ -185,7 +185,7 @@ begin
 	FMdemod : demodulator
 	port map
 	(
-		clk			=> clk_top,
+		clk		=> clk_top,
 		res_n		=> res_n_top,
 
 		data_in_I	=> Ideci_data_out,

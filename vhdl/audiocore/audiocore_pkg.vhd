@@ -6,6 +6,7 @@ package audiocore_pkg is
 	subtype byte is std_logic_vector(7 downto 0);
 	subtype sgdma_frame is std_logic_vector(31 downto 0);
 	subtype index_time is integer range 0 to 24; 
+	subtype index is natural;
 	subtype fixpoint is signed(31 downto 0);
 	subtype fixpoint_product is signed(63 downto 0);
 

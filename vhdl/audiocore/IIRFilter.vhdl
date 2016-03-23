@@ -30,21 +30,38 @@ architecture behavior of IIRFIlter is
 	end function;
 	
 	constant order: natural := 10;
-	constant a : fixpoint_array(0 to order-1) := (
-		"11111111111101110000000100001101",
-		"00000000001001000111011010011010",
-		"11111111101010000100111100101000",
-		"00000000100010101000111101010101",
-		"11111111011010011011001010101010",
-		"00000000011100010101100101000100",
-		"11111111110001010101001000100111",
-		"00000000000100111111010011010000",
-		"11111111111110111111100101011001",
-		"00000000000000000101110110101011"
-	);
-	constant b : fixpoint_array(0 to order) := (
-		others=>(others=>'0')
-	);
+	function a(index:index) 
+		return fixpoint is
+	begin 
+		case index is
+		    when 0 =>
+			    return "11111111111111000001110001000001";
+		    when 1 =>
+			    return "00000000000001011011001001111011";
+		    when 2 =>
+			    return "11111111111111000100011010110000";
+		    when 3 =>
+			    return "00000000000000001110101010011011";
+		    when others=> return x"FFFFFFFF";
+		end case;
+	end function;
+	function b(index:index) 
+		return fixpoint is
+	begin 
+		case index is
+		     when 0 =>
+			    return "00000000000000000000000001001010";
+		    when 1 =>
+			    return "11111111111111111111111100001000";
+		    when 2 =>
+			    return "00000000000000000000000101100000";
+		    when 3 =>
+			    return "11111111111111111111111100001000";
+		    when 4 =>
+			    return "00000000000000000000000001001010";
+		    when others=> return x"FFFFFFFF";
+		end case;
+	end function;
 
 
 	signal xhist_cur,xhist_next : fixpoint_array (order downto 0) := (others =>  (others => '0'));
@@ -55,7 +72,7 @@ architecture behavior of IIRFIlter is
 	signal validout_cur, validout_next: std_logic;
 
 begin
-	compute: process (validin,data_in, validout_cur)
+	compute: process (validin,data_in, validout_cur, xhist_cur, yhist_cur, data_out_cur)
 		variable xhist_temp : fixpoint_array(order downto 0);
 		variable yhist_temp : fixpoint_array(order-1 downto 0);
 		variable data_out_temp : fixpoint;
@@ -66,13 +83,11 @@ begin
 		yhist_next <= yhist_cur;
 
 		if(validin = '1') then
-			xhist_temp := xhist_cur;
-			yhist_temp := yhist_cur;
 			data_out_temp := (others => '0');
 
 			--shift xhist
 			for i in 1 to order loop
-				xhist_temp(i) := xhist_temp(i-1);
+				xhist_temp(i) := xhist_cur(i-1);
 			end loop;
 
 			xhist_temp(0) := data_in;
@@ -84,12 +99,12 @@ begin
 			end loop;
 
 			for i in 0 to order-1 loop
-				data_out_temp := data_out_temp + fixpoint_mult(yhist_temp(i),a(i));
+				data_out_temp := data_out_temp + fixpoint_mult(yhist_cur(i),a(i));
 			end loop;
 
 			--shift yhist
 			for i in 1 to order-1 loop
-				yhist_temp(i) := yhist_temp(i-1);
+				yhist_temp(i) := yhist_cur(i-1);
 			end loop; 
 		
 			yhist_temp(0) := data_out_temp;
