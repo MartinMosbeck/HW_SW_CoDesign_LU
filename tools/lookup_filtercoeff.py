@@ -3,14 +3,28 @@ from BitVector import *
 
 
 
-bSkal = 1.0e-08
-b= [0.0006,0.0055,0.0248,0.0662,0.1158,0.1390,0.1158,0.0662,0.0248,0.0055,0.0006]
+bSkal = 1
+
+# lowpass_5_60kHz
+b = [0.00113346381387758,-0.00378921524655597,0.00538179194115286,-0.00378921524655597,0.00113346381387758]
+
+#bandpass_7_19kHz
+#b = [0.000894338131378939,-0.00204191135309592,0.00202869620505740,0,-0.00202869620505740,0.00204191135309592,-0.000894338131378939]
+
+
+
 
 aSkal = 1
-a = [-8.9959,36.4633,-87.6908,138.5599,-150.3021,113.3487,-58.6791,19.9563,-4.0260,0.3659] 
+# lowpass_5_60kHz
+a = [-3.88963739674497,5.69719400516089,-3.72388799179207,0.916430669334689] 
+
+#bandpass_7_19kHz
+#a = [-3.45269383242918,6.94670643083800,-8.37374250735840,6.89638853812718,-3.40283483442992,0.978422750372621] 
+
 
 skalierungsfaktor = pow(2,2*8)
 
+i=0
 print("a:")
 for value in a:
     value = value * aSkal
@@ -39,11 +53,16 @@ for value in a:
         summe=summe + toadd * int(c)
         j=j+1
 
-    print("0b"+str(bv)+",")
+    #print("\t\t\twhen "+str(i)+" =>")
+    #print('\t\t\t\treturn "',end="")
+    #print(str(bv)+'";') 
+    print("\t0b"+str(bv)+",")
+    i=i+1
     #print("Wert:"+str(value)+ " = " + str(summe))
     #print("Delta= " + str(abs(value-summe)))
     #print("");
 
+i=0
 print("b:")
 for value in b:
     value = value * bSkal
@@ -72,7 +91,11 @@ for value in b:
         summe=summe + toadd * int(c)
         j=j+1
 
-    print("0b"+str(bv)+",")
+    #print("\t\t\twhen "+str(i)+" =>")
+    #print('\t\t\t\treturn "',end="")
+    #print(str(bv)+'";') 
+    print("\t0b"+str(bv)+",")
+    i=i+1
     #print("Wert:"+str(value)+ " = " + str(summe))
     #print("Delta= " + str(abs(value-summe)))
     #print("");

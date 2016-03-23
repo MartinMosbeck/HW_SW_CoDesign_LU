@@ -23,7 +23,7 @@ f_break = 2/td;
 
 num_f1 = 100;
 num_f2 = 50+1; %+1 because of >2/td
-filterorder=100;
+filterorder=20;
 
 f1 = linspace(0,f_break,num_f1);
 f2 = linspace(f_break,f_nyquist,num_f2);

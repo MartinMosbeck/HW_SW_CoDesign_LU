@@ -6,8 +6,11 @@ package audiocore_pkg is
 	subtype byte is std_logic_vector(7 downto 0);
 	subtype sgdma_frame is std_logic_vector(31 downto 0);
 	subtype index_time is integer range 0 to 24; 
+	subtype index is natural;
 	subtype fixpoint is signed(31 downto 0);
 	subtype fixpoint_product is signed(63 downto 0);
+
+	type fixpoint_array is array(natural range <>) of fixpoint; 
 
 	component enqueuer is
 		port
@@ -150,5 +153,42 @@ package audiocore_pkg is
 			validout : out std_logic;
 			data_out : out std_logic_vector(31 downto 0)
 		);
+	end component;
+	
+	component qp_ram is
+		generic
+		(
+			ADDR_WIDTH : integer range 1 to integer'high;
+			DATA_WIDTH : integer range 1 to integer'high
+		);
+		port
+		(
+			clk : in std_logic;
+			address1 : in std_logic_vector(ADDR_WIDTH - 1 downto 0);
+			address2 : in std_logic_vector(ADDR_WIDTH - 1 downto 0);
+			address3 : in std_logic_vector(ADDR_WIDTH - 1 downto 0);
+			address4 : in std_logic_vector(ADDR_WIDTH - 1 downto 0);
+			data_out1 : out std_logic_vector(DATA_WIDTH - 1 downto 0);
+			data_out2 : out std_logic_vector(DATA_WIDTH - 1 downto 0);
+			data_out3 : out std_logic_vector(DATA_WIDTH - 1 downto 0);
+			data_out4 : out std_logic_vector(DATA_WIDTH - 1 downto 0);
+			address5 : in std_logic_vector(ADDR_WIDTH - 1 downto 0);
+			wr : in std_logic;
+			data_in : in std_logic_vector(DATA_WIDTH - 1 downto 0)
+		);
+	end component;
+	
+	component IIRFilter is
+	port 
+	(
+		clk 		: in std_logic;
+		res_n 		: in std_logic;
+
+		data_in 	: in fixpoint;
+		validin 	: in std_logic;
+
+		data_out 	: out fixpoint;
+		validout 	: out std_logic
+	);
 	end component;
 end package audiocore_pkg;

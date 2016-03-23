@@ -16,16 +16,20 @@
 #define BUF_SIZE 32768//*256=8388608 Daten im DBGOUT-Mode
 #define BUF_SIZE_DBGOUT 65532//65532 is das max was ein SGDMA kann
 
-#define DBGOUT_SIZE 512//1 wenn kein DBG -max derzeit 1024
+#define DBGOUT_SIZE 1024//1 wenn kein DBG -max derzeit 1024
 
 //#define DEBUGOUT
 #define DBGOUT
 //#define DEBUGSTATUS
+#define TON
 
 // Allocate descriptors in the descriptor_memory (onchip memory) and rx frames (main memory)
 //alt_sgdma_descriptor rx_descriptor[3]  __attribute__ (( section ( ".descriptor_memory" )));
+#ifdef DBGOUT
 alt_sgdma_descriptor rx_descriptor[DBGOUT_SIZE+1]  __attribute__ (( section ( ".descriptor_memory" )));//NUR FÜR DBGOUT!!! descripter memory standard 4096 bytes
+#endif
 #ifndef DBGOUT
+alt_sgdma_descriptor rx_descriptor[3]  __attribute__ (( section ( ".descriptor_memory" )));
 unsigned char rx_audio[2][BUF_SIZE]    __attribute__ (( section ( ".main_memory" )));
 #endif
 
@@ -85,7 +89,7 @@ int main(void)
 	display_clear();
 	
 	// Print a message
-	display_print(bunny);//bunny || snowman
+	display_print(bunny);//bunny || snowman || sonic
 
 	// Allocate memory for the song (SDRAM)
 	#ifdef DBGOUT
@@ -113,7 +117,7 @@ int main(void)
 
 	#ifndef DBGOUT
 	// Create sgdma receive descriptor
-	alt_avalon_sgdma_construct_stream_to_mem_desc( &rx_descriptor[0], &rx_descriptor[1], (alt_u32 *)rx_audio[0], BUF_SIZE, 0 );
+	alt_avalon_sgdma_construct_stream_to_mem_desc( &rx_descriptor[0], &rx_descriptor[1], &song_ptr_b[0], BUF_SIZE, 0 );//(alt_u32 *)rx_audio[0
 
 	//display_print ("Ready to receive data!\n");
 	
@@ -150,16 +154,16 @@ int main(void)
 	while(1)
 	{
 		// Create sgdma receive descriptor
-		alt_avalon_sgdma_construct_stream_to_mem_desc( &rx_descriptor[1-act_frame], &rx_descriptor[2-act_frame],(alt_u32 *)rx_audio[1-act_frame] , BUF_SIZE, 0 );
+		alt_avalon_sgdma_construct_stream_to_mem_desc( &rx_descriptor[1-act_frame], &rx_descriptor[2-act_frame], &song_ptr_b[(1-act_frame)*BUF_SIZE] , BUF_SIZE, 0 );//(alt_u32 *)rx_audio[1-act_frame]
 
 		// Set up non-blocking transfer of sgdma receive descriptor
 		alt_avalon_sgdma_do_async_transfer( sgdma_rx_dev, &rx_descriptor[1-act_frame] );
 
 		// Copy received frame to song ///HIER
-		for (i = 0; i < BUF_SIZE; i ++)
+		/*for (i = 0; i < BUF_SIZE; i ++)
 		{
 			song_ptr_b[i] = rx_audio[act_frame][i];
-		}
+		}*/
 
 		#ifdef DEBUGOUT
 			if(zeigen>0){
@@ -180,7 +184,7 @@ int main(void)
 			avail = (unsigned int)((IORD_32DIRECT(AUDIO_BASE,4)&0xFF000000)>>24);
 			while(avail <= 0)avail = (unsigned int)((IORD_32DIRECT(AUDIO_BASE,4)&0xFF000000)>>24);
 			// Read sample from SDRAM
-			sample = (int)song[i];
+			sample = (int)song[i+act_frame*BUF_SIZE/2];
 			// and write it to the FIFO for left channel
 			IOWR_32DIRECT(AUDIO_BASE,8,sample);
 
@@ -208,6 +212,7 @@ int main(void)
 	#endif
 
 	#ifdef DBGOUT
+		#ifndef TON
 		for (i = 0; i < BUF_SIZE_DBGOUT*DBGOUT_SIZE; i ++)
 		{
 			/*if(i%64==0){
@@ -220,21 +225,23 @@ int main(void)
 		alt_printf("\n\nENDE");
 		sprintf(outtext, "%c",4);
 		alt_printf(outtext);
-	/*while(1){
-	for (i = 0; i < BUF_SIZE_DBGOUT*DBGOUT_SIZE/2; i ++)
-		{
-			//Play the received frame
-			avail = (unsigned int)((IORD_32DIRECT(AUDIO_BASE,4)&0xFF000000)>>24);
-			while(avail <= 0)avail = (unsigned int)((IORD_32DIRECT(AUDIO_BASE,4)&0xFF000000)>>24);
-			// Read sample from SDRAM
-			sample = (int)song[i];
-			// and write it to the FIFO for left channel
-			IOWR_32DIRECT(AUDIO_BASE,8,sample);
+		#else
+		while(1){
+		for (i = 0; i < BUF_SIZE_DBGOUT*DBGOUT_SIZE/2; i ++)
+			{
+				//Play the received frame
+				avail = (unsigned int)((IORD_32DIRECT(AUDIO_BASE,4)&0xFF000000)>>24);
+				while(avail <= 0)avail = (unsigned int)((IORD_32DIRECT(AUDIO_BASE,4)&0xFF000000)>>24);
+				// Read sample from SDRAM
+				sample = (int)song[i];
+				// and write it to the FIFO for left channel
+				IOWR_32DIRECT(AUDIO_BASE,8,sample);
 
-			// and write it to the FIFO for left channel
-			IOWR_32DIRECT(AUDIO_BASE,12,sample);
+				// and write it to the FIFO for left channel
+				IOWR_32DIRECT(AUDIO_BASE,12,sample);
+			}
 		}
-	}*/
+		#endif
 	#endif
 	return 0;
 }
