@@ -21,7 +21,7 @@
 //#define DEBUGOUT
 #define DBGOUT
 //#define DEBUGSTATUS
-#define TON
+//#define TON
 
 // Allocate descriptors in the descriptor_memory (onchip memory) and rx frames (main memory)
 //alt_sgdma_descriptor rx_descriptor[3]  __attribute__ (( section ( ".descriptor_memory" )));

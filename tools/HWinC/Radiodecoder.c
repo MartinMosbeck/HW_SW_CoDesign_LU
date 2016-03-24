@@ -161,11 +161,11 @@ int main(int argc, char *argv[]){
 		//printf("Itemp1 = %u, Itemp2 = %u, Qtemp1 = %u, Qtemp2 = %u\n",fixpoint_mult(Itemp,lookup_cos16[t_cur]),fixpoint_mult(Qtemp,lookup_sin16[t_cur]),fixpoint_mult(Itemp,lookup_sin16[t_cur]),fixpoint_mult(Qtemp,lookup_cos16[t_cur]));
 		//printf("Iout = %u, Qout = %u\n", Iout, Qout);
 		//printf("Iout = %f, Qout = %f\n", zeigeFixpoint(Iout), zeigeFixpoint(Qout));
-		printf("\t\t--%i\n",i);
-		printf("\t\tIin <= x\"%02x\";\n",Iout);
-		printf("\t\tcounter <= counter + 10000;\n");
-		printf("\t\tclk <= '1'; wait for 5 ns;\n");
-		printf("\t\tclk <= '0'; wait for 5 ns;\n");
+		//printf("\t\t--%i\n",i);
+		//printf("\t\tIin <= x\"%02x\";\n",Iout);
+		//printf("\t\tcounter <= counter + 10000;\n");
+		//printf("\t\tclk <= '1'; wait for 5 ns;\n");
+		//printf("\t\tclk <= '0'; wait for 5 ns;\n");
 		
 		if (24==t_cur) t_cur=0;
 		else t_cur++;
