@@ -29,7 +29,7 @@ architecture behavior of IIRFIlter is
 		return result_full(47 downto 16);
 	end function;
 	
-	constant order: natural := 10;
+	constant order: natural := 4;
 	function a(index:index) 
 		return fixpoint is
 	begin 
@@ -74,7 +74,6 @@ architecture behavior of IIRFIlter is
 begin
 	compute: process (validin,data_in, validout_cur, xhist_cur, yhist_cur, data_out_cur)
 		variable xhist_temp : fixpoint_array(order downto 0);
-		variable yhist_temp : fixpoint_array(order-1 downto 0);
 		variable data_out_temp : fixpoint;
 	begin
 		data_out_next <= data_out_cur;
@@ -104,16 +103,15 @@ begin
 
 			--shift yhist
 			for i in 1 to order-1 loop
-				yhist_temp(i) := yhist_cur(i-1);
+				yhist_next(i) <= yhist_cur(i-1);
 			end loop; 
 		
-			yhist_temp(0) := data_out_temp;
+			yhist_next(0) <= data_out_temp;
 
 			data_out_next <= data_out_temp;
 			validout_next <= '1';
 			
 			xhist_next <= xhist_temp;
-			yhist_next <= yhist_temp;
 		else
 			validout_next <= '0';
 		end if;

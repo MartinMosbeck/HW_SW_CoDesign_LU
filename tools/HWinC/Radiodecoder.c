@@ -58,6 +58,13 @@ int lookup_cos16[25]={
         0b11111111111111110000001000000101,
         0b00000000000000000001000000010011
 };
+
+#define filterOrder 4
+uint32_t xhistI[filterOrder+1];
+uint32_t yhistI[filterOrder];
+uint32_t xhistQ[filterOrder+1];
+uint32_t yhistQ[filterOrder];
+
 //dafür ist -lm beim compilieren nötig
 //==gcc Radiodecoder.c -lm -g -o Radiodecoder
 #define ANZ_NACHKOMMA 16//Gesamt 32 bit,d.h. der Rest ist Vorkomma
@@ -120,12 +127,6 @@ int main(int argc, char *argv[]){
 	int outputpos=0;
 	
 	//for Filter Lowpass IIR 60KHz
-    #define filterOrder 4
-	uint32_t xhistI[filterOrder+1];
-	uint32_t yhistI[filterOrder];
-	
-	uint32_t xhistQ[filterOrder+1];
-	uint32_t yhistQ[filterOrder];
 	
 	uint32_t a[filterOrder] = {
 	0b11111111111111000001110001000001,
@@ -162,6 +163,7 @@ int main(int argc, char *argv[]){
 		//printf("Iout = %u, Qout = %u\n", Iout, Qout);
 		//printf("Iout = %f, Qout = %f\n", zeigeFixpoint(Iout), zeigeFixpoint(Qout));
 		//printf("\t\t--%i\n",i);
+		//printf("Iout[%i] = %02x\n", i, Iout);
 		//printf("\t\tIin <= x\"%02x\";\n",Iout);
 		//printf("\t\tcounter <= counter + 10000;\n");
 		//printf("\t\tclk <= '1'; wait for 5 ns;\n");
@@ -178,39 +180,41 @@ int main(int argc, char *argv[]){
                 /////////
 		
 		//shift xhist
-		for(j=1; j < filterOrder + 1; j++)
+		for(j=filterOrder + 1; j > 0; j--)
 		  xhistI[j] = xhistI[j-1];
 		
 		//add up
 		xhistI[0] = Iout;
 		Iout = 0;
 		for(j=0; j< filterOrder + 1; j++)
-		  Iout += xhistI[j] * b[j];
+		  Iout += fixpoint_mult(xhistI[j],b[j]);
 		for(j=0; j< filterOrder; j++)
-		  Iout += yhistI[j] * a[j];
+		  Iout += fixpoint_mult(yhistI[j],a[j]);
 		
 		//shift yhist
-		for(j=1; j < filterOrder; j++)
+		for(j=filterOrder; j > 0; j--)
 		  yhistI[j] = yhistI[j-1];
 		yhistI[0] = Iout;
+
+		//printf("Iout[%i] = %02x\n\n", i, Iout);
 		
 		//FOR Q//
 		/////////
 		
 		//shift xhist
-		for(j=1; j < filterOrder + 1; j++)
+		for(j=filterOrder + 1; j > 0; j--)
 		  xhistQ[j] = xhistQ[j-1];
 		
 		//add up
 		xhistQ[0] = Qout;
 		Qout = 0;
 		for(j=0; j< filterOrder + 1; j++)
-		  Qout += xhistQ[j] * b[j];
+		  Qout += fixpoint_mult(xhistQ[j],b[j]);
 		for(j=0; j< filterOrder; j++)
-		  Qout += yhistQ[j] * a[j];
+		  Qout += fixpoint_mult(yhistQ[j],a[j]);
 		
 		//shift yhist
-		for(j=1; j < filterOrder; j++)
+		for(j=filterOrder; j > 0; j--)
 		  yhistQ[j] = yhistQ[j-1];
 		yhistQ[0] = Qout;
 		
@@ -253,7 +257,7 @@ int main(int argc, char *argv[]){
 	free(I);
 	free(Q);
 	
-	for(i=0; i<=outputpos; i++){
+	for(i=0; i<outputpos; i++){
 		printf("%02x",outputvector[i]);
 	}
 	free(outputvector);
