@@ -34,9 +34,7 @@ begin
 		validout_next <= validout_cur;
 		cnt_next <= cnt_cur;
 
-		if(validin = '0') then
-			validout_next <= '0';
-		else
+		if(validin = '1') then
 			if(cnt_cur = N-1) then
 				cnt_next <= 0;
 				validout_next <= '1';
@@ -45,6 +43,8 @@ begin
 				validout_next <= '0';
 				cnt_next <= cnt_cur + 1;
 			end if;
+		else
+			validout_next <= '0';
 		end if; 
 	end process do_decimation;
 

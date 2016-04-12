@@ -26,7 +26,7 @@ architecture behavior of demodulator is
 	signal validout_cur, validout_next :std_logic;
 	constant min1: fixpoint := x"FFFF0000";
 
-	signal validintern_cur, validintern_next: std_logic;
+	signal validintern_cur, validintern_next: std_logic := '0';
 	signal data1_cur, data1_next, data2_cur, data2_next: fixpoint;
 
 	function fixpoint_mult(a,b:fixpoint) return fixpoint is
@@ -48,14 +48,14 @@ begin
 		data2_next <= data2_cur;
 		validintern_next <= validintern_cur;
 
-		if(validin_I = '0') then--bzw and validin_Q ='0'
-			validintern_next <= '0';
-		else
+		if(validin_I = '1') then--bzw and validin_Q ='0'
 			validintern_next <= '1';
 			data1_next <= fixpoint_mult(data_in_I,data_con_Q);
 			data2_next <= fixpoint_mult(data_in_Q,data_con_I);
 			data_con_I_next <= data_in_I;
 			data_con_Q_next <= fixpoint_mult(min1,data_in_Q);
+		else
+			validintern_next <= '0';
 		end if; 
 
 		if(validintern_cur = '1') then

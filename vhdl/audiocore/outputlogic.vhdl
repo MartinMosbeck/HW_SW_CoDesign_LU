@@ -60,15 +60,14 @@ begin
 		data_out_next <= data_out_cur;
 		validout_next <= validout_cur;
 
-		if(valid = '0') then
-			validout_next <= '0';
-		else
+		if(valid = '1') then
 			validout_next <= '1';
 
 			data_fixp := fixpoint_mult(data,factor);
 			data_out_fixp := data_fixp + v127;
 			data_out_next <= std_logic_vector(data_out_fixp(23 downto 16));
-			
+		else
+			validout_next <= '0';
 		end if; 
 	end process do_output;
 

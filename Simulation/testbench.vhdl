@@ -11,110 +11,183 @@ entity audiocore_Simulation is
 end audiocore_Simulation;
 
 architecture testbench of audiocore_Simulation is
-
-  -- Set up the signals on the 3bit_counter
-  signal button1 : std_logic;
-  signal button4 : std_logic;
-  signal led1    : std_logic;
-  signal led2    : std_logic;
-  signal led3    : std_logic;
-
-  -- Set up the vcc signal as 1
-  signal vcc  : std_logic := '1';
   
-  signal clk: std_logic;
+  signal clk: std_logic:='0';
   signal res: std_logic;
   
-  signal Iin: fixpoint;
-  signal validin: std_logic;
-  
-  signal Iout: fixpoint;
-  signal validout: std_logic;
+  signal Istart, Iend, Ivalid, Iready, Ostart, Oend, Ovalid, Oready: std_logic;
+  signal Idata, Odata: std_logic_vector(31 downto 0);
   
   signal counter: integer:=30000;
   
   begin
-    dut : entity work.IIRFilter
+    dut : entity work.audiocore
 		port map
 		(
-		clk => clk,
+		clk   => clk,
 		res_n => res,
+		
+		-- stream input
+		asin_data => Idata,
+		asin_startofpacket => Istart,
+		asin_endofpacket => Iend,
+		asin_valid => Ivalid,
+		asin_ready => Iready,
 
-		data_in => Iin,
-		validin => validin,
-
-		data_out => Iout,
-		validout => validout
-		);
+		-- stream output
+		asout_data => Odata,
+		asout_startofpacket => Ostart,
+		asout_endofpacket => Oend,
+		asout_valid => Ovalid,
+		asout_ready => Oready
+	);
     
     stimulus : process is
       begin
 		res <= '0'; wait for 20 ns;
 		res <= '1'; wait for 20 ns;
-		validin <= '1';
+		Ivalid <= '1';
+		Oready <= '1';
 
-		Iin <= x"ffe20000";
-		counter <= counter + 10000;
-		clk <= '1'; wait for 5 ns;
-		clk <= '0'; wait for 5 ns;
-		Iin <= x"ffde4845";
-		counter <= counter + 10000;
-		clk <= '1'; wait for 5 ns;
-		clk <= '0'; wait for 5 ns;
-		Iin <= x"ffe5e9ab";
-		counter <= counter + 10000;
-		clk <= '1'; wait for 5 ns;
-		clk <= '0'; wait for 5 ns;
-		Iin <= x"ffd2f96b";
-		counter <= counter + 10000;
-		clk <= '1'; wait for 5 ns;
-		clk <= '0'; wait for 5 ns;
-		Iin <= x"ffe53198";
-		counter <= counter + 10000;
-		clk <= '1'; wait for 5 ns;
-		clk <= '0'; wait for 5 ns;
-		Iin <= x"ffd948fc";
-		counter <= counter + 10000;
-		clk <= '1'; wait for 5 ns;
-		clk <= '0'; wait for 5 ns;
-		Iin <= x"ffd71d0e";
-		counter <= counter + 10000;
-		clk <= '1'; wait for 5 ns;
-		clk <= '0'; wait for 5 ns;
-		Iin <= x"ffd4243e";
-		counter <= counter + 10000;
-		clk <= '1'; wait for 5 ns;
-		clk <= '0'; wait for 5 ns;
-		Iin <= x"ffd1e69c";
-		counter <= counter + 10000;
-		clk <= '1'; wait for 5 ns;
-		clk <= '0'; wait for 5 ns;
-		Iin <= x"ffd01e15";
-		counter <= counter + 10000;
-		clk <= '1'; wait for 5 ns;
-		clk <= '0'; wait for 5 ns;
-		Iin <= x"ffc0864a";
-		counter <= counter + 10000;
-		clk <= '1'; wait for 5 ns;
-		clk <= '0'; wait for 5 ns;
-		Iin <= x"ffc5d56c";
-		counter <= counter + 10000;
-		clk <= '1'; wait for 5 ns;
-		clk <= '0'; wait for 5 ns;
-		Iin <= x"ffd07c06";
-		counter <= counter + 10000;
-		clk <= '1'; wait for 5 ns;
-		clk <= '0'; wait for 5 ns;
-		Iin <= x"ffc182cd";
-		counter <= counter + 10000;
-		clk <= '1'; wait for 5 ns;
-		clk <= '0'; wait for 5 ns;
-		  
-		validin <= '0';
+		Istart <= '1';
+		Iend <= '0';
 		
-		report integer'image(to_integer(unsigned(Iout)));
-		--report integer'image(to_integer(unsigned(Qout)));
-		--endloop
+		Idata <= x"00000000";
+		clk <= '1'; wait for 5 ns;
+		clk <= '0'; wait for 5 ns;
+		Istart <= '0';
+		Idata <= x"00000000";
+		clk <= '1'; wait for 5 ns;
+		clk <= '0'; wait for 5 ns;
+		Idata <= x"00000000";
+		clk <= '1'; wait for 5 ns;
+		clk <= '0'; wait for 5 ns;
+		Idata <= x"000088b5";
+		clk <= '1'; wait for 5 ns;
+		clk <= '0'; wait for 5 ns;
+		
+		Idata <= x"61bdc2a5";
+		clk <= '1'; wait for 5 ns;
+		clk <= '0'; wait for 5 ns;
+		Idata <= x"a1423a44";
+		clk <= '1'; wait for 5 ns;
+		clk <= '0'; wait for 5 ns;
+		Idata <= x"57afd3c3";
+		clk <= '1'; wait for 5 ns;
+		clk <= '0'; wait for 5 ns;
+		Idata <= x"bc544d37";
+		clk <= '1'; wait for 5 ns;
+		clk <= '0'; wait for 5 ns;
+		Idata <= x"3b9baad3";
+		clk <= '1'; wait for 5 ns;
+		clk <= '0'; wait for 5 ns;
+		Idata <= x"d476651e";
+		clk <= '1'; wait for 5 ns;
+		clk <= '0'; wait for 5 ns;
+		Idata <= x"3b828ae6";
+		clk <= '1'; wait for 5 ns;
+		clk <= '0'; wait for 5 ns;
+		Idata <= x"d7969118";
+		clk <= '1'; wait for 5 ns;
+		clk <= '0'; wait for 5 ns;
+		
+		Idata <= x"2c4f6ad7";
+		clk <= '1'; wait for 5 ns;
+		clk <= '0'; wait for 5 ns;
+		Idata <= x"c0afae37";
+		clk <= '1'; wait for 5 ns;
+		clk <= '0'; wait for 5 ns;
+		Idata <= x"4d3149ae";
+		clk <= '1'; wait for 5 ns;
+		clk <= '0'; wait for 5 ns;
+		Idata <= x"b1c4a952";
+		clk <= '1'; wait for 5 ns;
+		clk <= '0'; wait for 5 ns;
+		Idata <= x"583f57ad";
+		clk <= '1'; wait for 5 ns;
+		clk <= '0'; wait for 5 ns;
+		Idata <= x"a6bdbb57";
+		clk <= '1'; wait for 5 ns;
+		clk <= '0'; wait for 5 ns;
+		Idata <= x"5434529c";
+		clk <= '1'; wait for 5 ns;
+		clk <= '0'; wait for 5 ns;
+		Idata <= x"babfbc68";
+		Iend <= '1';
+		clk <= '1'; wait for 5 ns;
+		clk <= '0'; wait for 5 ns;
+		
+		Istart <= '1';
+		Iend <= '0';
+		
+		Idata <= x"00000000";
+		clk <= '1'; wait for 5 ns;
+		clk <= '0'; wait for 5 ns;
+		Istart <= '0';
+		Idata <= x"00000000";
+		clk <= '1'; wait for 5 ns;
+		clk <= '0'; wait for 5 ns;
+		Idata <= x"00000000";
+		clk <= '1'; wait for 5 ns;
+		clk <= '0'; wait for 5 ns;
+		Idata <= x"000088b5";
+		clk <= '1'; wait for 5 ns;
+		clk <= '0'; wait for 5 ns;
+		
+		Idata <= x"59322f89";
+		clk <= '1'; wait for 5 ns;
+		clk <= '0'; wait for 5 ns;
+		Idata <= x"a9ccd175";
+		clk <= '1'; wait for 5 ns;
+		clk <= '0'; wait for 5 ns;
+		Idata <= x"6d25396e";
+		clk <= '1'; wait for 5 ns;
+		clk <= '0'; wait for 5 ns;
+		Idata <= x"80d3e1a2";
+		clk <= '1'; wait for 5 ns;
+		clk <= '0'; wait for 5 ns;
+		Idata <= x"8e17264f";
+		clk <= '1'; wait for 5 ns;
+		clk <= '0'; wait for 5 ns;
+		Idata <= x"6cbfb7a7";
+		clk <= '1'; wait for 5 ns;
+		clk <= '0'; wait for 5 ns;
+		Idata <= x"a5363b3e";
+		clk <= '1'; wait for 5 ns;
+		clk <= '0'; wait for 5 ns;
+		Idata <= x"51beb6b2";
+		clk <= '1'; wait for 5 ns;
+		clk <= '0'; wait for 5 ns;
+		
+		Idata <= x"a44a5b44";
+		clk <= '1'; wait for 5 ns;
+		clk <= '0'; wait for 5 ns;
+		Idata <= x"4ea7b8aa";
+		clk <= '1'; wait for 5 ns;
+		clk <= '0'; wait for 5 ns;
+		Idata <= x"ac472d53";
+		clk <= '1'; wait for 5 ns;
+		clk <= '0'; wait for 5 ns;
+		Idata <= x"60b3c2a5";
+		clk <= '1'; wait for 5 ns;
+		clk <= '0'; wait for 5 ns;
+		Idata <= x"b2513336";
+		clk <= '1'; wait for 5 ns;
+		clk <= '0'; wait for 5 ns;
+		Idata <= x"37acc3cd";
+		clk <= '1'; wait for 5 ns;
+		clk <= '0'; wait for 5 ns;
+		Idata <= x"bf5d472b";
+		clk <= '1'; wait for 5 ns;
+		clk <= '0'; wait for 5 ns;
+		Idata <= x"3d96acd4";
+		Iend <= '1';
+		clk <= '1'; wait for 5 ns;
+		clk <= '0'; wait for 5 ns;
+		Iend <= '0';
+		  
+		Ivalid <= '0';
+		
 		loop
 		  clk <= '1'; wait for 5 ns;
 		  clk <= '0'; wait for 5 ns;
