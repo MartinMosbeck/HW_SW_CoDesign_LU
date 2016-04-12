@@ -98,7 +98,7 @@ begin
 			end loop;
 
 			for i in 0 to order-1 loop
-				data_out_temp := data_out_temp + fixpoint_mult(yhist_cur(i),a(i));
+				data_out_temp := data_out_temp - fixpoint_mult(yhist_cur(i),a(i));
 			end loop;
 
 			--shift yhist

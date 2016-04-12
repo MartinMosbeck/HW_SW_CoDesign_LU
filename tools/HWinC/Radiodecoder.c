@@ -146,17 +146,17 @@ int main(int argc, char *argv[]){
 	int j = 0;
 
 	//DEBUG
-	printf("a:\n");
+	/*printf("a:\n");
 	for(j = 0; j < FILTER_ORDER; j++)
 		printf("%f\n", zeigeFixpoint(a[j]));
 	printf("b:\n");
 	for(j = 0; j < FILTER_ORDER+1; j++)
-		printf("%f\n", zeigeFixpoint(b[j]));
+		printf("%f\n", zeigeFixpoint(b[j]));*/
 
 	//START PROCESSING//
 
 	for(i=0; i<anzBytes/2; ++i){
-		printf("I[%i]=%x, Q[%i]=%x\n",i,I[i],i,Q[i]);
+		//printf("I[%i]=%x, Q[%i]=%x\n",i,I[i],i,Q[i]);
 		//Mixer
 		Itemp=(I[i]-127)<<16;
 		Qtemp=(Q[i]-127)<<16;
@@ -179,7 +179,7 @@ int main(int argc, char *argv[]){
 
 		if (24==t_cur) t_cur=0;
 		else t_cur++;
-
+/*
 		////////////////////////////
 		//Filter Lowpass IIR 60kHz//
 		////////////////////////////
@@ -231,7 +231,7 @@ int main(int argc, char *argv[]){
 		for(j=FILTER_ORDER-1; j > 0; j--)
 			yhistQ[j] = yhistQ[j-1];
 		yhistQ[0] = Qout;
-
+*/
 
 		//printf("Qout[%d] = %f\n\n", i, zeigeFixpoint(Qout));
 
@@ -285,9 +285,9 @@ int main(int argc, char *argv[]){
 	free(I);
 	free(Q);
 
-	//	for(i=0; i<outputpos; i++){
-	//		printf("%02x",outputvector[i]);
-	//	}
+		for(i=0; i<outputpos; i++){
+			printf("%02x",outputvector[i]);
+		}
 	free(outputvector);
 	return EXIT_SUCCESS;
 }

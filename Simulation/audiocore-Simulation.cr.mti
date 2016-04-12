@@ -7,7 +7,18 @@ Model Technology ModelSim SE-64 vcom 10.4c Compiler 2015.07 Jul 19 2015
 -- Loading package audiocore_pkg
 -- Compiling entity audiocore_Simulation
 -- Compiling architecture testbench of audiocore_Simulation
--- Loading entity mixerFM
+-- Loading entity IIRFilter
+
+} {} {}} /homes/areznicek/Desktop/HW_SW_CoDesign_LU/vhdl/audiocore/IIRFilter.vhdl {2 {vcom -work work -2002 -explicit -vopt -stats=none /homes/areznicek/Desktop/HW_SW_CoDesign_LU/vhdl/audiocore/IIRFilter.vhdl
+Model Technology ModelSim SE-64 vcom 10.4c Compiler 2015.07 Jul 19 2015
+-- Loading package STANDARD
+-- Loading package TEXTIO
+-- Loading package std_logic_1164
+-- Loading package NUMERIC_STD
+-- Loading package audiocore_pkg
+-- Compiling entity IIRFilter
+-- Compiling architecture behavior of IIRFIlter
+** Warning: /homes/areznicek/Desktop/HW_SW_CoDesign_LU/vhdl/audiocore/IIRFilter.vhdl(29): (vcom-1200) Function "fixpoint_mult" return type index bounds do not match RETURN value index bounds.
 
 } {} {}} /homes/areznicek/Desktop/HW_SW_CoDesign_LU/vhdl/audiocore/outputlogic.vhdl {2 {vcom -work work -2002 -explicit -vopt -stats=none /homes/areznicek/Desktop/HW_SW_CoDesign_LU/vhdl/audiocore/outputlogic.vhdl
 Model Technology ModelSim SE-64 vcom 10.4c Compiler 2015.07 Jul 19 2015
@@ -19,6 +30,14 @@ Model Technology ModelSim SE-64 vcom 10.4c Compiler 2015.07 Jul 19 2015
 -- Compiling entity outputlogic
 -- Compiling architecture behavior of outputlogic
 ** Warning: /homes/areznicek/Desktop/HW_SW_CoDesign_LU/vhdl/audiocore/outputlogic.vhdl(32): (vcom-1200) Function "fixpoint_mult" return type index bounds do not match RETURN value index bounds.
+
+} {} {}} /homes/areznicek/Desktop/HW_SW_CoDesign_LU/vhdl/audiocore/audiocore_pkg.vhd {1 {vcom -work work -2002 -explicit -vopt -stats=none /homes/areznicek/Desktop/HW_SW_CoDesign_LU/vhdl/audiocore/audiocore_pkg.vhd
+Model Technology ModelSim SE-64 vcom 10.4c Compiler 2015.07 Jul 19 2015
+-- Loading package STANDARD
+-- Loading package TEXTIO
+-- Loading package std_logic_1164
+-- Loading package NUMERIC_STD
+-- Compiling package audiocore_pkg
 
 } {} {}} /homes/areznicek/Desktop/HW_SW_CoDesign_LU/vhdl/audiocore/mixerFM.vhdl {2 {vcom -work work -2002 -explicit -vopt -stats=none /homes/areznicek/Desktop/HW_SW_CoDesign_LU/vhdl/audiocore/mixerFM.vhdl
 Model Technology ModelSim SE-64 vcom 10.4c Compiler 2015.07 Jul 19 2015
@@ -41,13 +60,5 @@ Model Technology ModelSim SE-64 vcom 10.4c Compiler 2015.07 Jul 19 2015
 -- Compiling entity demodulator
 -- Compiling architecture behavior of demodulator
 ** Warning: /homes/areznicek/Desktop/HW_SW_CoDesign_LU/vhdl/audiocore/demodulator.vhdl(37): (vcom-1200) Function "fixpoint_mult" return type index bounds do not match RETURN value index bounds.
-
-} {} {}} /homes/areznicek/Desktop/HW_SW_CoDesign_LU/vhdl/audiocore/audiocore_pkg.vhd {1 {vcom -work work -2002 -explicit -vopt -stats=none /homes/areznicek/Desktop/HW_SW_CoDesign_LU/vhdl/audiocore/audiocore_pkg.vhd
-Model Technology ModelSim SE-64 vcom 10.4c Compiler 2015.07 Jul 19 2015
--- Loading package STANDARD
--- Loading package TEXTIO
--- Loading package std_logic_1164
--- Loading package NUMERIC_STD
--- Compiling package audiocore_pkg
 
 } {} {}}

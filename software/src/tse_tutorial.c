@@ -16,7 +16,7 @@
 #define BUF_SIZE 32768//*256=8388608 Daten im DBGOUT-Mode
 #define BUF_SIZE_DBGOUT 65532//65532 is das max was ein SGDMA kann
 
-#define DBGOUT_SIZE 1024//1 wenn kein DBG -max derzeit 1024
+#define DBGOUT_SIZE 1//1 wenn kein DBG -max derzeit 1024
 
 //#define DEBUGOUT
 #define DBGOUT
