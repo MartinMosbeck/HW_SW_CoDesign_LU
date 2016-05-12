@@ -27,11 +27,14 @@ struct EndOfBlockPlausible
 {
 	enum EndOfBlock endOfBlock;
 	enum Plausible plausible;
+	//a negative drift indicates that a block was discovered too early
+	//a positive drift indicates that a block was discovered too late
+	int8_t drift;
 };
 
 void main()
 {
-	char line[10];
+	char line[LINE_SIZE];
 	uint8_t character;
 	uint32_t shift_register_26bit = 0;
 	uint16_t shift_register_10bit = 0;
@@ -48,6 +51,8 @@ void main()
 	char path[BUFFER_SIZE];
 	FILE *fInput = NULL, *fOutput = NULL;
 
+
+	/********************opening the input and output files********************/
 	strcat(strcpy(path, "./"), INPUT_FILENAME);
 	if((fInput = fopen(path, "r")) == NULL)
 	{
@@ -116,7 +121,7 @@ void main()
 		offset_word = shift_register_26bit >> 16;
 		endOfBlock = CheckEndOfBlock(syndrome, offset_word);
 		//CRC
-		//TODO
+		//TODO Continue reading on page 68 in the RDS specification
 		//Decoden
 		//TODO
 
@@ -127,6 +132,7 @@ void main()
 /**********************************************************************
 *---------------------------------------------------------------------*
 ***********************************************************************/
+
 struct EndOfBlockPlausible CheckEndOfBlock(uint16_t syndrome, uint16_t offset_word)
 {
 	static enum EndOfBlock lastBlock = NO_END;
@@ -168,6 +174,7 @@ struct EndOfBlockPlausible CheckEndOfBlock(uint16_t syndrome, uint16_t offset_wo
 	}
 
 	//check whether this outcome is plausible
+	endOfBlock.drift = count - BLOCK_SIZE;
 	switch(endOfBlock.endOfBlock)
 	{
 		case A:
