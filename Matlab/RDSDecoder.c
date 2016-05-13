@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <string.h>
+//#include <math.h>
 
 
 /***********************************Constants***********************************/
@@ -9,7 +10,7 @@
 #define LINE_SIZE		10
 #define BLOCK_SIZE		26
 #define GROUP_SIZE		4*BLOCK_SIZE
-#define PLAUSIBLE_TOLERANCE	3
+#define PLAUSIBLE_TOLERANCE	8
 
 const char *INPUT_FILENAME = 	"decodedaten.txt";
 const char *OUTPUT_FILENAME = 	"RDSdecoded.txt";
@@ -26,7 +27,10 @@ enum Plausible {NO, YES};
 struct EndOfBlockPlausible
 {
 	enum EndOfBlock endOfBlock;
-	enum Plausible plausible;
+	//states whether the end of a block is plausible regarding the last detected block
+	enum Plausible plausibleHistory;
+	//states whether the end of a block is plausible regarding the detected drift
+	enum Plausible plausibleDrift;
 	//a negative drift indicates that a block was discovered too early
 	//a positive drift indicates that a block was discovered too late
 	int8_t drift;
@@ -136,10 +140,11 @@ void main()
 struct EndOfBlockPlausible CheckEndOfBlock(uint16_t syndrome, uint16_t offset_word)
 {
 	static enum EndOfBlock lastBlock = NO_END;
-	static uint8_t count = 0;	//mod 26 for the bits inside each block
+	static uint16_t count = 0;	//after a block has been detected
 	struct EndOfBlockPlausible endOfBlock;
 
-	endOfBlock.plausible = NO;
+	endOfBlock.plausibleHistory = NO;
+	endOfBlock.plausibleDrift = NO;
 	endOfBlock.endOfBlock = NO_END;
 
 	if(syndrome == 0b01 0111 1111)
@@ -173,43 +178,37 @@ struct EndOfBlockPlausible CheckEndOfBlock(uint16_t syndrome, uint16_t offset_wo
 			endOfBlock.endOfBlock = D;
 	}
 
-	//check whether this outcome is plausible
+	//check whether this outcome is plausible regarding the last detected block
 	endOfBlock.drift = count - BLOCK_SIZE;
 	switch(endOfBlock.endOfBlock)
 	{
 		case A:
 			if(lastBlock == D)
-				if(count > BLOCK_SIZE - PLAUSIBLE_TOLERANCE)
-					endOfBlock.plausible = YES;
+				endOfBlock.plausibleHistory = YES;
 			break;
 
 		case B:
 			if(lastBlock == A)
-				if(count > BLOCK_SIZE - PLAUSIBLE_TOLERANCE)
-					endOfBlock.plausible = YES;
+				endOfBlock.plausibleHistory = YES;
 			break;
 
 		case C:
 			if(lastBlock == B)
-				if(count > BLOCK_SIZE - PLAUSIBLE_TOLERANCE)
-					endOfBlock.plausible = YES;
+				endOfBlock.plausibleHistory = YES;
 			break;
 
 		case Cs:
 			if(lastBlock == B)
-				if(count > BLOCK_SIZE - PLAUSIBLE_TOLERANCE)
-					endOfBlock.plausible = YES;
+				endOfBlock.plausibleHistory = YES;
 			break;
 
 		case D:
 			if(lastBlock == C || lastBlock == Cs)
-				if(count > BLOCK_SIZE - PLAUSIBLE_TOLERANCE)
-					endOfBlock.plausible = YES;
+				endOfBlock.plausibleHistory = YES;
 			break;
 
 		case NO_END:
-			if(count < BLOCK_SIZE + PLAUSIBLE_TOLERANCE)
-				endOfBlock.plausible = YES;
+				//do nothing
 			break;
 
 		default:
@@ -217,8 +216,11 @@ struct EndOfBlockPlausible CheckEndOfBlock(uint16_t syndrome, uint16_t offset_wo
 			exit(1);
 	}
 
+	if(endOfBlock.endOfBlock != NO_END && endOfBlock.plausibleHistory == YES && abs(endOfBlock.drift) < PLAUSIBLE_TOLERANCE)
+		endOfBlock.plausibleDrift = YES;
+
 	lastBlock = endOfBlock.endOfBlock;
-	if(endOfBlock == NO_END)
+	if(endOfBlock.endOfBlock == NO_END)
 		count++;
 	else
 		count = 0;
