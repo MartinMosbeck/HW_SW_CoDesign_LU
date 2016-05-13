@@ -1,20 +1,23 @@
 clear
 close all
 
-AUDIO_ONLY = 0;		%skips the RDS part
+AUDIO_ONLY = 1;		%skips the RDS part
 
-debugread=0;
+debugread=1;
 if debugread==0
 fileID = fopen('samples.bin');
 inputdata=fread(fileID,'uint8');
 fclose(fileID);
 else
 %! nur hexwerte in einer Zeile erlaubt!!!
-inputdata=textread('ethtst_normal.txt','%2c');
+% fileID = fopen('dump1.txt');
+% inputdata=textscan(fileID,'%2c',100000);
+% fclose(fileID);
+inputdata = textread('dump1.txt','%2c');
 inputdata=hex2dec(char(inputdata));
 end
 %Einlesen und IQ aus Datenpunkten aufbauen
-anzsamp=floor(size(inputdata)/(2^9));%Anz der einzulesenden Datenpunkte
+anzsamp=floor(size(inputdata)/(2^0));%Anz der einzulesenden Datenpunkte
 inputdata=inputdata-127;
 IQ=inputdata(1:2:anzsamp-1)+1i.*inputdata(2:2:anzsamp);
 clear inputdata anzsamp fileID
@@ -35,28 +38,31 @@ clear IQ
 % end
 %Bis hier um den Filter auszukommentieren
 
+beforedecsignal=mixedsignal99_9MHz;
+
 %IIR Filter als Referenz
 load('iir_lowpass_5_60kHz_num.mat');
 b=num';
 load('iir_lowpass_5_60kHz_den.mat');
 a=den';
-%b=b.*(1/a(1));
-%a=a.*(1/a(1));
-%a=a(2:end);
-%a=-1*a;
-%xhist=zeros(length(b),1);
-%yhist=zeros(length(a),1);
-%for index=1:length(mixedsignal99_9MHz)
-%    xhist=circshift(xhist,[1,0]);
-%    xhist(1)=mixedsignal99_9MHz(index);
-%    mixedsignal99_9MHz(index)=sum(xhist.*b)+sum(yhist.*a);
-%    yhist=circshift(yhist,[1,0]);
-%    yhist(1)=mixedsignal99_9MHz(index);
-%end
-%Bis hier Filter auskommentieren
 
-beforedecsignal=filter(b,a,mixedsignal99_9MHz);
-%beforedecsignal=mixedsignal99_9MHz;
+b=b.*(1/a(1));
+a=a.*(1/a(1));
+
+%beforedecsignal=filter(b,a,mixedsignal99_9MHz);
+
+a=a(2:end);
+a=-1*a;
+xhist=zeros(length(b),1);
+yhist=zeros(length(a),1);
+for index=1:length(mixedsignal99_9MHz)
+   xhist=circshift(xhist,[1,0]);
+   xhist(1)=mixedsignal99_9MHz(index);
+   beforedecsignal(index)=sum(xhist.*b)+sum(yhist.*a);
+   yhist=circshift(yhist,[1,0]);
+   yhist(1)=beforedecsignal(index);
+end
+%Bis hier Filter auskommentieren
 
 clear mixedsignal99_9MHz
 
@@ -90,6 +96,7 @@ clear a b xhist yhist index
 
 %RDS from fmdemod
 
+if AUDIO_ONLY == 0
 %synchronization with respect to the 19kHz pilot tone
 %retrieve the pilot tone
 load('iir_bandpass_7_19kHz_den.mat');
@@ -147,7 +154,6 @@ bitsymbols = zeros(ceil(length(biphasesymbols)/2),1) - 1;
 sampleBitSymb = zeros(size(pilotTone)) - 0.3;
 lockedHere = zeros(size(pilotTone));
 
-if AUDIO_ONLY == 0
 for n=2:length(pilotTone) 
 	%PLL implementation 
 	vco(n)=500*conj(exp(j*(2*pi*n*f/fs+phi_hat(n-1))));	%Compute VCO 
@@ -292,7 +298,6 @@ for n=2:length(pilotTone)
 	%	samples(sampleCounter) = mixedsignal(n);
 	%end;
 end
-end
 clear a b e f n fs phd_output phi_hat sampleCounter ki kp
 clear startOfSymbol t symbCurSign symbOldSign symbolRate h phase
 clear sampleDur vcoRiseEdgeCounter xhist bitDur bitDurInVcoEdges
@@ -331,3 +336,4 @@ fileID = fopen('decodedaten.txt','w');
 fprintf(fileID,'%d\n',bitsymbols);
 fclose(fileID);
 %!./RDSDecoder < decodedaten.txt
+end
