@@ -248,6 +248,8 @@ int main(int argc, char *argv[]){
 		//	printf("\n");
 		//}
 
+		//printf("Iout gefiltert = %f, Qout gefiltert= %f\n", zeigeFixpoint(Iout), zeigeFixpoint(Qout));
+		
 		//Decimator
 		if(20-1==deci_cnt){
 			//printf("#%i\n",i+1);
@@ -274,7 +276,7 @@ int main(int argc, char *argv[]){
 			validvalid=1-validvalid;//jedes zweite nehmen (=Decimator)
 			if(validvalid){
 				//printf("Outputlogic sagt ja!\n");
-				data_fixp=fixpoint_mult(demodulated,0x00000300);
+				data_fixp=fixpoint_mult(demodulated,0x00000300);//0x500 statt 0x300?
 				//printf("data_fixp = %f\n",zeigeFixpoint(data_fixp));
 				outputvector[outputpos++]=(data_fixp + 0b00000000011111110000000000000000)>>16;
 				//printf("\n");
