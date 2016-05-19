@@ -77,7 +77,7 @@ architecture behavior of IIRFIlter is
 	signal data_out_cur, data_out_next : fixpoint;
 	signal validout_cur, validout_next: std_logic;
 	--Versatzarrays (um für jeden a[i] und b[i] jedes Datums den richtigen x[k] und y[k] in der Pipeline zuweisen zu können)
-	type datashift_array is array(natural range <>) of integer;
+	type datashift_array is array(natural range <>) of natural range 0 to order;
 	signal shift_array_x_cur, shift_array_x_next: datashift_array(order-1 downto 0) := (others => order-1);
 	signal shift_array_y_cur, shift_array_y_next: datashift_array(order downto 0) := (others => 0);
 	--Signale um das "Hochlaufen" des Filters gesondert zu behandeln (bis die Pipeline Daten empfangen hat)
@@ -132,6 +132,8 @@ begin
                 elsif(startout_flag = '1' and valid_array_cur(2*order-1) = '0' and shift_array_y_cur(0) >0) then
 			--Invalides Datum wird am Ende der Pipeline herausgenommen
 			shift_array_y_next(0) <= shift_array_y_cur(0)-1;
+		else
+			shift_array_y_next(0) <= shift_array_y_cur(0);
                 end if;
                 --Versatz-Korrektur für die Daten in dem IIR-Teil (wenn ein invalides Datum rausgenommen wird haben alle nachfolgenden
                 --Daten einen Versatz um 1 während sie gerade im IIR-Teil sind)
