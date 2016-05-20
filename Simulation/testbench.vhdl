@@ -158,6 +158,52 @@ architecture testbench of audiocore_Simulation is
 		counter <= counter + 10000;
 		clk <= '1'; wait for 5 ns;
 		clk <= '0'; wait for 5 ns;
+		
+		Iin <= x"ffb62f70";
+		counter <= counter + 10000;
+		clk <= '1'; wait for 5 ns;
+		clk <= '0'; wait for 5 ns;
+		Iin <= x"ffb4e56b";
+		counter <= counter + 10000;
+		clk <= '1'; wait for 5 ns;
+		clk <= '0'; wait for 5 ns;
+		Iin <= x"ffab001f";
+		counter <= counter + 10000;
+		clk <= '1'; wait for 5 ns;
+		clk <= '0'; wait for 5 ns;
+		Iin <= x"ffc33427";
+		counter <= counter + 10000;
+		clk <= '1'; wait for 5 ns;
+		clk <= '0'; wait for 5 ns;
+		Iin <= x"ffb8e4e1";
+		counter <= counter + 10000;
+		clk <= '1'; wait for 5 ns;
+		clk <= '0'; wait for 5 ns;
+		Iin <= x"ffb9cbed";
+		counter <= counter + 10000;
+		clk <= '1'; wait for 5 ns;
+		clk <= '0'; wait for 5 ns;
+		Iin <= x"ffa65e2a";
+		counter <= counter + 10000;
+		clk <= '1'; wait for 5 ns;
+		clk <= '0'; wait for 5 ns;
+		Iin <= x"ffc0021c";
+		counter <= counter + 10000;
+		clk <= '1'; wait for 5 ns;
+		clk <= '0'; wait for 5 ns;
+		Iin <= x"ffb2da7d";
+		counter <= counter + 10000;
+		clk <= '1'; wait for 5 ns;
+		clk <= '0'; wait for 5 ns;
+		Iin <= x"ffd0b121";
+		counter <= counter + 10000;
+		clk <= '1'; wait for 5 ns;
+		clk <= '0'; wait for 5 ns;
+		Iin <= x"ffbdad9b";
+		counter <= counter + 10000;
+		clk <= '1'; wait for 5 ns;
+		clk <= '0'; wait for 5 ns;
+
 		  
 		validin <= '0';
 		

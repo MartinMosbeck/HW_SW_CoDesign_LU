@@ -1,7 +1,6 @@
 library IEEE;
 use IEEE.std_logic_1164.all;
 use ieee.numeric_std.all;
-use work.math_pkg.all;
 
 library work;
 use work.audiocore_pkg.all;
@@ -73,15 +72,14 @@ architecture behavior of IIRFIlter is
 	signal yhist_cur,yhist_next : fixpoint_array (order-1 downto 0) := (others => (others => '0'));
 	--Die Pipeline (valid und Daten)
 	signal valid_array_cur, valid_array_next: std_logic_vector(2*order-1 downto 0) := (others => '0');
-	signal data_out_array_cur, data_out_array_next: fixpoint_array(2*order-1 downto 0);
+	signal data_out_array_cur, data_out_array_next: fixpoint_array(2*order-1 downto 0) := (others => (others => '0'));
 	--Ausgangssignale
 	signal data_out_cur, data_out_next : fixpoint;
 	signal validout_cur, validout_next: std_logic;
 	--Versatzarrays (um für jeden a[i] und b[i] jedes Datums den richtigen x[k] und y[k] in der Pipeline zuweisen zu können)
-	type datashift_array is array(natural range <>) of std_logic_vector(log2c(order) downto 0);--natural range 0 to order;
-	signal shift_array_x_cur, shift_array_x_next: datashift_array(order-1 downto 0) := (others => std_logic_vector(to_unsigned(order-1,std_logic_vector(log2c(order) downto 0)'length)));
-	signal shift_array_y_cur, shift_array_y_next: datashift_array(order downto 0) := (others => (others =>'0'));
-	signal shift_array_ybuff_cur, shift_array_ybuff_next: datashift_array(order downto 0) := (others => (others =>'0'));
+	type datashift_array is array(natural range <>) of natural range 0 to order;
+	signal shift_array_x_cur, shift_array_x_next: datashift_array(order-1 downto 0) := (others => order-1);
+	signal shift_array_y_cur, shift_array_y_next: datashift_array(order downto 0) := (others => 0);
 	--Signale um das "Hochlaufen" des Filters gesondert zu behandeln (bis die Pipeline Daten empfangen hat)
 	signal start_flag, start_flag_next, startout_flag, startout_flag_next: std_logic:='0';
 begin
@@ -91,18 +89,21 @@ begin
 		--Latches
 		xhist_next <= xhist_cur;
 		yhist_next <= yhist_cur;
-		data_out_array_next(0) <= (others => '0');
+		--data_out_array_next(0) <= (others => '0');
 		data_out_next <= data_out_cur;
+		for i in 0 to 2*order-1 loop
+			data_out_array_next(i)<=data_out_array_cur(i);
+		end loop;
 		
 		--Startbehandlung: Der Filter muss zuerst die Pipeline bis zum FIR-Teil bzw. IIR-Teil mit einem Eingangsdatum
 		--durchlaufen haben, dass die Versatz-Korrekturen anfangen dürfen (sonst verschieben diese wegen der leeren 
 		--Filterpipeline die Korrektur schon vorher und damit falsch) [nur für FIR-Anteil notwendig]
 		start_flag_next <= start_flag;
 		startout_flag_next <= startout_flag;
-		if(valid_array_cur(order-2) = '1') then--Ende FIR-Teil
+		if(valid_array_cur(order-1) = '1') then--Ende FIR-Teil
 		    start_flag_next <= '1';
 		end if;
-		if(valid_array_cur(2*order-2) = '1')then--Ende IIR-Teil=Filterende
+		if(valid_array_cur(2*order-1) = '1')then--Ende IIR-Teil=Filterende
 		  startout_flag_next <= '1';
 		end if;
 		
@@ -119,36 +120,32 @@ begin
 			if(validin = '1') then
 				shift_array_x_next(i) <= shift_array_x_cur(i-1);
 			else
-				shift_array_x_next(i) <= std_logic_vector(unsigned(shift_array_x_cur(i-1))-1);
+				shift_array_x_next(i) <= shift_array_x_cur(i-1)-1;
 			end if;
 		end loop;
 		
 		--Versatz-Korrektur für den IIR-Teil (erst wenn ein Datum in der Pipeline teil- bzw. vollständig durch ist)
 		--Versatz-Korrektur für den initialen Startwert des IIR-Teiles (von dem beginnt jedes Datum, dass in den IIR-Teil eintritt)
-		if(start_flag = '1' and startout_flag = '1' and valid_array_cur(order-2) = '0'  and valid_array_cur(2*order-2) = '0')then
+		if(start_flag = '1' and startout_flag = '1' and valid_array_cur(order-1) = '0'  and valid_array_cur(2*order-1) = '0')then
 			--Invalides Datum kommt vom FIR zum IIR und gleichzeitig wird ein invalides am Ende aus der Pipeline genommen
-			shift_array_ybuff_next(0) <= shift_array_ybuff_cur(0);
-		elsif(start_flag = '1' and valid_array_cur(order-2) = '0'  and unsigned(shift_array_ybuff_cur(0)) < order)then
+			shift_array_y_next(0) <= shift_array_y_cur(0);
+		elsif(start_flag = '1' and valid_array_cur(order-1) = '0'  and shift_array_y_cur(0) < order)then
 			--Invalides Datum kommt vom FIR zum IIR
-			shift_array_ybuff_next(0) <= std_logic_vector(unsigned(shift_array_ybuff_cur(0))+1);
-                elsif(startout_flag = '1' and valid_array_cur(2*order-2) = '0' and unsigned(shift_array_ybuff_cur(0)) > 0) then
+			shift_array_y_next(0) <= shift_array_y_cur(0)+1;
+                elsif(startout_flag = '1' and valid_array_cur(2*order-1) = '0' and shift_array_y_cur(0) >0) then
 			--Invalides Datum wird am Ende der Pipeline herausgenommen
-			shift_array_ybuff_next(0) <= std_logic_vector(unsigned(shift_array_ybuff_cur(0))-1);
+			shift_array_y_next(0) <= shift_array_y_cur(0)-1;
 		else
-			shift_array_ybuff_next(0) <= shift_array_ybuff_cur(0);
+			shift_array_y_next(0) <= shift_array_y_cur(0);
                 end if;
                 --Versatz-Korrektur für die Daten in dem IIR-Teil (wenn ein invalides Datum rausgenommen wird haben alle nachfolgenden
                 --Daten einen Versatz um 1 während sie gerade im IIR-Teil sind)
 		for i in 1 to order loop
-                                if(valid_array_cur(2*order-2) = '0' and unsigned(shift_array_ybuff_cur(i-1)) > 0) then
-                                shift_array_ybuff_next(i) <= std_logic_vector(unsigned(shift_array_ybuff_cur(i-1))-1);
+                                if(valid_array_cur(2*order-1) = '0' and shift_array_y_cur(i-1) >0) then
+                                shift_array_y_next(i) <= shift_array_y_cur(i-1)-1;
                                 else
-                                shift_array_ybuff_next(i) <= shift_array_ybuff_cur(i-1);
+                                shift_array_y_next(i) <= shift_array_y_cur(i-1);
                                 end if;
-		end loop;
-		
-		for i in 0 to order loop
-			shift_array_y_next(i) <= shift_array_ybuff_cur(i);
 		end loop;
 
 		--DATENPIPELINE
@@ -165,19 +162,18 @@ begin
 		
 		--add up
 		--Invarianten
+		if(validin = '1') then
 		for i in 1 to order loop
-			data_out_array_next(i)<=data_out_array_cur(i-1)+fixpoint_mult(xhist_cur(to_integer(unsigned(shift_array_x_cur(i-1)))),b(order-i));
+			  data_out_array_next(i)<=data_out_array_cur(i-1)+fixpoint_mult(xhist_cur(order-1),b(order-i));
 		end loop;
 		for i in 1 to order-1 loop
-			if(unsigned(shift_array_y_cur(i-1)) < order) then
-				--Wenn mindestens order invalide Daten hintereinander kommen sind nachfolgend alle shift_array_y_cur = order
-				data_out_array_next(i+order)<=data_out_array_cur(i+order-1) - fixpoint_mult(yhist_cur(to_integer(unsigned(shift_array_y_cur(i-1)))),a(order-i));
-			end if;
+				data_out_array_next(i+order)<=data_out_array_cur(i+order-1) - fixpoint_mult(yhist_cur(0),a(order-i));
 		end loop;
+		end if;
 		
 		--Nachbereitung
-		if(valid_array_cur(2*order-1) = '1') then
-			data_out_temp := data_out_array_cur(2*order-1) - fixpoint_mult(yhist_cur(to_integer(unsigned(shift_array_y_cur(order)))),a(0));
+		if(valid_array_cur(2*order-1) = '1' and validin = '1') then
+			data_out_temp := data_out_array_cur(2*order-1) - fixpoint_mult(yhist_cur(0),a(0));
 
 			--shift yhist
 			for i in 1 to order-1 loop
@@ -199,9 +195,8 @@ begin
 			validout_cur <= '0';
 			valid_array_cur <= (others => '0');
 			data_out_array_cur <= (others => (others => '0'));
-			shift_array_x_cur <= (others => std_logic_vector(to_unsigned(order-1,std_logic_vector(log2c(order) downto 0)'length)));
-			shift_array_y_cur <= (others => (others=>'0'));
-			shift_array_ybuff_cur <= (others => (others=>'0'));
+			shift_array_x_cur <= (others => order-1);
+			shift_array_y_cur <= (others => 0);
 			start_flag <= '0';
 			startout_flag <= '0';
 		elsif(rising_edge(clk)) then
@@ -215,8 +210,6 @@ begin
 			shift_array_y_cur<=shift_array_y_next;
 			start_flag <= start_flag_next;
 			startout_flag <= startout_flag_next;
-			
-			shift_array_ybuff_cur <= shift_array_ybuff_next;
 			
 			data_out <= data_out_next;
 			validout <= validout_next;
