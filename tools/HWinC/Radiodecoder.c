@@ -155,7 +155,7 @@ int main(int argc, char *argv[]){
 
 	//START PROCESSING//
 
-	for(i=0; i<anzBytes/2; ++i){
+	for(i=0; i<25; ++i){//anzBytes/2; ++i){
 		//printf("I[%i]=%x, Q[%i]=%x\n",i,I[i],i,Q[i]);
 		//Mixer
 		Itemp=(I[i]-127)<<16;
@@ -179,7 +179,7 @@ int main(int argc, char *argv[]){
 
 		if (24==t_cur) t_cur=0;
 		else t_cur++;
-/*
+
 		////////////////////////////
 		//Filter Lowpass IIR 60kHz//
 		////////////////////////////
@@ -199,11 +199,14 @@ int main(int argc, char *argv[]){
 			//printf("xhist[%d] * b[%d] = %f * %f = %f\n", j, j, zeigeFixpoint(xhistI[j]), zeigeFixpoint(b[j]), zeigeFixpoint(fixpoint_mult(xhistI[j],b[j])));
 			Iout += fixpoint_mult(xhistI[j],b[j]);
 		}
-		for(j=0; j< FILTER_ORDER; j++)
+		for(j=FILTER_ORDER-1; j>= 0; j--)
 		{
 			//printf("yhist[%d] * a[%d] = %f * %f = %f\n", j, j, zeigeFixpoint(yhistI[j]), zeigeFixpoint(a[j]), zeigeFixpoint(fixpoint_mult(yhistI[j],a[j])));
+			printf("yhist[%d] * a[%d] = %x * %x = %x | %x\n",j,j,yhistI[j],a[j],fixpoint_mult(yhistI[j],a[j]),Iout);
 			Iout -= fixpoint_mult(yhistI[j],a[j]);
 		}
+
+		printf("Iout = %x\n\n",Iout);
 
 		//shift yhist
 		for(j=FILTER_ORDER-1; j > 0; j--)
@@ -231,7 +234,7 @@ int main(int argc, char *argv[]){
 		for(j=FILTER_ORDER-1; j > 0; j--)
 			yhistQ[j] = yhistQ[j-1];
 		yhistQ[0] = Qout;
-*/
+
 
 		//printf("Qout[%d] = %f\n\n", i, zeigeFixpoint(Qout));
 
@@ -287,9 +290,9 @@ int main(int argc, char *argv[]){
 	free(I);
 	free(Q);
 
-		for(i=0; i<outputpos; i++){
+	/*	for(i=0; i<outputpos; i++){
 			printf("%02x",outputvector[i]);
-		}
+		}*/
 	free(outputvector);
 	return EXIT_SUCCESS;
 }
