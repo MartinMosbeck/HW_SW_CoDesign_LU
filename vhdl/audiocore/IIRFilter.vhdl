@@ -80,6 +80,8 @@ architecture behavior of IIRFIlter is
 	type datashift_array is array(natural range <>) of natural range 0 to order;
 	signal shift_array_x_cur, shift_array_x_next: datashift_array(order-1 downto 0) := (others => order-1);
 	signal shift_array_y_cur, shift_array_y_next: datashift_array(order downto 0) := (others => 0);
+	
+	constant full: std_logic_vector(2*order-2 downto 0):= (others => '1');
 	--Signale um das "Hochlaufen" des Filters gesondert zu behandeln (bis die Pipeline Daten empfangen hat)
 	signal start_flag, start_flag_next, startout_flag, startout_flag_next: std_logic:='0';
 begin
@@ -100,7 +102,7 @@ begin
 		--Filterpipeline die Korrektur schon vorher und damit falsch) [nur für FIR-Anteil notwendig]
 		start_flag_next <= start_flag;
 		startout_flag_next <= startout_flag;
-		if(valid_array_cur(order-1) = '1') then--Ende FIR-Teil
+		if(valid_array_cur(2*order-2 downto 0) = full) then--Ende FIR-Teil
 		    start_flag_next <= '1';
 		end if;
 		if(valid_array_cur(2*order-1) = '1')then--Ende IIR-Teil=Filterende
@@ -109,9 +111,13 @@ begin
 		
 		--VALIDPIPELINE
 		--validin durch die Pipeline bis zu validout durchschieben (einfache Kette)
-		validout_next <= valid_array_cur(2*order-1);
-		valid_array_next(2*order-1 downto 1) <= valid_array_cur(2*order-2 downto 0);
-		valid_array_next(0) <= validin;
+		--validout_next <= valid_array_cur(2*order-1);
+		if(validin='1')then
+		       valid_array_next(0) <= '1';
+		       valid_array_next(2*order-1 downto 1) <= valid_array_cur(2*order-2 downto 0);
+		end if;
+		--valid_array_next(0) <= validin;
+		validout_next<='0';
 		
 		--VERSATZ-KORREKTUR
 		--Versatz-Korrektur für FIR-Teil (=index des xhist belassen oder ändern für nächste
@@ -172,7 +178,7 @@ begin
 		end if;
 		
 		--Nachbereitung
-		if(valid_array_cur(2*order-1) = '1' and validin = '1') then
+		if(start_flag='1' and validin = '1') then
 			data_out_temp := data_out_array_cur(2*order-1) - fixpoint_mult(yhist_cur(0),a(0));
 
 			--shift yhist
@@ -182,6 +188,8 @@ begin
 			yhist_next(0) <= data_out_temp;
 
 			data_out_next  <= data_out_temp;
+			
+			validout_next <= '1';
 		end if;
 
 	end process compute;
