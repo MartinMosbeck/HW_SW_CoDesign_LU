@@ -191,4 +191,40 @@ package audiocore_pkg is
 		validout 	: out std_logic
 	);
 	end component;
+	
+	component dp_ram is
+	generic
+	(
+		ADDR_WIDTH : integer range 1 to integer'high;
+		DATA_WIDTH : integer range 1 to integer'high
+	);
+	port
+	(
+		clk : in std_logic;
+		address_out : in std_logic_vector(ADDR_WIDTH - 1 downto 0);
+		data_out : out std_logic_vector(DATA_WIDTH - 1 downto 0);
+		address_in : in std_logic_vector(ADDR_WIDTH - 1 downto 0);
+		wr : in std_logic;
+		data_in : in std_logic_vector(DATA_WIDTH - 1 downto 0)
+	);
+	end component;
+	
+	component IIRFilter_Buffer is
+	generic
+	(
+		N: natural := 32
+	);
+	port 
+	(
+		clk : in std_logic;
+		res_n : in std_logic;
+
+		data_in : in fixpoint;
+		validin : in std_logic;
+
+		rdy : in std_logic;
+		validout : out std_logic;
+		data_out : out fixpoint
+	);
+	end component;
 end package audiocore_pkg;

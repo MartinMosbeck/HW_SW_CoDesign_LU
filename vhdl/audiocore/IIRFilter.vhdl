@@ -82,8 +82,29 @@ architecture behavior of IIRFIlter is
 	signal shift_array_y_cur, shift_array_y_next: datashift_array(order downto 0) := (others => 0);
 	--Signale um das "Hochlaufen" des Filters gesondert zu behandeln (bis die Pipeline Daten empfangen hat)
 	signal start_flag, start_flag_next, startout_flag, startout_flag_next: std_logic:='0';
+	
+	signal rdy, rdy_next: std_logic := '0';
+	signal valid_buffer_in, valid_buffer_in_next, valid_buffer_out, valid_buffer_out_next : std_logic;
+	signal data_buffer_out, data_buffer_out_next, data_buffer_in, data_buffer_in_next : fixpoint;
 begin
-	compute: process (validin,data_in, validout_cur, xhist_cur, yhist_cur, data_out_cur,valid_array_cur, shift_array_x_cur, shift_array_y_cur,data_out_array_cur,startout_flag,start_flag)
+	IIR_Buffer: IIRFilter_Buffer
+	generic map
+	(
+		N => 32
+	)
+	port  map
+	(
+		clk => clk,
+		res_n => res_n,
+		data_in => data_buffer_in,
+		validin => valid_buffer_in,
+		rdy => rdy,
+		validout => valid_buffer_out,
+		data_out => data_buffer_out
+	);
+	end IIRFilter_Buffer;
+
+	compute: process (validin,data_in, validout_cur, xhist_cur, yhist_cur, data_out_cur,valid_array_cur, shift_array_x_cur, shift_array_y_cur,data_out_array_cur,startout_flag,start_flag, valid_buffer_in, valid_buffer_out, rdy, data_buffer_out)
 		variable data_out_temp : fixpoint;
 	begin
 		--Latches
@@ -91,6 +112,7 @@ begin
 		yhist_next <= yhist_cur;
 		data_out_array_next(0) <= (others => '0');
 		data_out_next <= data_out_cur;
+		rdy_next <= '1';
 		
 		--Startbehandlung: Der Filter muss zuerst die Pipeline bis zum FIR-Teil bzw. IIR-Teil mit einem Eingangsdatum
 		--durchlaufen haben, dass die Versatz-Korrekturen anfangen dürfen (sonst verschieben diese wegen der leeren 
@@ -107,7 +129,11 @@ begin
 		--VALIDPIPELINE
 		--validin durch die Pipeline bis zu validout durchschieben (einfache Kette)
 		validout_next <= valid_array_cur(2*order-1);
-		valid_array_next(2*order-1 downto 1) <= valid_array_cur(2*order-2 downto 0);
+		--valid_array_next(2*order-1 downto 1) <= valid_array_cur(2*order-2 downto 0);
+		valid_array_next(order downto 1) <= valid_array_cur(order-1 downto 0);
+		valid_buffer_in_next <= valid_array_next(order);
+		valid_array_next(order+1) <= valid_buffer_out;
+		valid_array_next(2*order-1 downto order+2) <= valid_array_cur(2*order-2 downto order+1);
 		valid_array_next(0) <= validin;
 		
 		--VERSATZ-KORREKTUR
@@ -162,10 +188,13 @@ begin
 		for i in 1 to order loop
 			data_out_array_next(i)<=data_out_array_cur(i-1)+fixpoint_mult(xhist_cur(shift_array_x_cur(i-1)),b(order-i));
 		end loop;
+		data_buffer_in_next <= data_out_array_cur(order);
 		for i in 1 to order-1 loop
-			if(shift_array_y_cur(i-1) < order) then
+			if(rdy = '1' and shift_array_y_cur(i-1) < order) then
 				--Wenn mindestens order invalide Daten hintereinander kommen sind nachfolgend alle shift_array_y_cur = order
-				data_out_array_next(i+order)<=data_out_array_cur(i+order-1) - fixpoint_mult(yhist_cur(shift_array_y_cur(i-1)),a(order-i));
+				data_out_array_next(i+order)<=data_buffer_out - fixpoint_mult(yhist_cur(shift_array_y_cur(i-1)),a(order-i));
+			else
+				data_out_array_next(i+order)<=data_out_array_cur(i+order);
 			end if;
 		end loop;
 		
@@ -180,6 +209,8 @@ begin
 			yhist_next(0) <= data_out_temp;
 
 			data_out_next  <= data_out_temp;
+			
+			rdy_next <= '0';
 		end if;
 
 	end process compute;
@@ -197,6 +228,12 @@ begin
 			shift_array_y_cur <= (others => 0);
 			start_flag <= '0';
 			startout_flag <= '0';
+			
+			rdy <= '0';
+			valid_buffer_in <= '0';
+			valid_buffer_out <= '0';
+			data_buffer_in <= (others => '0');
+			data_buffer_out <= (others => '0');
 		elsif(rising_edge(clk)) then
 			xhist_cur <= xhist_next;
 			yhist_cur <= yhist_next;
@@ -208,6 +245,12 @@ begin
 			shift_array_y_cur<=shift_array_y_next;
 			start_flag <= start_flag_next;
 			startout_flag <= startout_flag_next;
+			
+			rdy <= rdy_next;
+			valid_buffer_in <= valid_buffer_in_next;
+			valid_buffer_out <= valid_buffer_out_next;
+			data_buffer_in <= data_buffer_in_next;
+			data_buffer_out <= data_buffer_out_next;
 			
 			data_out <= data_out_next;
 			validout <= validout_next;
