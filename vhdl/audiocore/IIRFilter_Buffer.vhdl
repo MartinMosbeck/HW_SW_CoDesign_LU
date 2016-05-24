@@ -41,20 +41,22 @@ architecture behavior of IIRFilter_Buffer is
 			return pos + 1;
 		end if;
 	end pos_plus1;
-	
+
+	signal rpos_addr, wpos_addr : std_logic_vector(log2c(N)-1 downto 0);
 begin
+    rpos_addr <= std_logic_vector(to_unsigned(rpos_cur,log2c(N)));
+    wpos_addr <= std_logic_vector(to_unsigned(wpos_cur,log2c(N)));
 	ram: dp_ram
 	generic map
 	(
-	  ADDR_WIDTH => log2c(N),
-	  DATA_WIDTH => fixpoint'length
+	  ADDR_WIDTH => log2c(N)
 	)
 	port map
 	(
 		clk => clk,
-		address_out => std_logic_vector(to_unsigned(rpos_cur,log2c(N))),
+		address_out => rpos_addr,
 		data_out => data_out,
-		address_in => std_logic_vector(to_unsigned(wpos_cur,log2c(N))),
+		address_in => wpos_addr,
 		wr => validin,
 		data_in => data_in
 	);
@@ -62,10 +64,9 @@ begin
 	------------------
 	-- FIFO action --
 	------------------
-	fifo_action: process (validin,data_in, rpos_cur, wpos_cur, validout_cur)
+	fifo_action: process (validin,data_in, rpos_cur, wpos_cur, validout_cur, rdy)
 	begin
 		-- to avoid latches
-		fields_next <= fields_cur;
 		rpos_next <= rpos_cur;
 		wpos_next <= wpos_cur;
 		validout_next <= validout_cur;
@@ -76,7 +77,7 @@ begin
 		end if;
 
 		-- action at out
-		if rpos_cur /= wpos_cur and ready = '1' then
+		if rpos_cur /= wpos_cur and rdy = '1' then
 			validout_next <= '1';
 			rpos_next <= pos_plus1(rpos_cur);
 		else
@@ -104,7 +105,6 @@ begin
 			validout_cur <= validout_next;
 			
 			-- outputs
-			data_out <= data_out_next;
 			validout <= validout_next;
 		end if;
 	end process sync;

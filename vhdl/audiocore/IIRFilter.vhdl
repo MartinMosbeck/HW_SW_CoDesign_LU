@@ -102,7 +102,6 @@ begin
 		validout => valid_buffer_out,
 		data_out => data_buffer_out
 	);
-	end IIRFilter_Buffer;
 
 	compute: process (validin,data_in, validout_cur, xhist_cur, yhist_cur, data_out_cur,valid_array_cur, shift_array_x_cur, shift_array_y_cur,data_out_array_cur,startout_flag,start_flag, valid_buffer_in, valid_buffer_out, rdy, data_buffer_out)
 		variable data_out_temp : fixpoint;

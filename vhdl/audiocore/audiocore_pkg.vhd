@@ -195,17 +195,16 @@ package audiocore_pkg is
 	component dp_ram is
 	generic
 	(
-		ADDR_WIDTH : integer range 1 to integer'high;
-		DATA_WIDTH : integer range 1 to integer'high
+		ADDR_WIDTH : integer range 1 to integer'high
 	);
 	port
 	(
 		clk : in std_logic;
 		address_out : in std_logic_vector(ADDR_WIDTH - 1 downto 0);
-		data_out : out std_logic_vector(DATA_WIDTH - 1 downto 0);
+		data_out : out fixpoint;
 		address_in : in std_logic_vector(ADDR_WIDTH - 1 downto 0);
 		wr : in std_logic;
-		data_in : in std_logic_vector(DATA_WIDTH - 1 downto 0)
+		data_in : in fixpoint
 	);
 	end component;
 	
