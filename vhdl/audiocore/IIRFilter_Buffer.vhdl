@@ -21,7 +21,9 @@ entity IIRFilter_Buffer is
 
 		rdy : in std_logic;
 		validout : out std_logic;
-		data_out : out fixpoint
+		data_out : out fixpoint;
+		
+		validout_vor : out std_logic
 	);
 end IIRFilter_Buffer;
 
@@ -80,8 +82,10 @@ begin
 		if rpos_cur /= wpos_cur and rdy = '1' then
 			validout_next <= '1';
 			rpos_next <= pos_plus1(rpos_cur);
+			validout_vor <= '1';
 		else
 			validout_next <= '0';
+			validout_vor <= '0';
 		end if;		
 
 	end process fifo_action;

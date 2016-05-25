@@ -223,7 +223,9 @@ package audiocore_pkg is
 
 		rdy : in std_logic;
 		validout : out std_logic;
-		data_out : out fixpoint
+		data_out : out fixpoint;
+		
+		validout_vor : out std_logic
 	);
 	end component;
 end package audiocore_pkg;

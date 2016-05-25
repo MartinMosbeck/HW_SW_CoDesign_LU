@@ -83,9 +83,11 @@ architecture behavior of IIRFIlter is
 	--Signale um das "Hochlaufen" des Filters gesondert zu behandeln (bis die Pipeline Daten empfangen hat)
 	signal start_flag, start_flag_next, startout_flag, startout_flag_next: std_logic:='0';
 	
-	signal rdy, rdy_next: std_logic := '0';
+	signal rdy, rdy_next: std_logic := '1';
 	signal valid_buffer_in, valid_buffer_in_next, valid_buffer_out, valid_buffer_out_next : std_logic;
 	signal data_buffer_out, data_buffer_out_next, data_buffer_in, data_buffer_in_next : fixpoint;
+	
+	signal valid_vor, valid_vor_next, rdy_vor: std_logic;
 begin
 	IIR_Buffer: IIRFilter_Buffer
 	generic map
@@ -96,14 +98,15 @@ begin
 	(
 		clk => clk,
 		res_n => res_n,
-		data_in => data_buffer_in,
-		validin => valid_buffer_in,
-		rdy => rdy,
-		validout => valid_buffer_out,
-		data_out => data_buffer_out
+		data_in => data_out_array_cur(order),
+		validin => valid_array_cur(order),
+		rdy => rdy_vor,
+		validout => valid_buffer_out_next,
+		data_out => data_buffer_out_next,
+		validout_vor => valid_vor_next
 	);
 
-	compute: process (validin,data_in, validout_cur, xhist_cur, yhist_cur, data_out_cur,valid_array_cur, shift_array_x_cur, shift_array_y_cur,data_out_array_cur,startout_flag,start_flag, valid_buffer_in, valid_buffer_out, rdy, data_buffer_out)
+	compute: process (validin,data_in, validout_cur, xhist_cur, yhist_cur, data_out_cur,valid_array_cur, shift_array_x_cur, shift_array_y_cur,data_out_array_cur,startout_flag,start_flag, valid_buffer_in, valid_buffer_out, rdy, data_buffer_out, valid_vor)
 		variable data_out_temp : fixpoint;
 	begin
 		--Latches
@@ -118,7 +121,7 @@ begin
 		--Filterpipeline die Korrektur schon vorher und damit falsch) [nur für FIR-Anteil notwendig]
 		start_flag_next <= start_flag;
 		startout_flag_next <= startout_flag;
-		if(valid_array_cur(order-1) = '1') then--Ende FIR-Teil
+		if(valid_vor='1')then--valid_array_cur(order-1) = '1') then--Ende FIR-Teil
 		    start_flag_next <= '1';
 		end if;
 		if(valid_array_cur(2*order-1) = '1')then--Ende IIR-Teil=Filterende
@@ -130,9 +133,12 @@ begin
 		validout_next <= valid_array_cur(2*order-1);
 		--valid_array_next(2*order-1 downto 1) <= valid_array_cur(2*order-2 downto 0);
 		valid_array_next(order downto 1) <= valid_array_cur(order-1 downto 0);
-		valid_buffer_in_next <= valid_array_next(order);
+		if(rdy = '1')then
 		valid_array_next(order+1) <= valid_buffer_out;
 		valid_array_next(2*order-1 downto order+2) <= valid_array_cur(2*order-2 downto order+1);
+		else
+		valid_array_next(2*order-1 downto order+1) <= valid_array_cur(2*order-1 downto order+1);
+		end if;
 		valid_array_next(0) <= validin;
 		
 		--VERSATZ-KORREKTUR
@@ -145,13 +151,13 @@ begin
 				shift_array_x_next(i) <= shift_array_x_cur(i-1)-1;
 			end if;
 		end loop;
-		
+		if(rdy = '1') then
 		--Versatz-Korrektur für den IIR-Teil (erst wenn ein Datum in der Pipeline teil- bzw. vollständig durch ist)
 		--Versatz-Korrektur für den initialen Startwert des IIR-Teiles (von dem beginnt jedes Datum, dass in den IIR-Teil eintritt)
-		if(start_flag = '1' and startout_flag = '1' and valid_array_cur(order-1) = '0'  and valid_array_cur(2*order-1) = '0')then
+		if(start_flag = '1' and startout_flag = '1' and valid_vor = '0'  and valid_array_cur(2*order-1) = '0')then
 			--Invalides Datum kommt vom FIR zum IIR und gleichzeitig wird ein invalides am Ende aus der Pipeline genommen
 			shift_array_y_next(0) <= shift_array_y_cur(0);
-		elsif(start_flag = '1' and valid_array_cur(order-1) = '0'  and shift_array_y_cur(0) < order)then
+		elsif(start_flag = '1' and valid_vor = '0'  and shift_array_y_cur(0) < order)then
 			--Invalides Datum kommt vom FIR zum IIR
 			shift_array_y_next(0) <= shift_array_y_cur(0)+1;
         elsif(startout_flag = '1' and valid_array_cur(2*order-1) = '0' and shift_array_y_cur(0) >0) then
@@ -160,10 +166,13 @@ begin
 		else
 			shift_array_y_next(0) <= shift_array_y_cur(0);
 		end if;
+		else
+		      shift_array_y_next <= shift_array_y_cur;
+		end if;
         --Versatz-Korrektur für die Daten in dem IIR-Teil (wenn ein invalides Datum rausgenommen wird haben alle nachfolgenden
         --Daten einen Versatz um 1 während sie gerade im IIR-Teil sind)
 		for i in 1 to order loop
-			if(valid_array_cur(2*order-1) = '0' and shift_array_y_cur(i-1) >0) then
+			if(valid_array_cur(2*order-1) = '0' and shift_array_y_cur(i-1) >0 and rdy = '1') then
 				shift_array_y_next(i) <= shift_array_y_cur(i-1)-1;
 			else
 				shift_array_y_next(i) <= shift_array_y_cur(i-1);
@@ -187,18 +196,23 @@ begin
 		for i in 1 to order loop
 			data_out_array_next(i)<=data_out_array_cur(i-1)+fixpoint_mult(xhist_cur(shift_array_x_cur(i-1)),b(order-i));
 		end loop;
-		data_buffer_in_next <= data_out_array_cur(order);
-		for i in 1 to order-1 loop
+		if(rdy = '1' and shift_array_y_cur(0) < order) then
+			data_out_array_next(order+1)<=data_buffer_out - fixpoint_mult(yhist_cur(shift_array_y_cur(0)),a(order-1));
+		else
+			data_out_array_next(order+1)<=data_out_array_cur(order+1);
+		end if;
+		for i in 2 to order-1 loop
 			if(rdy = '1' and shift_array_y_cur(i-1) < order) then
 				--Wenn mindestens order invalide Daten hintereinander kommen sind nachfolgend alle shift_array_y_cur = order
-				data_out_array_next(i+order)<=data_buffer_out - fixpoint_mult(yhist_cur(shift_array_y_cur(i-1)),a(order-i));
+				data_out_array_next(i+order)<=data_out_array_cur(i+order-1) - fixpoint_mult(yhist_cur(shift_array_y_cur(i-1)),a(order-i));
 			else
 				data_out_array_next(i+order)<=data_out_array_cur(i+order);
 			end if;
 		end loop;
 		
+		rdy_vor <= '1';
 		--Nachbereitung
-		if(valid_array_cur(2*order-1) = '1') then
+		if(valid_array_cur(2*order-1) = '1' and rdy = '1') then
 			data_out_temp := data_out_array_cur(2*order-1) - fixpoint_mult(yhist_cur(shift_array_y_cur(order)),a(0));
 
 			--shift yhist
@@ -208,8 +222,10 @@ begin
 			yhist_next(0) <= data_out_temp;
 
 			data_out_next  <= data_out_temp;
-			
 			rdy_next <= '0';
+			rdy_vor <= '0';
+			
+			--valid_array_next(2*order-1) <= '0';
 		end if;
 
 	end process compute;
@@ -228,11 +244,10 @@ begin
 			start_flag <= '0';
 			startout_flag <= '0';
 			
-			rdy <= '0';
-			valid_buffer_in <= '0';
+			rdy <= '1';
 			valid_buffer_out <= '0';
-			data_buffer_in <= (others => '0');
 			data_buffer_out <= (others => '0');
+			valid_vor <= '0';
 		elsif(rising_edge(clk)) then
 			xhist_cur <= xhist_next;
 			yhist_cur <= yhist_next;
@@ -244,11 +259,10 @@ begin
 			shift_array_y_cur<=shift_array_y_next;
 			start_flag <= start_flag_next;
 			startout_flag <= startout_flag_next;
+			valid_vor <= valid_vor_next;
 			
 			rdy <= rdy_next;
-			valid_buffer_in <= valid_buffer_in_next;
 			valid_buffer_out <= valid_buffer_out_next;
-			data_buffer_in <= data_buffer_in_next;
 			data_buffer_out <= data_buffer_out_next;
 			
 			data_out <= data_out_next;
