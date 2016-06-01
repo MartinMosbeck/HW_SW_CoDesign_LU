@@ -45,6 +45,9 @@ architecture behavior of IIRFilter_Buffer is
 	end pos_plus1;
 
 	signal rpos_addr, wpos_addr : std_logic_vector(log2c(N)-1 downto 0);
+	
+	signal val_minus1, val_minus1_next: std_logic:='0';
+	signal start_flag, start_flag_next : std_logic:='0';
 begin
     rpos_addr <= std_logic_vector(to_unsigned(rpos_cur,log2c(N)));
     wpos_addr <= std_logic_vector(to_unsigned(wpos_cur,log2c(N)));
@@ -72,20 +75,25 @@ begin
 		rpos_next <= rpos_cur;
 		wpos_next <= wpos_cur;
 		validout_next <= validout_cur;
+		val_minus1_next <= '0';
+		start_flag_next <= start_flag;
+		
+		if rdy = '1' then
+			start_flag_next <= '1';
+		end if;
 
 		-- action at in
-		if validin = '1' then
+		if validin = '1' and start_flag = '1' then
 			wpos_next <= pos_plus1(wpos_cur);
 		end if;
 
 		-- action at out
-		if rpos_cur /= wpos_cur and rdy = '1' then
+		if rpos_cur /= wpos_cur and val_minus1 = '0' then
 			validout_next <= '1';
 			rpos_next <= pos_plus1(rpos_cur);
-			validout_vor <= '1';
+			val_minus1_next <= '1';
 		else
 			validout_next <= '0';
-			validout_vor <= '0';
 		end if;		
 
 	end process fifo_action;
@@ -101,12 +109,16 @@ begin
 			rpos_cur <= 0;
 			wpos_cur <= 0;
 			validout_cur <= '0';
+			val_minus1 <= '0';
+			start_flag <= '0';
 
 		elsif rising_edge(clk) then
 			-- internal
 			rpos_cur <= rpos_next;
 			wpos_cur <= wpos_next;
 			validout_cur <= validout_next;
+			val_minus1 <= val_minus1_next;
+			start_flag <= start_flag_next;
 			
 			-- outputs
 			validout <= validout_next;
