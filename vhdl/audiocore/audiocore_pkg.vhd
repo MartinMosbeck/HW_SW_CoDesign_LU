@@ -208,6 +208,24 @@ package audiocore_pkg is
 	);
 	end component;
 	
+	component tp_ram is
+	generic
+	(
+		ADDR_WIDTH : integer range 1 to integer'high
+	);
+	port
+	(
+		clk : in std_logic;
+		address_out : in std_logic_vector(ADDR_WIDTH - 1 downto 0);
+		data_out : out byte;
+		address_in1 : in std_logic_vector(ADDR_WIDTH - 1 downto 0);
+		address_in2 : in std_logic_vector(ADDR_WIDTH - 1 downto 0);
+		wr : in std_logic;
+		data_in1 : in byte;
+		data_in2 : in byte
+	);
+	end component;
+	
 	component IIRFilter_Buffer is
 	generic
 	(

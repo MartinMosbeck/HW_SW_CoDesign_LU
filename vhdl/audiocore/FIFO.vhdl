@@ -1,8 +1,10 @@
 library IEEE;
 use IEEE.std_logic_1164.all;
+use ieee.numeric_std.all;
 
 library work;
 use work.audiocore_pkg.all;
+use work.math_pkg.all;
 
 entity FIFO is
 	generic
@@ -27,13 +29,15 @@ architecture behavior of FIFO is
 	type buffer_type is array (N-1 downto 0) of byte;
 	subtype bufferpos is integer range 0 to N-1;
 
-	signal fields_cur, fields_next : buffer_type;
+	--signal fields_cur, fields_next : buffer_type;
 
 	signal rpos_cur, rpos_next , wpos_cur, wpos_next : bufferpos; 
 
 	signal data_out_cur, data_out_next : byte;
 
 	signal validout_cur, validout_next : std_logic;
+	
+	signal rpos_addr, wpos_addr, wpos_p1_addr : std_logic_vector(log2c(N)-1 downto 0);
 	
 	function pos_plus1(pos : bufferpos)
 		return bufferpos is
@@ -46,28 +50,48 @@ architecture behavior of FIFO is
 	end pos_plus1;
 	
 begin
+	rpos_addr <= std_logic_vector(to_unsigned(rpos_cur,log2c(N)));
+	wpos_addr <= std_logic_vector(to_unsigned(wpos_cur,log2c(N)));
+	wpos_p1_addr <= std_logic_vector(to_unsigned(pos_plus1(wpos_cur),log2c(N)));
+	FIFO_RAM: tp_ram
+	generic map
+	(
+		ADDR_WIDTH => log2c(N)
+	)
+	port map
+	(
+		clk => clk,
+		address_out => rpos_addr,
+		data_out => data_out_next,
+		address_in1 => wpos_addr,
+		address_in2 => wpos_p1_addr,
+		wr => validin,
+		data_in1 => in1,
+		data_in2 => in2
+	);
+
 	------------------
 	-- FIFO action --
 	------------------
-	fifo_action: process (validin,in1,in2, fields_cur, rpos_cur, wpos_cur, data_out_cur, validout_cur)
+	fifo_action: process (validin,in1,in2, rpos_cur, wpos_cur, data_out_cur, validout_cur)--fields_cur
 	begin
 		-- to avoid latches
-		fields_next <= fields_cur;
+		--fields_next <= fields_cur;
 		rpos_next <= rpos_cur;
 		wpos_next <= wpos_cur;
-		data_out_next <= data_out_cur;
+		--data_out_next <= data_out_cur;
 		validout_next <= validout_cur;
 
 		-- action at in
 		if validin = '1' then
-			fields_next(wpos_cur) <= in1;
-			fields_next(pos_plus1(wpos_cur)) <= in2;
+			--fields_next(wpos_cur) <= in1;
+			--fields_next(pos_plus1(wpos_cur)) <= in2;
 			wpos_next <= pos_plus1(pos_plus1(wpos_cur));
 		end if;
 
 		-- action at out
 		if rpos_cur /= wpos_cur then
-			data_out_next <= fields_cur(rpos_cur);
+			--data_out_next <= fields_cur(rpos_cur);
 			validout_next <= '1';
 			rpos_next <= pos_plus1(rpos_cur);
 		else
@@ -84,7 +108,7 @@ begin
 	begin
 		if res_n = '0' then
 			--defaults
-			fields_cur <= (others=>(others=>'0'));
+			--fields_cur <= (others=>(others=>'0'));
 			rpos_cur <= 0;
 			wpos_cur <= 0;
 			data_out_cur <= (others=>'0');
@@ -92,15 +116,15 @@ begin
 
 		elsif rising_edge(clk) then
 			-- internal
-			fields_cur <= fields_next;
+			--fields_cur <= fields_next;
 			rpos_cur <= rpos_next;
 			wpos_cur <= wpos_next;
 			data_out_cur <= data_out_next;
 			validout_cur <= validout_next;
 			
 			-- outputs
-			data_out <= data_out_next;
-			validout <= validout_next;
+			data_out <= data_out_cur;
+			validout <= validout_cur;
 		end if;
 	end process sync;
 end behavior;
