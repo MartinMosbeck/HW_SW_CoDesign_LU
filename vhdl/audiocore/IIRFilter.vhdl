@@ -79,14 +79,11 @@ architecture behavior of IIRFIlter is
 	signal start_flag, start_flag_next: std_logic:='0';
 	constant full: std_logic_vector(2*order-1 downto 0):= (others => '1');
 	
-	signal rdy_vor, valid_vor_next: std_logic;
-	
 	signal valid_buffer_out: std_logic;
 	signal data_buffer_out: fixpoint;
 	
 	signal valid_buffer_in, valid_buffer_in_next : std_logic;
-	signal data_out_tmp_cur, data_out_tmp_next: fixpoint;
-	signal valid_out_tmp_cur, valid_out_tmp_next: std_logic;
+	
 begin
 	IIR_Buffer: IIRFilter_Buffer
 	generic map
@@ -101,11 +98,10 @@ begin
 		validin => valid_buffer_in,
 		rdy => valid_array_cur(order-1),
 		validout => valid_buffer_out,
-		data_out => data_buffer_out,
-		validout_vor => valid_vor_next
+		data_out => data_buffer_out
 	);
 	
-	compute: process (validin,data_in, xhist_cur, yhist_cur, data_out_cur,valid_array_cur, data_out_array_cur,start_flag,validout_cur, data_buffer_out, valid_buffer_out,valid_out_tmp_cur, data_out_tmp_cur)
+	compute: process (validin,data_in, xhist_cur, yhist_cur, data_out_cur,valid_array_cur, data_out_array_cur,start_flag,validout_cur, data_buffer_out, valid_buffer_out)
 		variable data_out_temp : fixpoint;--valiout_cur in sensitivy list zum besseren simulieren, sonst unnötig hier drin
 	begin
 		--Latches
@@ -113,13 +109,11 @@ begin
 		if(start_flag = '0')then
 			yhist_next <= yhist_cur;
 		end if;
-		data_out_next <= data_out_cur;--data_out_tmp_cur;
-		data_out_tmp_next <= data_out_tmp_cur;
+		data_out_next <= data_out_cur;
 		for i in 0 to 2*order-1 loop
 			data_out_array_next(i)<=data_out_array_cur(i);
 		end loop;
-		validout_next <= '0';--valid_out_tmp_cur;
-		valid_out_tmp_next<='0';
+		validout_next <= '0';
 		
 		--VALIDPIPELINE
 		--Jedesmal wenn validin 1 ist wird ein bit zusätzlich aufgefüllt in die Pipeline
@@ -173,8 +167,7 @@ begin
 			for i in 0 to order-1 loop
 				yhist_next(i) <= fixpoint_mult(data_out_temp,a(i));
 			end loop;
-			--data_out_tmp_next  <= data_out_temp;
-			--valid_out_tmp_next <= '1';
+			
 			data_out_next <= data_out_temp;
 			validout_next <= '1';
 		end if;
@@ -192,7 +185,6 @@ begin
 			data_out_array_cur <= (others => (others => '0'));
 			start_flag <= '0';
 			valid_buffer_in <= '0';
-			data_out_tmp_cur <= (others => '0');
 		elsif(rising_edge(clk)) then
 			xhist_cur <= xhist_next;
 			if(valid_buffer_out = '0')then
@@ -202,9 +194,7 @@ begin
 			end if;
 			valid_buffer_in<=valid_buffer_in_next;
 			
-			data_out_tmp_cur <= data_out_tmp_next;
 			data_out_cur <= data_out_next;
-			valid_out_tmp_cur <= valid_out_tmp_next;
 			validout_cur <= validout_next;
 			valid_array_cur<= valid_array_next;
 			data_out_array_cur<=data_out_array_next;

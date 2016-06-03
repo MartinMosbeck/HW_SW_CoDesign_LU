@@ -21,9 +21,7 @@ entity IIRFilter_Buffer is
 
 		rdy : in std_logic;
 		validout : out std_logic;
-		data_out : out fixpoint;
-		
-		validout_vor : out std_logic
+		data_out : out fixpoint
 	);
 end IIRFilter_Buffer;
 
