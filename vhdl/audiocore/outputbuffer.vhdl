@@ -45,6 +45,8 @@ architecture behavior of outputbuffer is
 	
 	signal data1,data2,data3,data4: byte;
 	
+	signal address1_addr, address2_addr, address3_addr, address4_addr, address5_addr: std_logic_vector(log2c(N)-1 downto 0);
+	
 	function pos_plus1(pos : bufferpos)
 		return bufferpos is
 	begin
@@ -56,6 +58,11 @@ architecture behavior of outputbuffer is
 	end pos_plus1;
 	
 begin
+	address1_addr <= std_logic_vector(to_unsigned(rpos_cur,log2c(N)));
+	address2_addr <= std_logic_vector(to_unsigned(pos_plus1(rpos_cur),log2c(N)));
+	address3_addr <= std_logic_vector(to_unsigned(pos_plus1(pos_plus1(rpos_cur)),log2c(N)));
+	address4_addr <= std_logic_vector(to_unsigned(pos_plus1(pos_plus1(pos_plus1(rpos_cur))),log2c(N)));
+	address5_addr <= std_logic_vector(to_unsigned(wpos_cur,log2c(N)));
 
 	ram: qp_ram
 	generic map
@@ -66,15 +73,15 @@ begin
 	port map
 	(
 	clk=>clk,
-	address1 => std_logic_vector(to_unsigned(rpos_cur,log2c(N))),
-	address2 => std_logic_vector(to_unsigned(pos_plus1(rpos_cur),log2c(N))),
-	address3 => std_logic_vector(to_unsigned(pos_plus1(pos_plus1(rpos_cur)),log2c(N))),
-	address4 => std_logic_vector(to_unsigned(pos_plus1(pos_plus1(pos_plus1(rpos_cur))),log2c(N))),
+	address1 => address1_addr,
+	address2 => address2_addr,
+	address3 => address3_addr,
+	address4 => address4_addr,
 	data_out1 => data1,
 	data_out2 => data2,
 	data_out3 => data3,
 	data_out4 => data4,
-	address5 => std_logic_vector(to_unsigned(wpos_cur,log2c(N))),
+	address5 => address5_addr,
 	wr => validin,
 	data_in => data_in
 	);

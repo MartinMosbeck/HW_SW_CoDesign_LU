@@ -3,6 +3,8 @@
 #include <stdlib.h>
 #include <math.h>//Für pow()
 
+#define FILTERN
+
 int lookup_sin16[25]={
 	0b00000000000000000000000000000000,
 	0b00000000000000001111111101111110,
@@ -155,24 +157,26 @@ int main(int argc, char *argv[]){
 
 	//START PROCESSING//
 
-	for(i=0; i<25; ++i){//anzBytes/2; ++i){
+	for(i=0; i<1000; ++i){//anzBytes/2; ++i){
 		//printf("I[%i]=%x, Q[%i]=%x\n",i,I[i],i,Q[i]);
 		//Mixer
 		Itemp=(I[i]-127)<<16;
 		Qtemp=(Q[i]-127)<<16;
 		//printf("I[%i]-127=%i, Q[%i]-127=%i\n",i,I[i]-127,i,Q[i]-127);
 		//testbenchPrint(i,I[i],Q[i]);
-		//printf("Itemp = %u, Qtemp = %u\n", Itemp, Qtemp);
+		//printf("Itemp = %x, Qtemp = %x\n", Itemp, Qtemp);
 		//printf("Itemp = %f, Qtemp = %f\n", zeigeFixpoint(Itemp), zeigeFixpoint(Qtemp));
 
 		Iout=fixpoint_mult(Itemp,lookup_cos16[t_cur]) - fixpoint_mult(Qtemp,lookup_sin16[t_cur]);
 		Qout=fixpoint_mult(Itemp,lookup_sin16[t_cur]) + fixpoint_mult(Qtemp,lookup_cos16[t_cur]);
 		//printf("Itemp1 = %u, Itemp2 = %u, Qtemp1 = %u, Qtemp2 = %u\n",fixpoint_mult(Itemp,lookup_cos16[t_cur]),fixpoint_mult(Qtemp,lookup_sin16[t_cur]),fixpoint_mult(Itemp,lookup_sin16[t_cur]),fixpoint_mult(Qtemp,lookup_cos16[t_cur]));
-		//printf("Iout = %u, Qout = %u\n", Iout, Qout);
+		//printf("Iout = %x, Qout = %x\n", Iout, Qout);
 		//printf("Iout = %f, Qout = %f\n", zeigeFixpoint(Iout), zeigeFixpoint(Qout));
 		//printf("\t\t--%i\n",i);
 		//printf("Iout[%i] = %02x\n", i, Iout);
-		//printf("\t\tIin <= x\"%02x\";\n",Iout);
+		//printf("Qout[%i] = %02x\n", i ,Qout);
+		//printf("\t\tIin <= x\"%02x\";\n",I[i]);
+		//printf("\t\tQin <= x\"%02x\";\n",Q[i]);
 		//printf("\t\tcounter <= counter + 10000;\n");
 		//printf("\t\tclk <= '1'; wait for 5 ns;\n");
 		//printf("\t\tclk <= '0'; wait for 5 ns;\n");
@@ -180,6 +184,7 @@ int main(int argc, char *argv[]){
 		if (24==t_cur) t_cur=0;
 		else t_cur++;
 
+		#ifdef FILTERN
 		////////////////////////////
 		//Filter Lowpass IIR 60kHz//
 		////////////////////////////
@@ -202,11 +207,11 @@ int main(int argc, char *argv[]){
 		for(j=FILTER_ORDER-1; j>= 0; j--)
 		{
 			//printf("yhist[%d] * a[%d] = %f * %f = %f\n", j, j, zeigeFixpoint(yhistI[j]), zeigeFixpoint(a[j]), zeigeFixpoint(fixpoint_mult(yhistI[j],a[j])));
-			printf("yhist[%d] * a[%d] = %x * %x = %x | %x\n",j,j,yhistI[j],a[j],fixpoint_mult(yhistI[j],a[j]),Iout);
+		//	printf("yhist[%d] * a[%d] = %x * %x = %x | %x\n",j,j,yhistI[j],a[j],fixpoint_mult(yhistI[j],a[j]),Iout);
 			Iout -= fixpoint_mult(yhistI[j],a[j]);
 		}
 
-		printf("Iout = %x\n\n",Iout);
+		//printf("Iout = %x\n\n",Iout);
 
 		//shift yhist
 		for(j=FILTER_ORDER-1; j > 0; j--)
@@ -235,7 +240,6 @@ int main(int argc, char *argv[]){
 			yhistQ[j] = yhistQ[j-1];
 		yhistQ[0] = Qout;
 
-
 		//printf("Qout[%d] = %f\n\n", i, zeigeFixpoint(Qout));
 
 		//DEBUG
@@ -252,6 +256,7 @@ int main(int argc, char *argv[]){
 		//}
 
 		//printf("Iout gefiltert = %f, Qout gefiltert= %f\n", zeigeFixpoint(Iout), zeigeFixpoint(Qout));
+		#endif
 		
 		//Decimator
 		if(20-1==deci_cnt){
@@ -282,6 +287,7 @@ int main(int argc, char *argv[]){
 				data_fixp=fixpoint_mult(demodulated,0x00000300);//0x500 statt 0x300?
 				//printf("data_fixp = %f\n",zeigeFixpoint(data_fixp));
 				outputvector[outputpos++]=(data_fixp + 0b00000000011111110000000000000000)>>16;
+				printf("outputvector[%i]=%x\n",i,outputvector[outputpos-1]);
 				//printf("\n");
 			}
 		}
@@ -290,7 +296,7 @@ int main(int argc, char *argv[]){
 	free(I);
 	free(Q);
 
-	/*	for(i=0; i<outputpos; i++){
+		/*for(i=0; i<outputpos; i++){
 			printf("%02x",outputvector[i]);
 		}*/
 	free(outputvector);

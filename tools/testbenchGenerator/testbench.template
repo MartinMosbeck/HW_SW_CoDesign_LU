@@ -1,0 +1,63 @@
+-- Load Altera libraries for this chip
+library IEEE;
+--LIBRARY MAXII;
+use IEEE.STD_LOGIC_1164.all;
+--USE MAXII.MAXII_COMPONENTS.ALL;
+use ieee.numeric_std.all;
+library work;
+use work.audiocore_pkg.all;
+
+entity audiocore_Simulation is
+end audiocore_Simulation;
+
+architecture testbench of audiocore_Simulation is
+  
+  signal clk: std_logic:='0';
+  signal res: std_logic;
+  
+  signal Istart, Iend, Ivalid, Iready, Ostart, Oend, Ovalid, Oready: std_logic;
+  signal Idata, Odata: std_logic_vector(31 downto 0);
+  
+  signal counter: integer:=30000;
+  
+  begin
+    dut : entity work.audiocore
+		port map
+		(
+		clk   => clk,
+		res_n => res,
+		
+		-- stream input
+		asin_data => Idata,
+		asin_startofpacket => Istart,
+		asin_endofpacket => Iend,
+		asin_valid => Ivalid,
+		asin_ready => Iready,
+
+		-- stream output
+		asout_data => Odata,
+		asout_startofpacket => Ostart,
+		asout_endofpacket => Oend,
+		asout_valid => Ovalid,
+		asout_ready => Oready
+	);
+    
+    stimulus : process is
+      begin
+		res <= '0'; wait for 20 ns;
+		res <= '1'; wait for 20 ns;
+		Ivalid <= '1';
+		Oready <= '1';
+
+		
+		%%DATA
+		
+		  
+		Ivalid <= '0';
+		
+		loop
+		  clk <= '1'; wait for 5 ns;
+		  clk <= '0'; wait for 5 ns;
+        end loop;
+      end process stimulus;
+end architecture testbench; 

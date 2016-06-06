@@ -88,7 +88,7 @@ begin
 	IIR_Buffer: IIRFilter_Buffer
 	generic map
 	(
-		N => 32
+		N => 512
 	)
 	port  map
 	(

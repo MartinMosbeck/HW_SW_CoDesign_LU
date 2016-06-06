@@ -31,7 +31,7 @@ architecture behavior of FIFO is
 
 	signal rpos_cur, rpos_next , wpos_cur, wpos_next : bufferpos; 
 
-	signal data_out_cur, data_out_next : byte;
+	signal data : byte;
 
 	signal validout_cur, validout_next : std_logic;
 	
@@ -60,7 +60,7 @@ begin
 	(
 		clk => clk,
 		address_out => rpos_addr,
-		data_out => data_out_next,
+		data_out => data,
 		address_in1 => wpos_addr,
 		address_in2 => wpos_p1_addr,
 		wr => validin,
@@ -71,7 +71,7 @@ begin
 	------------------
 	-- FIFO action --
 	------------------
-	fifo_action: process (validin,in1,in2, rpos_cur, wpos_cur, data_out_cur, validout_cur)
+	fifo_action: process (validin,in1,in2, rpos_cur, wpos_cur, validout_cur, data)
 	begin
 		-- to avoid latches
 		rpos_next <= rpos_cur;
@@ -103,18 +103,16 @@ begin
 			--defaults
 			rpos_cur <= 0;
 			wpos_cur <= 0;
-			data_out_cur <= (others=>'0');
 			validout_cur <= '0';
 
 		elsif rising_edge(clk) then
 			-- internal
 			rpos_cur <= rpos_next;
 			wpos_cur <= wpos_next;
-			data_out_cur <= data_out_next;
 			validout_cur <= validout_next;
 			
 			-- outputs
-			data_out <= data_out_cur;
+			data_out <= data;
 			validout <= validout_cur;
 		end if;
 	end process sync;

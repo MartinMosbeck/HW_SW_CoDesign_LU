@@ -244,4 +244,23 @@ package audiocore_pkg is
 		data_out : out fixpoint
 	);
 	end component;
+	
+	component outputbuffer_debug is
+	generic
+	(
+		N: natural := 32
+	);
+	port 
+	(
+		clk : in std_logic;
+		res_n : in std_logic;
+
+		data_in : in fixpoint;
+		validin : in std_logic;
+		
+		ready: in std_logic;
+		validout : out std_logic;
+		data_out : out std_logic_vector(31 downto 0)
+	);
+	end component;
 end package audiocore_pkg;
