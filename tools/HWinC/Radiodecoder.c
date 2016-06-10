@@ -158,19 +158,19 @@ int main(int argc, char *argv[]){
 	//START PROCESSING//
 
 	for(i=0; i<1000; ++i){//anzBytes/2; ++i){
-		//printf("I[%i]=%x, Q[%i]=%x\n",i,I[i],i,Q[i]);
+//		printf("I[%i]=%x, Q[%i]=%x\n",i,I[i],i,Q[i]);
 		//Mixer
 		Itemp=(I[i]-127)<<16;
 		Qtemp=(Q[i]-127)<<16;
 		//printf("I[%i]-127=%i, Q[%i]-127=%i\n",i,I[i]-127,i,Q[i]-127);
 		//testbenchPrint(i,I[i],Q[i]);
-		//printf("Itemp = %x, Qtemp = %x\n", Itemp, Qtemp);
+//		printf("Itemp = %x, Qtemp = %x\n", Itemp, Qtemp);
 		//printf("Itemp = %f, Qtemp = %f\n", zeigeFixpoint(Itemp), zeigeFixpoint(Qtemp));
 
 		Iout=fixpoint_mult(Itemp,lookup_cos16[t_cur]) - fixpoint_mult(Qtemp,lookup_sin16[t_cur]);
 		Qout=fixpoint_mult(Itemp,lookup_sin16[t_cur]) + fixpoint_mult(Qtemp,lookup_cos16[t_cur]);
 		//printf("Itemp1 = %u, Itemp2 = %u, Qtemp1 = %u, Qtemp2 = %u\n",fixpoint_mult(Itemp,lookup_cos16[t_cur]),fixpoint_mult(Qtemp,lookup_sin16[t_cur]),fixpoint_mult(Itemp,lookup_sin16[t_cur]),fixpoint_mult(Qtemp,lookup_cos16[t_cur]));
-		//printf("Iout = %x, Qout = %x\n", Iout, Qout);
+//		printf("Iout = %x, Qout = %x\n", Iout, Qout);
 		//printf("Iout = %f, Qout = %f\n", zeigeFixpoint(Iout), zeigeFixpoint(Qout));
 		//printf("\t\t--%i\n",i);
 		//printf("Iout[%i] = %02x\n", i, Iout);
@@ -183,6 +183,8 @@ int main(int argc, char *argv[]){
 
 		if (24==t_cur) t_cur=0;
 		else t_cur++;
+		
+		printf("%x",Iout);
 
 		#ifdef FILTERN
 		////////////////////////////
@@ -256,6 +258,7 @@ int main(int argc, char *argv[]){
 		//}
 
 		//printf("Iout gefiltert = %f, Qout gefiltert= %f\n", zeigeFixpoint(Iout), zeigeFixpoint(Qout));
+//		printf("Iout gefilter = %x, Qout gefilter = %x\n", Iout, Qout);
 		#endif
 		
 		//Decimator
@@ -265,7 +268,7 @@ int main(int argc, char *argv[]){
 			//printf("I_con = %f, Q_con = %f\n", zeigeFixpoint(I_con), zeigeFixpoint(Q_con));
 			valid=1;
 			deci_cnt=0;
-			//printf("Decimator sagt ja!\n");
+//			printf("Decimator sagt ja!\n");
 		}else{
 			valid=0;
 			deci_cnt++;
@@ -277,21 +280,22 @@ int main(int argc, char *argv[]){
 			I_con=Iout;
 			Q_con=fixpoint_mult(0xFFFF0000,Qout);
 			//printf("demodulated = %f, I_con = %f, Q_con = %f\n",zeigeFixpoint(demodulated),zeigeFixpoint(I_con),zeigeFixpoint(Q_con));
+//			printf("demodulated = %x\n",demodulated);
 		}
 
 		//Outlogic
 		if(valid){
 			validvalid=1-validvalid;//jedes zweite nehmen (=Decimator)
 			if(validvalid){
-				//printf("Outputlogic sagt ja!\n");
+//				printf("Outputlogic sagt ja!\n");
 				data_fixp=fixpoint_mult(demodulated,0x00000300);//0x500 statt 0x300?
 				//printf("data_fixp = %f\n",zeigeFixpoint(data_fixp));
 				outputvector[outputpos++]=(data_fixp + 0b00000000011111110000000000000000)>>16;
-				printf("outputvector[%i]=%x\n",i,outputvector[outputpos-1]);
+//				printf("outputvector[%i]=%x\n",i,outputvector[outputpos-1]);
 				//printf("\n");
 			}
 		}
-		//printf("\n");
+//		printf("\n");
 	}
 	free(I);
 	free(Q);
