@@ -8,6 +8,7 @@
 #include <sys/socket.h>
 #include <stdio.h>
 #include <unistd.h>
+#include <stdlib.h>
 
 #define DEFAULT_IF "eth0"
 #define BUF_SIZE 64
@@ -21,7 +22,7 @@ int main(int argc, char *argv[])
 	int sockfd;
 	struct ifreq if_idx;
 	struct ifreq if_mac;
-	char sendbuf[BUF_SIZE];
+	//char sendbuf[BUF_SIZE];
 	struct sockaddr_ll socket_address;
 	char ifName[IFNAMSIZ];
 	unsigned int mac[6] = {0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF}; //using as uint8_t
@@ -84,40 +85,41 @@ int main(int argc, char *argv[])
 	socket_address.sll_addr[4] = mac[4];
 	socket_address.sll_addr[5] = mac[5];
 
-	fp = fopen("sound.wav","r");
+	fp = fopen("ethst_input.txt","r");
 	if (!fp)
 	{
 			perror("Could not open audio file!");
 	}
 
-	fseek(fp,44,SEEK_SET);
+	//fseek(fp,44,SEEK_SET);
+	
+	fseek(fp,0L,SEEK_END);
+	size_t anzBytes=ftell(fp)/2;
+	fseek(fp,0L,SEEK_SET);
+	
+	uint8_t c[2]="";
+	uint8_t * sendbuf=malloc(anzBytes);
+	for(;i<anzBytes;){
+		c[0]=fgetc(fp);
+		c[1]=fgetc(fp);
+		sendbuf[i++]=strtol(c, NULL, 16);
+	}
+	fclose(fp);
 
 	cnt = 0;
 	while (1)
 	{
-		if(fread((void *)&sendbuf,1, BUF_SIZE-16, fp) != BUF_SIZE-16)
-		{
-			if (feof(fp))
-			{
-				printf("End of input reached! Sent %d packets!\n",cnt);
-				break;
-			}
-			else
-			{
-				perror("Error reading from file");
-				return -1;
-			}
-		}
-
 		/* Send packet */
-		if (sendto(sockfd, sendbuf, BUF_SIZE-16, 0, (struct sockaddr*)&socket_address, sizeof(struct sockaddr_ll)) < 0)
+		if (sendto(sockfd, &sendbuf[cnt], BUF_SIZE-16, 0, (struct sockaddr*)&socket_address, sizeof(struct sockaddr_ll)) < 0)
 		{
 			perror("Error sending packet");
 			return -1;
 		}
 		else
 		{
-			cnt ++;
+			cnt += BUF_SIZE-16;
+			if(cnt>anzBytes)break;
+			
 			printf("Sent %d packets!\r",cnt);
 
 			if (cnt == 2)
@@ -129,8 +131,8 @@ int main(int argc, char *argv[])
 		}
 	}
 
-
-  fclose(fp);
+  free(sendbuf);
+  //fclose(fp);
 
   return 0;
 }
