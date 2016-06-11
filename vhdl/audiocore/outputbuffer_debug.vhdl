@@ -45,6 +45,8 @@ architecture behavior of outputbuffer_debug is
 	
 	signal address_rpos, address_wpos: std_logic_vector(log2c(N)-1 downto 0);
 	
+	signal start_flag, start_flag_next: std_logic := '0';
+	
 	function pos_plus1(pos : bufferpos)
 		return bufferpos is
 	begin
@@ -78,15 +80,20 @@ begin
 	------------------
 	-- FIFO action --
 	------------------
-	outputbuffer_action: process (validin,data_in,ready, rpos_cur, wpos_cur, data_out_cur, validout_cur, packetcnt, state_cur, data)
+	outputbuffer_action: process (validin,data_in,ready, rpos_cur, wpos_cur, data_out_cur, validout_cur, packetcnt, state_cur, data, start_flag)
 	begin
 		-- to avoid latches
 		rpos_next <= rpos_cur;
 		wpos_next <= wpos_cur;
-		data_out_next <= data_out_cur;
+		--data_out_next <= data_out_cur;
 		validout_next <= validout_cur;
 		packetcnt_next <= packetcnt;
 		state_next <= state_cur;
+		start_flag_next <= start_flag;
+		
+		if rpos_cur /= wpos_cur then
+		  start_flag_next <='1';
+		end if;
 
 
 		-- action at in
@@ -95,10 +102,10 @@ begin
 		end if;
 
 		-- action at out
-		if rpos_cur /= wpos_cur and packetcnt /= 255 and ready = '1' then
+		if rpos_cur /= wpos_cur and packetcnt /= 255 and ready = '1' and start_flag = '1' then
 			case state_cur is
 				when IDLE=>
-					data_out_next <= std_logic_vector(data);
+					--data_out_next <= std_logic_vector(data);
 					validout_next <= '1';
 					rpos_next <= pos_plus1(rpos_cur);
 					packetcnt_next <= pos_plus1(pos_plus1(pos_plus1(pos_plus1(packetcnt))));
@@ -125,21 +132,23 @@ begin
 			--defaults
 			rpos_cur <= 0;
 			wpos_cur <= 0;
-			data_out_cur <= (others=>'0');
+			--data_out_cur <= (others=>'0');
 			validout_cur <= '0';
 			packetcnt <= 0;
 			state_cur <= IDLE;
+			start_flag <= '0';
 		elsif rising_edge(clk) then
 			-- internal
 			rpos_cur <= rpos_next;
 			wpos_cur <= wpos_next;
-			data_out_cur <= data_out_next;
+			--data_out_cur <= data_out_next;
 			validout_cur <= validout_next;
 			packetcnt <= packetcnt_next;
 			state_cur <= state_next;
+			start_flag <= start_flag_next;
 			
 			-- outputs
-			data_out <= data_out_next;
+			data_out <= std_logic_vector(data);--_out_next;
 			validout <= validout_next;
 		end if;
 	end process sync;

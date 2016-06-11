@@ -38,7 +38,7 @@ architecture rtl of audiocore is
 	signal enq_validout : std_logic;
 	signal outlogic_data_out: fixpoint;
 	signal outlogic_validout: std_logic;
-	signal data: fixpoint;
+	signal data: std_logic_vector(31 downto 0);
 
 begin
 	clk_top <= clk;
@@ -62,7 +62,8 @@ begin
 		validout 		=> enq_validout
 	);
 	
-	data <= signed(enq_Iout1 & enq_Qout1 & enq_Iout2 & enq_Qout2);
+	data <= (enq_Iout1 & enq_Qout1 & enq_Iout2 & enq_Qout2);
+	--data <= x"FFDDCCAA";
 	
 	filter60KHzI : IIRFilter
 	port map
@@ -70,7 +71,7 @@ begin
 		clk => clk_top,
 		res_n => res_n_top,
 
-		data_in => data,
+		data_in => signed(data),
 		validin => enq_validout,
 
 		data_out => outlogic_data_out,
