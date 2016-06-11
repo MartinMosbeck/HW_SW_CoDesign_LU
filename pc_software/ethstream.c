@@ -92,17 +92,21 @@ int main(int argc, char *argv[])
 	}
 
 	//fseek(fp,44,SEEK_SET);
-	
+
 	fseek(fp,0L,SEEK_END);
 	size_t anzBytes=ftell(fp)/2;
 	fseek(fp,0L,SEEK_SET);
-	
-	uint8_t c[2]="";
+
+	uint8_t c[3]="";
 	uint8_t * sendbuf=malloc(anzBytes);
+
+	i = 0;
 	for(;i<anzBytes;){
 		c[0]=fgetc(fp);
 		c[1]=fgetc(fp);
+		c[2]='\0';
 		sendbuf[i++]=strtol(c, NULL, 16);
+
 	}
 	fclose(fp);
 
@@ -119,7 +123,7 @@ int main(int argc, char *argv[])
 		{
 			cnt += BUF_SIZE-16;
 			if(cnt>anzBytes)break;
-			
+
 			printf("Sent %d packets!\r",cnt);
 
 			if (cnt == 2)
