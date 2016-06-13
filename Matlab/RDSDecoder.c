@@ -32,6 +32,8 @@ struct EndOfBlockPlausible
 	//a negative drift indicates that a block was discovered too early
 	//a positive drift indicates that a block was discovered too late
 	int16_t drift;
+	//states whether the current block synchronization was assumed
+	bool assume;
 };
 
 void main()
@@ -144,6 +146,7 @@ struct EndOfBlockPlausible CheckEndOfBlock(uint16_t syndrome, uint16_t offset_wo
 
 	endOfBlock.historyPlausible = false;
 	endOfBlock.endOfBlock = NO_END;
+	endOfBlock.assume = false;
 
 	if(syndrome == 0b01 0111 1111)
 	{
@@ -242,25 +245,27 @@ struct EndOfBlockPlausible CheckEndOfBlock(uint16_t syndrome, uint16_t offset_wo
 				insync = false;
 			//assume a clock synchronization happened "drift" cycles ago
 			assume = true;
+			endOfBlock.assume = true;
 			count = endOfBlock.drift;
 			switch(lastBlock)
 			{
 			case A:
-				lastBlock = B;
+				endOfBlock.endOfBlock = B;
 				break;
 			case B:
-				lastBlock = C;
+				endOfBlock.endOfBlock = C;
 				break;
 			case C:
-				lastBlock = D;
+				endOfBlock.endOfBlock = D;
 				break;
 			case Cs:
-				lastBlock = D;
+				endOfBlock.endOfBlock = D;
 				break;
 			case D:
-				lastBlock = A;
+				endOfBlock.endOfBlock = A;
 				break;
 			}
+			lastBlock = endOfBlock.endOfBlock;
 		}
 	}
 	//if the block detection is not insync then we simply look for any block end
