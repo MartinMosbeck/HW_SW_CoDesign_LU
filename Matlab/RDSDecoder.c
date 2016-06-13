@@ -5,6 +5,9 @@
 #include <stdbool.h>
 //#include <math.h>
 
+//remove this if compiling in linux
+#define WIN
+
 
 /***********************************Constants***********************************/
 #define BUFFER_SIZE		1024
@@ -12,6 +15,37 @@
 #define BLOCK_SIZE		26
 #define GROUP_SIZE		4*BLOCK_SIZE
 #define PLAUSIBLE_TOLERANCE	8
+
+#ifndef WIN
+	#define SYNDROM_A		0b01 0111 1111
+	#define SYNDROM_B		0b00 0000 1110
+	#define SYNDROM_C		0b01 0010 1111
+	#define SYNDROM_Cs		0b10 1110 1100
+	#define SYNDROM_D		0b10 1001 0111
+
+	#define OFFSETWORD_A	0b00 1111 1100
+	#define OFFSETWORD_B	0b01 1001 1000
+	#define OFFSETWORD_C	0b01 0110 1000
+	#define OFFSETWORD_Cs	0b11 0101 0000
+	#define OFFSETWORD_D	0b01 1011 0100
+#else
+	//dummy values to remove compiler errors in windows and for easier testing
+	//should be replaced by hex values
+	#define SYNDROM_A		0
+	#define SYNDROM_B		1
+	#define SYNDROM_C		2
+	#define SYNDROM_Cs		3
+	#define SYNDROM_D		4
+
+	#define OFFSETWORD_A	0
+	#define OFFSETWORD_B	1
+	#define OFFSETWORD_C	2
+	#define OFFSETWORD_Cs	3
+	#define OFFSETWORD_D	4
+#endif
+
+//representing 0b0000 0101 1011 1001
+#define CRC_POLYNOMIAL	0x05B9
 
 const char *INPUT_FILENAME = 	"decodedaten.txt";
 const char *OUTPUT_FILENAME = 	"RDSdecoded.txt";
@@ -40,16 +74,16 @@ void main()
 {
 	char line[LINE_SIZE];
 	uint8_t character;
-	uint32_t shift_register_26bit = 0;
+	uint64_t shift_register_26bit = 0;
 	uint16_t shift_register_10bit = 0;
-	const uint16_t crcpolynom = 0b0000 0101 1011 1001;
+	const uint16_t crcpolynom = CRC_POLYNOMIAL;
 	//A,B,C,CStrich,D
-	const uint16_t offsetword[5]={0b00 1111 1100, 0b01 1001 1000,
-		0b01 0110 1000, 0b11 0101 0000,
-		0b01 1011 0100};
-	const uint16_t syndrome[5]={0b11 1101 1000, 0b11 1101 0100,
-		0b10 0101 1100, 0b11 1100 1100,
-		0b10 0101 1000};
+	//const uint16_t offsetword[5]={0b00 1111 1100, 0b01 1001 1000,
+	//	0b01 0110 1000, 0b11 0101 0000,
+	//	0b01 1011 0100};
+	//const uint16_t syndrome[5]={0b11 1101 1000, 0b11 1101 0100,
+	//	0b10 0101 1100, 0b11 1100 1100,
+	//	0b10 0101 1000};
 	struct EndOfBlockPlausible endOfBlock;
 
 	char path[BUFFER_SIZE];
@@ -87,12 +121,13 @@ void main()
 
 		//Synchronization
 
-		shift_register_26bit = shift_register_26bit >> 1;
+		shift_register_26bit <<= 1;
 		if(character==1)
-			shift_register_26bit |=  (1<<25); 
+			shift_register_26bit |= 0x1; 
 
 		//a)
 		uint32_t data_out = 0;
+		//shifted to the left
 		shift_register_10bit = 0;
 		uint8_t message_input_bit = 0;
 		uint8_t offset_word_input_bit = 0;
@@ -102,30 +137,46 @@ void main()
 		for(int i=0; i<16; i++)
 		{
 			//shift data xored with the 10th bit in the 10bit shift register
-			message_input_bit = (shift_register_26bit >> i) & 0x1;
+			message_input_bit = (shift_register_26bit >> (25-i)) & 0x1;
 			message_input_bit ^= shift_register_10bit >> 9;
-			if(message_input_bit == 1)
+			if(message_input_bit == 0x1)
 			{
 				shift_register_10bit |= 0x1;
 				shift_register_10bit ^= crcpolynom;
 			}
 			shift_register_10bit <<= 1;
-			if(shift_register_10bit & 0b0000 0100 0000 0000)
+			//bitwise AND with 0b0000 0100 0000 0000
+			if(shift_register_10bit & 0x400)
 				data_out |= (1<<i);
-			shift_register_10bit &= 0b0000 0011 1111 1110;	//alternatively 0b0000 0011 1111 1111 does the same
+			//bitwise AND with 0b0000 0011 1111 1110
+			shift_register_10bit &= 0x3FE;
 		}
 		//d)
 		for(int i=16; i<26; i++)
 		{
-			offset_word_input_bit = (shift_register_26bit >> i) & 0x1;
+			offset_word_input_bit = (shift_register_26bit >> (25-i)) & 0x1;
 			if(offset_word_input_bit ^ ((shift_register_10bit >> i) & 0x1))
 				data_out |= (1<<i);
 		}
 		syndrome = data_out >> 16;
-		offset_word = shift_register_26bit >> 16;
+		//bitwise AND with 0b0000 0011 1111 1111
+		offset_word = shift_register_26bit &= 0x3FF;
 		endOfBlock = CheckEndOfBlock(syndrome, offset_word);
+
+
+		uint32_t currentBlock;
+		//was a block end detected?
+		if(endOfBlock.historyPlausible)
+		{
+			//if we had to assume a synchronization pulse, then it most likely would have happened
+			//endOfBlock.drift cycles ago
+			if(endOfBlock.assume)
+				currentBlock = (shift_register_26bit >> endOfBlock.drift) & 0x3FFFFFF;
+			else
+				currentBlock = shift_register_26bit & 0x3FFFFFF;
+		}
 		//CRC
-		//TODO Continue reading on page 68 in the RDS specification
+		//TOO Continue reading on page 68 in the RDS specification
 		//Decoden
 		//TODO
 
@@ -143,39 +194,40 @@ struct EndOfBlockPlausible CheckEndOfBlock(uint16_t syndrome, uint16_t offset_wo
 	static int16_t count = 0;	//after a block has been detected
 	struct EndOfBlockPlausible endOfBlock;
 	static bool insync = false;
+	static bool assume = false;
 
 	endOfBlock.historyPlausible = false;
 	endOfBlock.endOfBlock = NO_END;
 	endOfBlock.assume = false;
 
-	if(syndrome == 0b01 0111 1111)
+	if(syndrome == SYNDROM_A)
 	{
 		//block A detected
-		if(offset_word == 0b00 1111 1100)
+		if(offset_word == OFFSETWORD_A)
 			endOfBlock.endOfBlock = A;
 	}
-	else if(syndrome == 0b00 0000 1110)
+	else if(syndrome == SYNDROM_B)
 	{
 		//block B detected
-		if(offset_word == 0b01 1001 1000)
+		if(offset_word == OFFSETWORD_B)
 			endOfBlock.endOfBlock = B;
 	}
-	else if(syndrome == 0b01 0010 1111)
+	else if(syndrome == SYNDROM_C)
 	{
 		//block C detected
-		if(offset_word == 0b01 0110 1000)
+		if(offset_word == OFFSETWORD_C)
 			endOfBlock.endOfBlock = C;
 	}
-	else if(syndrome == 0b10 1110 1100)
+	else if(syndrome == SYNDROM_Cs)
 	{
 		//block C' detected
-		if(offset_word == 0b11 0101 0000)
+		if(offset_word == OFFSETWORD_Cs)
 			endOfBlock.endOfBlock = Cs;
 	}
-	else if(syndrome == 0b10 1001 0111)
+	else if(syndrome == SYNDROM_D)
 	{
 		//block D detected
-		if(offset_word == 0b01 1011 0100)
+		if(offset_word == OFFSETWORD_D)
 			endOfBlock.endOfBlock = D;
 	}
 
@@ -220,8 +272,8 @@ struct EndOfBlockPlausible CheckEndOfBlock(uint16_t syndrome, uint16_t offset_wo
 	//if the block detection is insync
 	if(insync)
 	{
-		//if we are within a certain tolerance time window
-		if(abs(endOfBlock.drift) < PLAUSIBLE_TOLERANCE)
+		//if we are within a certain tolerance
+		if(endOfBlock.drift < PLAUSIBLE_TOLERANCE)
 		{
 			//if a block end has been detected and deemed valid
 			if(endOfBlock.endOfBlock != NO_END && endOfBlock.historyPlausible == true)
@@ -230,7 +282,7 @@ struct EndOfBlockPlausible CheckEndOfBlock(uint16_t syndrome, uint16_t offset_wo
 				lastBlock = endOfBlock.endOfBlock;
 				assume = false;
 			}
-			//if the wrong block end has been detected we keep on going
+			//if no block or the wrong block end (regarding the history) has been detected we keep on going
 			else
 			{
 				count++;
@@ -243,9 +295,10 @@ struct EndOfBlockPlausible CheckEndOfBlock(uint16_t syndrome, uint16_t offset_wo
 			//that a clock synchronization has happened
 			if(assume)
 				insync = false;
-			//assume a clock synchronization happened "drift" cycles ago
 			assume = true;
 			endOfBlock.assume = true;
+
+			//assume a clock synchronization happened "drift" cycles ago
 			count = endOfBlock.drift;
 			switch(lastBlock)
 			{
@@ -253,6 +306,7 @@ struct EndOfBlockPlausible CheckEndOfBlock(uint16_t syndrome, uint16_t offset_wo
 				endOfBlock.endOfBlock = B;
 				break;
 			case B:
+				//this of course could also be Cs, but we have to assume something
 				endOfBlock.endOfBlock = C;
 				break;
 			case C:
@@ -266,6 +320,7 @@ struct EndOfBlockPlausible CheckEndOfBlock(uint16_t syndrome, uint16_t offset_wo
 				break;
 			}
 			lastBlock = endOfBlock.endOfBlock;
+			endOfBlock.historyPlausible = true;
 		}
 	}
 	//if the block detection is not insync then we simply look for any block end
@@ -278,9 +333,13 @@ struct EndOfBlockPlausible CheckEndOfBlock(uint16_t syndrome, uint16_t offset_wo
 			count = 0;
 			//the drif is 0, since there is no predecessor
 			endOfBlock.drift = 0;
-		}
-	}
 
+			//since we are not in sync there is no relevant history
+			endOfBlock.historyPlausible = true;
+		}
+		else
+			count++;
+	}
 
 	return endOfBlock;
 }
