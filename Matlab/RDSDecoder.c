@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <string.h>
+#include <stdbool.h>
 //#include <math.h>
 
 
@@ -22,18 +23,15 @@ struct EndOfBlockPlausible CheckEndOfBlock(uint16_t syndrome, uint16_t offset_wo
 
 /***********************************Structs and misc***********************************/
 enum EndOfBlock {NO_END, A, B, C, Cs, D};
-enum Plausible {NO, YES};
 
 struct EndOfBlockPlausible
 {
 	enum EndOfBlock endOfBlock;
 	//states whether the end of a block is plausible regarding the last detected block
-	enum Plausible plausibleHistory;
-	//states whether the end of a block is plausible regarding the detected drift
-	enum Plausible plausibleDrift;
+	bool historyPlausible;
 	//a negative drift indicates that a block was discovered too early
 	//a positive drift indicates that a block was discovered too late
-	int8_t drift;
+	int16_t drift;
 };
 
 void main()
@@ -112,7 +110,7 @@ void main()
 			shift_register_10bit <<= 1;
 			if(shift_register_10bit & 0b0000 0100 0000 0000)
 				data_out |= (1<<i);
-			shift_register_10bit &= 0b0000 0011 1111 1110;	//alternatively 0b0000 0011 1111 1111
+			shift_register_10bit &= 0b0000 0011 1111 1110;	//alternatively 0b0000 0011 1111 1111 does the same
 		}
 		//d)
 		for(int i=16; i<26; i++)
@@ -139,12 +137,12 @@ void main()
 
 struct EndOfBlockPlausible CheckEndOfBlock(uint16_t syndrome, uint16_t offset_word)
 {
-	static enum EndOfBlock lastBlock = NO_END;
-	static uint16_t count = 0;	//after a block has been detected
+	static enum EndOfBlock lastBlock = D;	//since initially we want to start at block A
+	static int16_t count = 0;	//after a block has been detected
 	struct EndOfBlockPlausible endOfBlock;
+	static bool insync = false;
 
-	endOfBlock.plausibleHistory = NO;
-	endOfBlock.plausibleDrift = NO;
+	endOfBlock.historyPlausible = false;
 	endOfBlock.endOfBlock = NO_END;
 
 	if(syndrome == 0b01 0111 1111)
@@ -184,27 +182,27 @@ struct EndOfBlockPlausible CheckEndOfBlock(uint16_t syndrome, uint16_t offset_wo
 	{
 		case A:
 			if(lastBlock == D)
-				endOfBlock.plausibleHistory = YES;
+				endOfBlock.historyPlausible = true;
 			break;
 
 		case B:
 			if(lastBlock == A)
-				endOfBlock.plausibleHistory = YES;
+				endOfBlock.historyPlausible = true;
 			break;
 
 		case C:
 			if(lastBlock == B)
-				endOfBlock.plausibleHistory = YES;
+				endOfBlock.historyPlausible = true;
 			break;
 
 		case Cs:
 			if(lastBlock == B)
-				endOfBlock.plausibleHistory = YES;
+				endOfBlock.historyPlausible = true;
 			break;
 
 		case D:
 			if(lastBlock == C || lastBlock == Cs)
-				endOfBlock.plausibleHistory = YES;
+				endOfBlock.historyPlausible = true;
 			break;
 
 		case NO_END:
@@ -216,14 +214,68 @@ struct EndOfBlockPlausible CheckEndOfBlock(uint16_t syndrome, uint16_t offset_wo
 			exit(1);
 	}
 
-	if(endOfBlock.endOfBlock != NO_END && endOfBlock.plausibleHistory == YES && abs(endOfBlock.drift) < PLAUSIBLE_TOLERANCE)
-		endOfBlock.plausibleDrift = YES;
-
-	lastBlock = endOfBlock.endOfBlock;
-	if(endOfBlock.endOfBlock == NO_END)
-		count++;
+	//if the block detection is insync
+	if(insync)
+	{
+		//if we are within a certain tolerance time window
+		if(abs(endOfBlock.drift) < PLAUSIBLE_TOLERANCE)
+		{
+			//if a block end has been detected and deemed valid
+			if(endOfBlock.endOfBlock != NO_END && endOfBlock.historyPlausible == true)
+			{
+				count = 0;
+				lastBlock = endOfBlock.endOfBlock;
+				assume = false;
+			}
+			//if the wrong block end has been detected we keep on going
+			else
+			{
+				count++;
+			}
+		}
+		//if the block end detection is outside a certain tolerance window and no valid block as been detected
+		else
+		{
+			//if we already "assumed" last time then we are probably now out of sync but still try to assume
+			//that a clock synchronization has happened
+			if(assume)
+				insync = false;
+			//assume a clock synchronization happened "drift" cycles ago
+			assume = true;
+			count = endOfBlock.drift;
+			switch(lastBlock)
+			{
+			case A:
+				lastBlock = B;
+				break;
+			case B:
+				lastBlock = C;
+				break;
+			case C:
+				lastBlock = D;
+				break;
+			case Cs:
+				lastBlock = D;
+				break;
+			case D:
+				lastBlock = A;
+				break;
+			}
+		}
+	}
+	//if the block detection is not insync then we simply look for any block end
 	else
-		count = 0;
+	{
+		if(endOfBlock.endOfBlock != NO_END)
+		{
+			insync = true;
+			lastBlock = endOfBlock.endOfBlock;
+			count = 0;
+			//the drif is 0, since there is no predecessor
+			endOfBlock.drift = 0;
+		}
+	}
+
 
 	return endOfBlock;
 }
