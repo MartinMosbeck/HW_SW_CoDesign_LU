@@ -25,7 +25,23 @@ entity audiocore is
 		asout_startofpacket : out std_logic;
 		asout_endofpacket : out std_logic;
 		asout_valid : out std_logic;
-		asout_ready : in std_logic
+		asout_ready : in std_logic;
+		
+		--memory master
+-- 		address : out std_logic_vector(15 downto 0);
+-- 		chipselect : out std_logic;
+-- 		read: out std_logic;
+-- 		write: out std_logic;
+-- 		writedata: out std_logic_vector(31 downto 0);
+-- 		readdata : in std_logic_vector(31 downto 0)
+		--audiostream sinks
+		audiooutleft_data : out std_logic_vector(31 downto 0);
+		audiooutleft_ready : in std_logic;
+		audiooutleft_valid : out std_logic;
+		
+		audiooutright_data : out std_logic_vector(31 downto 0);
+		audiooutright_ready : in std_logic;
+		audiooutright_valid : out std_logic
 	);
 end entity;
 
@@ -208,6 +224,35 @@ begin
 
 		data_out => outlogic_data_out,
 		validout => outlogic_validout
+	);
+	
+	audioout: output_mem
+	generic map
+	(
+		N => 32
+	)
+	port map 
+	(
+		clk => clk_top,
+		res_n => res_n_top,
+
+		data_in => outlogic_data_out,
+		validin => outlogic_validout,
+		
+-- 		address => address,
+-- 		chipselect => chipselect,
+-- 		read => read,
+-- 		write => write,
+-- 		writedata => writedata,
+-- 		readdata => readdata
+
+		audiooutleft_data => audiooutleft_data,
+		audiooutleft_ready => audiooutleft_ready,
+		audiooutleft_valid => audiooutleft_valid,
+		
+		audiooutright_data => audiooutright_data,
+		audiooutright_ready => audiooutright_ready,
+		audiooutright_valid => audiooutright_valid
 	);
 
 	outbuffer: outputbuffer

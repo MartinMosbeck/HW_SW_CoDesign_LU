@@ -263,4 +263,50 @@ package audiocore_pkg is
 		data_out : out std_logic_vector(31 downto 0)
 	);
 	end component;
+	
+	component output_mem is
+	generic
+	(
+		N: natural := 32
+	);
+	port 
+	(
+		clk : in std_logic;
+		res_n : in std_logic;
+
+		data_in : in byte;
+		validin : in std_logic;
+		
+-- 		address : out std_logic_vector(15 downto 0);
+-- 		chipselect : out std_logic;
+-- 		read : out std_logic;
+-- 		write : out std_logic;
+-- 		writedata : out std_logic_vector(31 downto 0);
+-- 		readdata : in std_logic_vector(31 downto 0)
+		audiooutleft_data : out std_logic_vector(31 downto 0);
+		audiooutleft_ready : in std_logic;
+		audiooutleft_valid : out std_logic;
+		
+		audiooutright_data : out std_logic_vector(31 downto 0);
+		audiooutright_ready : in std_logic;
+		audiooutright_valid : out std_logic
+	);
+	end component;
+	
+	component dp_ram_std is
+	generic
+	(
+		ADDR_WIDTH : integer range 1 to integer'high;
+		DATA_WIDTH : integer range 1 to integer'high
+	);
+	port
+	(
+		clk : in std_logic;
+		address_out : in std_logic_vector(ADDR_WIDTH - 1 downto 0);
+		data_out : out std_logic_vector(DATA_WIDTH - 1 downto 0);
+		address_in : in std_logic_vector(ADDR_WIDTH - 1 downto 0);
+		wr : in std_logic;
+		data_in : in std_logic_vector(DATA_WIDTH - 1 downto 0)
+	);
+	end component;
 end package audiocore_pkg;

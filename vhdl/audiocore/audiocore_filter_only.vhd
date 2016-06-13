@@ -25,7 +25,23 @@ entity audiocore is--filter_only
 		asout_startofpacket : out std_logic;
 		asout_endofpacket : out std_logic;
 		asout_valid : out std_logic;
-		asout_ready : in std_logic
+		asout_ready : in std_logic;
+		
+-- 		--memory master
+-- 		address : out std_logic_vector(15 downto 0);
+-- 		chipselect : out std_logic;
+-- 		read: out std_logic;
+-- 		write: out std_logic;
+-- 		writedata: out std_logic_vector(31 downto 0);
+-- 		readdata : in std_logic_vector(31 downto 0)
+		--audiostream sinks
+		audiooutleft_data : out std_logic_vector(31 downto 0);
+		audiooutleft_ready : in std_logic;
+		audiooutleft_valid : out std_logic;
+		
+		audiooutright_data : out std_logic_vector(31 downto 0);
+		audiooutright_ready : in std_logic;
+		audiooutright_valid : out std_logic
 	);
 end entity;
 

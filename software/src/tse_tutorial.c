@@ -82,8 +82,8 @@ int main(void)
 	display_print("done!\n");
 
 	// Reset audio FIFOs
-	IOWR_32DIRECT(AUDIO_BASE,0,0x0C);
-	IOWR_32DIRECT(AUDIO_BASE,0,0x00);
+	//IOWR_32DIRECT(AUDIO_BASE,0,0x0C);
+	//IOWR_32DIRECT(AUDIO_BASE,0,0x00);
 
 	// Clear display
 	display_clear();
@@ -117,14 +117,14 @@ int main(void)
 
 	#ifndef DBGOUT
 	// Create sgdma receive descriptor
-	alt_avalon_sgdma_construct_stream_to_mem_desc( &rx_descriptor[0], &rx_descriptor[1], &song_ptr_b[0], BUF_SIZE, 0 );//(alt_u32 *)rx_audio[0
+	//alt_avalon_sgdma_construct_stream_to_mem_desc( &rx_descriptor[0], &rx_descriptor[1], &song_ptr_b[0], BUF_SIZE, 0 );//(alt_u32 *)rx_audio[0
 
 	//display_print ("Ready to receive data!\n");
 
 	// Set up non-blocking transfer of sgdma receive descriptor
-	alt_avalon_sgdma_do_async_transfer( sgdma_rx_dev, &rx_descriptor[0] );
+	//alt_avalon_sgdma_do_async_transfer( sgdma_rx_dev, &rx_descriptor[0] );
 	//Auch am Anfang auf Daten warten
-	while (alt_avalon_sgdma_check_descriptor_status(&rx_descriptor[act_frame])!=0);
+	//while (alt_avalon_sgdma_check_descriptor_status(&rx_descriptor[act_frame])!=0);
 	#endif
 
 	act_frame = 0;
@@ -152,26 +152,29 @@ int main(void)
 		int laststatus=status;
 		char outputBuffer[1000];
 	#endif
+		
+		status = 0;
 
 	while(1)
 	{
-		// Create sgdma receive descriptor
-		alt_avalon_sgdma_construct_stream_to_mem_desc( &rx_descriptor[1-act_frame], &rx_descriptor[2-act_frame], &song_ptr_b[(1-act_frame)*BUF_SIZE] , BUF_SIZE, 0 );//(alt_u32 *)rx_audio[1-act_frame]
+		/*if(status == 0){
+			// Create sgdma receive descriptor
+			alt_avalon_sgdma_construct_stream_to_mem_desc( &rx_descriptor[1-act_frame], &rx_descriptor[act_frame], &song_ptr_b[(1-act_frame)*BUF_SIZE] , BUF_SIZE, 0 );//(alt_u32 *)rx_audio[1-act_frame]
 
-		// Set up non-blocking transfer of sgdma receive descriptor
-		alt_avalon_sgdma_do_async_transfer( sgdma_rx_dev, &rx_descriptor[1-act_frame] );
-
-		// Copy received frame to song ///HIER
-		/*for (i = 0; i < BUF_SIZE; i ++)
-		{
-			song_ptr_b[i] = rx_audio[act_frame][i];
-		}*/
+			// Set up non-blocking transfer of sgdma receive descriptor
+			//alt_avalon_sgdma_do_async_transfer( sgdma_rx_dev, &rx_descriptor[1-act_frame] );
+			
+			act_frame = 1-act_frame;
+			
+			alt_printf("OK\n");
+		}
+		status = alt_avalon_sgdma_check_descriptor_status(&rx_descriptor[act_frame]);
 
 		#ifdef DEBUGOUT
 			if(zeigen>0){
 				for (i = 0; i < BUF_SIZE; i ++)
 				{
-					sprintf(outtext, "%02x",song_ptr_b[i]);
+					sprintf(outtext, "%02x",song[i+(1-act_frame)*BUF_SIZE/2]);
 					//display_print(outtext);
 					alt_printf(outtext);
 				}
@@ -180,36 +183,31 @@ int main(void)
 			}
 		#endif
 
-		for (i = 0; i < BUF_SIZE/2; i ++)
-		{
-			//Play the received frame
-			avail = (unsigned int)((IORD_32DIRECT(AUDIO_BASE,4)&0xFF000000)>>24);
-			while(avail <= 0)avail = (unsigned int)((IORD_32DIRECT(AUDIO_BASE,4)&0xFF000000)>>24);
+		//Play the received frame
+		avail = (unsigned int)((IORD_32DIRECT(AUDIO_BASE,4)&0xFF000000)>>24);
+		while (avail <=0)avail = (unsigned int)((IORD_32DIRECT(AUDIO_BASE,4)&0xFF000000)>>24);
+		//if (avail > 0){
 			// Read sample from SDRAM
-			sample = (int)song[i+act_frame*BUF_SIZE/2];
+			sample = (int)song[i+(1-act_frame)*BUF_SIZE/2];
 			// and write it to the FIFO for left channel
 			IOWR_32DIRECT(AUDIO_BASE,8,sample);
 
 			// and write it to the FIFO for left channel
 			IOWR_32DIRECT(AUDIO_BASE,12,sample);
-		}
+			i++;
+			if (i==BUF_SIZE/2){
+				i=0;
+			}
+		//}
 
-		act_frame = 1-act_frame;
-
-		// Wait until receive descriptor transfer is complete
-		while (status != 0)
-		{
-			status = alt_avalon_sgdma_check_descriptor_status(&rx_descriptor[act_frame]);
-			#ifdef DEBUGSTATUS
-				if(laststatus!=status){
-					sprintf(outputBuffer, "avalon descriptor status: %d\n", status);//-119=EINPROGRESS
-					//display_print(outputBuffer);
-					alt_printf(outputBuffer);
-					laststatus=status;
-				}
-			#endif
-		}
-		status=1;
+		#ifdef DEBUGSTATUS
+			if(laststatus!=status){
+				sprintf(outputBuffer, "avalon descriptor status: %d\n", status);//-119=EINPROGRESS
+				//display_print(outputBuffer);
+				alt_printf(outputBuffer);
+				laststatus=status;
+			}
+		#endif*/
 	}
 	#endif
 
@@ -217,9 +215,9 @@ int main(void)
 		#ifndef TON
 		for (i = 0; i < BUF_SIZE_DBGOUT*DBGOUT_SIZE; i ++)
 		{
-			if(i%4==0){
+			/*if(i%4==0){
 				alt_printf(" ");
-			}
+			}*/
 			sprintf(outtext, "%02x",song_ptr_b[i]);
 			//display_print(outtext);
 			alt_printf(outtext);
