@@ -16,7 +16,7 @@ entity output_mem is
 		clk : in std_logic;
 		res_n : in std_logic;
 
-		data_in : in byte;
+		data_in : in fixpoint;
 		validin : in std_logic;
 		
 -- 		address : out std_logic_vector(15 downto 0);
@@ -69,22 +69,47 @@ architecture behavior of output_mem is
 	
 	signal free_cur, free_next : integer range -127 to 128 := 1;
 	signal write_cur, write_next, read_cur, read_next, chipselect_cur, chipselect_next: std_logic;
-	signal outdata: std_logic_vector(7 downto 0);
+	signal outdata: std_logic_vector(31 downto 0);
 	signal address_next, address_cur: std_logic_vector(15 downto 0);
 	signal validout_cur, validout_next: std_logic;
 	
 	signal start_flag, start_flag_next: std_logic;
 	signal data_cnt_cur, data_cnt_next : bufferpos := 0;
 	
+	signal valid:std_logic;
+	signal data:fixpoint;
+	signal dataa:std_logic_vector(31 downto 0);
+	
+	constant v127 : fixpoint := "00000000011111110000000000000000";--x"7FFFFFFF";
+	
 begin
+	
+	deci: decimator
+	generic map
+	(
+		N => 2
+	)	
+	port map 
+	(
+		clk =>clk,
+		res_n =>res_n,
+
+		data_in =>data_in,
+		validin =>validin,
+		
+		data_out =>data, 
+		validout => valid
+	);
+
 	address_rpos <= std_logic_vector(to_unsigned(rpos_cur,log2c(N)));
 	address_wpos <= std_logic_vector(to_unsigned(wpos_cur,log2c(N)));
+	dataa <= std_logic_vector(data+v127);
 
 	ram: dp_ram_std
 	generic map
 	(
 		ADDR_WIDTH => log2c(N),
-		DATA_WIDTH => 8
+		DATA_WIDTH => 32
 	)
 	port map
 	(
@@ -92,12 +117,12 @@ begin
 		address_out => address_rpos,
 		data_out => outdata,
 		address_in => address_wpos,
-		wr => validin,
-		data_in => data_in
+		wr => valid,
+		data_in => dataa
 	);
 	
-	audiooutright_data <= outdata & x"000000";
-	audiooutleft_data <= outdata & x"000000";
+	audiooutright_data <= outdata; --& x"000000";
+	audiooutleft_data <= outdata; --& x"000000";
 
 	------------------
 	-- FIFO action --

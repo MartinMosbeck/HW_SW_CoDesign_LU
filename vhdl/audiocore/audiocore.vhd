@@ -236,8 +236,8 @@ begin
 		clk => clk_top,
 		res_n => res_n_top,
 
-		data_in => outlogic_data_out,
-		validin => outlogic_validout,
+		data_in => FMdemod_data_out,
+		validin => FMdemod_validout,
 		
 -- 		address => address,
 -- 		chipselect => chipselect,
