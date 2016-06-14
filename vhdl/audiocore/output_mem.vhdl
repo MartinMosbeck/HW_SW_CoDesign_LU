@@ -39,7 +39,9 @@ architecture behavior of output_mem is
 	type state is
 	(
 		IDLE,
-		WART
+		WART,
+		WARTNOMA,
+		WARTNO
 	);
 	signal state_cur, state_next: state;
 	
@@ -71,6 +73,9 @@ architecture behavior of output_mem is
 	signal address_next, address_cur: std_logic_vector(15 downto 0);
 	signal validout_cur, validout_next: std_logic;
 	
+	signal start_flag, start_flag_next: std_logic;
+	signal data_cnt_cur, data_cnt_next : bufferpos := 0;
+	
 begin
 	address_rpos <= std_logic_vector(to_unsigned(rpos_cur,log2c(N)));
 	address_wpos <= std_logic_vector(to_unsigned(wpos_cur,log2c(N)));
@@ -91,13 +96,13 @@ begin
 		data_in => data_in
 	);
 	
-	audiooutright_data <= x"00" & outdata & x"0000";
-	audiooutleft_data <= x"00" & outdata & x"0000";
+	audiooutright_data <= outdata & x"000000";
+	audiooutleft_data <= outdata & x"000000";
 
 	------------------
 	-- FIFO action --
 	------------------
-	outputbuffer_action: process (validin, rpos_cur, wpos_cur, state_cur, channel_cur, free_cur, address_cur, validout_cur, audiooutleft_ready)--readdata
+	outputbuffer_action: process (validin, rpos_cur, wpos_cur, state_cur, channel_cur, free_cur, address_cur, validout_cur, audiooutleft_ready, start_flag, data_cnt_cur)--readdata
 	begin
 		-- to avoid latches
 		rpos_next <= rpos_cur;
@@ -105,20 +110,34 @@ begin
 		state_next <= state_cur;
 		channel_next <= channel_cur;
 		free_next <= free_cur;
+		start_flag_next <= start_flag;
+		data_cnt_next <= data_cnt_cur;
+		
+		if(data_cnt_cur > 1024) then
+			start_flag_next <= '1';
+		end if;
 
 		-- action at in
 		if validin = '1' then
 			wpos_next <= pos_plus1(wpos_cur);
 		end if;
+		
+		if validin = '1' and start_flag = '0' then
+			data_cnt_next <= data_cnt_cur + 1;
+		end if;
 
 		-- action at out
-		if wpos_cur /= rpos_cur and audiooutleft_ready = '1' then
+		if wpos_cur /= rpos_cur and audiooutleft_ready = '1' and start_flag = '1' then
 			case state_cur is
 				when IDLE=>
 					validout_next <= '1';
-					rpos_next <= pos_plus1(rpos_cur);
 					state_next <= WART;
 				when WART=>
+					rpos_next <= pos_plus1(rpos_cur);
+					state_next <= IDLE;
+				when WARTNOMA =>
+					state_next <= WARTNO;
+				when WARTNO =>
 					state_next <= IDLE;
 			end case;
 		else
@@ -176,6 +195,8 @@ begin
 			free_cur <= 1;
 			
 			validout_cur <= '0';
+			start_flag <= '0';
+			data_cnt_cur <= 0;
 		elsif rising_edge(clk) then
 			-- internal
 			rpos_cur <= rpos_next;
@@ -188,6 +209,8 @@ begin
 			address_cur <= address_next;
 			free_cur <= free_next;
 			validout_cur <= validout_next;
+			start_flag <= start_flag_next;
+			data_cnt_cur <= data_cnt_next;
 			
 			-- outputs
 -- 			address <= address_cur;

@@ -229,7 +229,7 @@ begin
 	audioout: output_mem
 	generic map
 	(
-		N => 32
+		N => 2048
 	)
 	port map 
 	(
