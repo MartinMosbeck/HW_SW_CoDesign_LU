@@ -44,15 +44,16 @@
 	#define OFFSETWORD_D	4
 #endif
 
-//representing 0b0000 0101 1011 1001
-#define CRC_POLYNOMIAL	0x05B9
+//0b 0001 1000 1101
+#define DECODE_INPUT_POLYNOMIAL		0x18D
+//0b 0000 1101 1100
+#define DECODE_OUTPUT_POLYNOMIAL	0xDC
+
+//representing 0b0000 0000 1101 1100
+#define SYNC_POLYNOMIAL	0x05B9
 
 const char *INPUT_FILENAME = 	"decodedaten.txt";
 const char *OUTPUT_FILENAME = 	"RDSdecoded.txt";
-
-
-/***********************************Prototypes***********************************/
-struct EndOfBlockPlausible CheckEndOfBlock(uint16_t syndrome, uint16_t offset_word);
 
 
 /***********************************Structs and misc***********************************/
@@ -70,13 +71,19 @@ struct EndOfBlockPlausible
 	bool assume;
 };
 
+
+/***********************************Prototypes***********************************/
+struct EndOfBlockPlausible CheckEndOfBlock(uint16_t syndrome, uint16_t offset_word);
+uint16_t Decode(uint32_t block, enum EndOfBlock endOfBlock);
+
+
 void main()
 {
 	char line[LINE_SIZE];
 	uint8_t character;
 	uint64_t shift_register_26bit = 0;
 	uint16_t shift_register_10bit = 0;
-	const uint16_t crcpolynom = CRC_POLYNOMIAL;
+	const uint16_t syncpolynom = SYNC_POLYNOMIAL;
 	//A,B,C,CStrich,D
 	//const uint16_t offsetword[5]={0b00 1111 1100, 0b01 1001 1000,
 	//	0b01 0110 1000, 0b11 0101 0000,
@@ -119,7 +126,7 @@ void main()
 		else if(line[0]=='1')
 			character=1;
 
-		//Synchronization
+		//Block Synchronization (read ANNEX C in the specification)
 
 		shift_register_26bit <<= 1;
 		if(character==1)
@@ -142,7 +149,7 @@ void main()
 			if(message_input_bit == 0x1)
 			{
 				shift_register_10bit |= 0x1;
-				shift_register_10bit ^= crcpolynom;
+				shift_register_10bit ^= syncpolynom;
 			}
 			shift_register_10bit <<= 1;
 			//bitwise AND with 0b0000 0100 0000 0000
@@ -165,6 +172,7 @@ void main()
 
 
 		uint32_t currentBlock;
+		uint16_t decodedBlock;
 		//was a block end detected?
 		if(endOfBlock.historyPlausible)
 		{
@@ -175,11 +183,9 @@ void main()
 			else
 				currentBlock = shift_register_26bit & 0x3FFFFFF;
 		}
-		//CRC
-		//TOO Continue reading on page 68 in the RDS specification
-		//Decoden
-		//TODO
 
+		//read ANNEX B in the specification for details
+		decodedBlock = Decode(currentBlock, endOfBlock.endOfBlock);
 	}
 }
 
@@ -343,3 +349,134 @@ struct EndOfBlockPlausible CheckEndOfBlock(uint16_t syndrome, uint16_t offset_wo
 
 	return endOfBlock;
 }
+
+/**********************************************************************
+*---------------------------------------------------------------------*
+***********************************************************************/
+
+//ANNEX B.2.2 (circuit)
+uint16_t Decode(uint32_t block, enum EndOfBlock endOfBlock)
+{
+	uint16_t offsetWord;
+	//a)
+	uint16_t syndromReg_10bit = 0x0;
+	uint16_t bufferReg_16bit = 0x0;
+	uint16_t checkWord = 0x0;
+	uint8_t norOutput = 0x0;
+	uint8_t andOutput = 0x0;
+
+	switch(endOfBlock)
+	{
+	case A:
+		offsetWord = OFFSETWORD_A;
+		break;
+	case B:
+		offsetWord = OFFSETWORD_B;
+		break;
+	case C:
+		offsetWord = OFFSETWORD_C;
+		break;
+	case Cs:
+		offsetWord = OFFSETWORD_Cs;
+		break;
+	case D:
+		offsetWord = OFFSETWORD_D;
+		break;
+	case NO_END:
+		printf("Decode was called for an invalid block\nCode line: %d\n", __LINE__);
+		exit(EXIT_FAILURE);
+		break;
+	default:
+		printf("Error, control should never enter this section\nCode line: %d\n", __LINE__);
+		exit(EXIT_FAILURE);
+		break;
+	}
+
+	//b) f.
+	//the 16 information bits are fed into the syndrome and buffer register
+	uint8_t inputBit = 0x0;
+	uint8_t syndromOutBit= 0x0;
+
+	bufferReg_16bit = (block >> 10) & 0xFFFF;
+	checkWord = block & 0x3FF;
+	
+	for(int z = 0; z < 26; z++)
+	{
+		//select next input bit
+		inputBit = (block >> (25-z)) & 0x1;
+		//c)
+		//The 10 checkbits are fed into the the syndrome register and the
+		//appropriate offset word is subtracted (via the mod 2 adder)
+		if(z >= 16)
+			inputBit ^= (offsetWord >> (25-z)) & 0x1;
+
+		//mask out the current last bit of the syndrom register
+		syndromOutBit = (syndromReg_10bit >> 9) & 0x1;
+
+		//perform the appropriate polynomial divisions
+		if(inputBit)
+		{
+			syndromReg_10bit ^= DECODE_INPUT_POLYNOMIAL;
+		}
+		if(syndromOutBit)
+		{
+			syndromReg_10bit ^= DECODE_OUTPUT_POLYNOMIAL;
+		}
+
+		//shift the syndrom register
+		syndromReg_10bit <<= 1;
+
+		//calculate the next input bit for the syndrom register
+		if(inputBit ^ syndromOutBit)
+			syndromReg_10bit |= 0x1;
+	}
+
+	//d)
+	//clock the 16 information bits in the buffer register to the output
+	//and rotate the content of the syndrome register
+	//note that there is no input
+	uint16_t output = 0x0;
+	for(int z = 0; z < 16; z++)
+	{
+		//mask the current last bit of the syndrom register
+		syndromOutBit = (syndromReg_10bit >> 9) & 0x1;
+
+		//perform the appropriate polynomial divisions
+		if(syndromOutBit)
+		{
+			syndromReg_10bit ^= DECODE_OUTPUT_POLYNOMIAL;
+		}
+
+		//NOR gate
+		norOutput = syndromReg_10bit & 0x1;
+		norOutput |= (syndromReg_10bit >> 1) & 0x1;
+		norOutput |= (syndromReg_10bit >> 2) & 0x1;
+		norOutput |= (syndromReg_10bit >> 3) & 0x1;
+		norOutput |= (syndromReg_10bit >> 4) & 0x1;
+		norOutput = ~norOutput;
+
+		//AND gate
+		andOutput = norOutput & syndromOutBit;
+
+		//shift the syndrom register
+		syndromReg_10bit <<= 1;
+
+		output <<= 1;
+		//do a mod 2 addition with the current buffer register bit
+		//and the output of the logical AND unit
+		if(andOutput ^ ((bufferReg_16bit >> (15-z)) & 0x1))
+			output |= 0x1;
+	}
+
+	//f)
+	//in the standard it states that
+	//TODO
+
+}
+
+
+//PrintError(const char *message, unsigned int lineNumber)
+//{
+//	
+//	printf(message
+//}
