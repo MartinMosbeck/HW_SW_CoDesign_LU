@@ -236,15 +236,8 @@ begin
 		clk => clk_top,
 		res_n => res_n_top,
 
-		data_in => FMdemod_data_out,
-		validin => FMdemod_validout,
-		
--- 		address => address,
--- 		chipselect => chipselect,
--- 		read => read,
--- 		write => write,
--- 		writedata => writedata,
--- 		readdata => readdata
+		data_in => outlogic_data_out,
+		validin => outlogic_validout,
 
 		audiooutleft_data => audiooutleft_data,
 		audiooutleft_ready => audiooutleft_ready,

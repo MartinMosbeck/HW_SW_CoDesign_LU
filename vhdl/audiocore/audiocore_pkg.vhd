@@ -267,22 +267,16 @@ package audiocore_pkg is
 	component output_mem is
 	generic
 	(
-		N: natural := 32
+		N: natural := 2048
 	);
 	port 
 	(
 		clk : in std_logic;
 		res_n : in std_logic;
 
-		data_in : in fixpoint;
+		data_in : in byte;
 		validin : in std_logic;
 		
--- 		address : out std_logic_vector(15 downto 0);
--- 		chipselect : out std_logic;
--- 		read : out std_logic;
--- 		write : out std_logic;
--- 		writedata : out std_logic_vector(31 downto 0);
--- 		readdata : in std_logic_vector(31 downto 0)
 		audiooutleft_data : out std_logic_vector(31 downto 0);
 		audiooutleft_ready : in std_logic;
 		audiooutleft_valid : out std_logic;
