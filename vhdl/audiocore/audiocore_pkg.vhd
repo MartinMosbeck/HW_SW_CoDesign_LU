@@ -303,4 +303,18 @@ package audiocore_pkg is
 		data_in : in std_logic_vector(DATA_WIDTH - 1 downto 0)
 	);
 	end component;
+	
+	component IIRFilter_audioout is	
+	port 
+	(
+		clk 		: in std_logic;
+		res_n 		: in std_logic;
+
+		data_in 	: in fixpoint;
+		validin 	: in std_logic;
+
+		data_out 	: out fixpoint;
+		validout 	: out std_logic
+	);
+	end component;
 end package audiocore_pkg;

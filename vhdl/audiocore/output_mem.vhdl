@@ -88,8 +88,8 @@ begin
 		data_in => data_in
 	);
 	
-	audiooutright_data <= outdata & x"000000";
-	audiooutleft_data <= outdata & x"000000";
+	audiooutright_data <= x"0" & outdata & x"00000";
+	audiooutleft_data <= x"0" & outdata & x"00000";
 
 	------------------
 	-- FIFO action --

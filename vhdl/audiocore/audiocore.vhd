@@ -1,11 +1,7 @@
-
 library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 use work.audiocore_pkg.all;
- 
---library work;
---use work.fir_package.all;
 
 
 entity audiocore is
@@ -27,13 +23,6 @@ entity audiocore is
 		asout_valid : out std_logic;
 		asout_ready : in std_logic;
 		
-		--memory master
--- 		address : out std_logic_vector(15 downto 0);
--- 		chipselect : out std_logic;
--- 		read: out std_logic;
--- 		write: out std_logic;
--- 		writedata: out std_logic_vector(31 downto 0);
--- 		readdata : in std_logic_vector(31 downto 0)
 		--audiostream sinks
 		audiooutleft_data : out std_logic_vector(31 downto 0);
 		audiooutleft_ready : in std_logic;
@@ -64,6 +53,8 @@ architecture rtl of audiocore is
 	signal outlogic_validout: std_logic;
 	signal fmixer_Iout, fmixer_Qout: fixpoint;
 	signal fmixer_Ivalidout, fmixer_Qvalidout: std_logic;
+	signal fFMdemod_data_out: fixpoint;
+	signal fFMdemod_validout: std_logic;
 
 begin
 	clk_top <= clk;
@@ -212,8 +203,8 @@ begin
 		data_out 	=> FMdemod_data_out,
 		validout 	=> FMdemod_validout
 	);
-
-	outlogic : outputlogic
+	
+	filter12kHz : IIRFilter_audioout
 	port map
 	(
 		clk => clk_top,
@@ -221,6 +212,19 @@ begin
 
 		data_in => FMdemod_data_out,
 		validin => FMdemod_validout,
+
+		data_out => fFMdemod_data_out,
+		validout => fFMdemod_validout
+	);
+
+	outlogic : outputlogic
+	port map
+	(
+		clk => clk_top,
+		res_n => res_n_top,
+
+		data_in => fFMdemod_data_out,
+		validin => fFMdemod_validout,
 
 		data_out => outlogic_data_out,
 		validout => outlogic_validout
