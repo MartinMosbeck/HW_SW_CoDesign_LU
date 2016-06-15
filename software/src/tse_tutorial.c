@@ -45,6 +45,8 @@ int main(void)
 	unsigned int i = 0;
 	int status = 1;
 
+	char outtext[80];
+		
 	// Open the sgdma receive device
 	sgdma_rx_dev = alt_avalon_sgdma_open ("/dev/sgdma_rx");
 	if (sgdma_rx_dev == NULL) {
@@ -141,7 +143,6 @@ int main(void)
 	#endif
 
 	#ifdef DBGOUT
-	char outtext[80];
 	int zeigen=4;
 	sprintf(outtext, "%02x\n\n",NULL);
 	alt_printf(outtext);
