@@ -5,7 +5,7 @@
 #include <stdbool.h>
 //#include <math.h>
 
-//remove this if compiling in linux
+//can remove this if compiling in linux
 #define WIN
 
 
@@ -14,7 +14,7 @@
 #define LINE_SIZE		10
 #define BLOCK_SIZE		26
 #define GROUP_SIZE		4*BLOCK_SIZE
-#define PLAUSIBLE_TOLERANCE	8
+#define PLAUSIBLE_TOLERANCE	3
 
 #ifndef WIN
 	#define SYNDROM_A		0b01 0111 1111
@@ -30,7 +30,7 @@
 	#define OFFSETWORD_D	0b01 1011 0100
 #else
 	//dummy values to remove compiler errors in windows and for easier testing
-	//should be replaced by hex values
+	//should be replaced by actual hex values
 	#define SYNDROM_A		0
 	#define SYNDROM_B		1
 	#define SYNDROM_C		2
@@ -58,6 +58,19 @@ const char *OUTPUT_FILENAME = 	"RDSdecoded.txt";
 
 /***********************************Structs and misc***********************************/
 enum EndOfBlock {NO_END, A, B, C, Cs, D};
+enum DecodeResultType {PI_CODE, RT_CHAR, IRRELEVANT};
+
+union DecodeActResult
+{
+	uint16_t piCode;
+	char *radioTextChars;
+};
+
+struct DecodeResult
+{
+	enum DecodeResultType type;
+	union DecodeActResult actResult;
+};
 
 struct EndOfBlockPlausible
 {
@@ -71,10 +84,13 @@ struct EndOfBlockPlausible
 	bool assume;
 };
 
+//indicates whether the RDS detection is currently in sync
+static bool insync = false;
 
 /***********************************Prototypes***********************************/
 struct EndOfBlockPlausible CheckEndOfBlock(uint16_t syndrome, uint16_t offset_word);
-uint16_t Decode(uint32_t block, enum EndOfBlock endOfBlock);
+void Decode(uint32_t block, enum EndOfBlock endOfBlock, struct DecodeResult *result);
+void GetChar(uint16_t block, char characters[2]);
 
 
 void main()
@@ -185,7 +201,9 @@ void main()
 		}
 
 		//read ANNEX B in the specification for details
-		decodedBlock = Decode(currentBlock, endOfBlock.endOfBlock);
+		struct DecodeResult result;
+		Decode(currentBlock, endOfBlock.endOfBlock, &result);
+		//TODO
 	}
 }
 
@@ -199,7 +217,6 @@ struct EndOfBlockPlausible CheckEndOfBlock(uint16_t syndrome, uint16_t offset_wo
 	static enum EndOfBlock lastBlock = D;	//since initially we want to start at block A
 	static int16_t count = 0;	//after a block has been detected
 	struct EndOfBlockPlausible endOfBlock;
-	static bool insync = false;
 	static bool assume = false;
 
 	endOfBlock.historyPlausible = false;
@@ -329,10 +346,10 @@ struct EndOfBlockPlausible CheckEndOfBlock(uint16_t syndrome, uint16_t offset_wo
 			endOfBlock.historyPlausible = true;
 		}
 	}
-	//if the block detection is not insync then we simply look for any block end
+	//if the block detection is not insync then we look for the next "A" block
 	else
 	{
-		if(endOfBlock.endOfBlock != NO_END)
+		if(endOfBlock.endOfBlock == A)
 		{
 			insync = true;
 			lastBlock = endOfBlock.endOfBlock;
@@ -354,8 +371,11 @@ struct EndOfBlockPlausible CheckEndOfBlock(uint16_t syndrome, uint16_t offset_wo
 *---------------------------------------------------------------------*
 ***********************************************************************/
 
-//ANNEX B.2.2 (circuit)
-uint16_t Decode(uint32_t block, enum EndOfBlock endOfBlock)
+//ANNEX B.2.2 (circuit implementation)
+/**
+ * @brief Performs error correction and 
+ */
+void Decode(uint32_t block, enum EndOfBlock endOfBlock, struct DecodeResult *result)
 {
 	uint16_t offsetWord;
 	//a)
@@ -364,6 +384,14 @@ uint16_t Decode(uint32_t block, enum EndOfBlock endOfBlock)
 	uint16_t checkWord = 0x0;
 	uint8_t norOutput = 0x0;
 	uint8_t andOutput = 0x0;
+
+	static uint8_t groupTypeCode;
+	static uint8_t textSegmentAddrCode = 0;
+	static char characters[2];		//only static so that it can be passed on outside the function
+
+
+	result->type = IRRELEVANT;
+	result->actResult.radioTextChars = NULL;
 
 	switch(endOfBlock)
 	{
@@ -469,11 +497,50 @@ uint16_t Decode(uint32_t block, enum EndOfBlock endOfBlock)
 	}
 
 	//f)
-	//in the standard it states that
+	//standard not clear!
 	//TODO
 
+
+/********************Start of actual decoding process********************/
+
+	if(endOfBlock == A)
+	{
+		result->type = PI_CODE;
+		result->actResult.piCode = output;
+	}
+
+	if(endOfBlock == B)
+	{
+		//the upper 5 bits contain the group type code
+		groupTypeCode = (output >> 11) & 0x1F;
+		
+		//0x4 corresponds with group type 2A
+		//0x5 corresponds with group type 2B
+		if(groupTypeCode == 0x4 || groupTypeCode == 0x5)
+			textSegmentAddrCode = output & 0xF;
+
+	}
+
+	//if the current block contains RT (radio text)
+	if((endOfBlock == C || endOfBlock == D) && (groupTypeCode == 0x4 || groupTypeCode == 0x5))
+	{
+		GetChar(output, characters);
+		result->type = RT_CHAR;
+		result->actResult.radioTextChars = characters;
+	}
 }
 
+
+/**
+ * @brief Obtains a character from the given block
+ * @detail Should be called only for blocks, which actually contain the RT (radio text)
+ */
+void GetChar(uint16_t block, char characters[2])
+{
+	characters[0] = (char)((block >> 8) & 0xFF);
+	characters[1] = (char)(block & 0xFF);
+	return;
+}
 
 //PrintError(const char *message, unsigned int lineNumber)
 //{
