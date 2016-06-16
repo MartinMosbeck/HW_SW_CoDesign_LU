@@ -100,13 +100,6 @@ void main()
 	uint64_t shift_register_26bit = 0;
 	uint16_t shift_register_10bit = 0;
 	const uint16_t syncpolynom = SYNC_POLYNOMIAL;
-	//A,B,C,CStrich,D
-	//const uint16_t offsetword[5]={0b00 1111 1100, 0b01 1001 1000,
-	//	0b01 0110 1000, 0b11 0101 0000,
-	//	0b01 1011 0100};
-	//const uint16_t syndrome[5]={0b11 1101 1000, 0b11 1101 0100,
-	//	0b10 0101 1100, 0b11 1100 1100,
-	//	0b10 0101 1000};
 	struct EndOfBlockPlausible endOfBlock;
 
 	char path[BUFFER_SIZE];
@@ -150,7 +143,6 @@ void main()
 
 		//a)
 		uint32_t data_out = 0;
-		//shifted to the left
 		shift_register_10bit = 0;
 		uint8_t message_input_bit = 0;
 		uint8_t offset_word_input_bit = 0;
@@ -522,7 +514,8 @@ void Decode(uint32_t block, enum EndOfBlock endOfBlock, struct DecodeResult *res
 	}
 
 	//if the current block contains RT (radio text)
-	if((endOfBlock == C || endOfBlock == D) && (groupTypeCode == 0x4 || groupTypeCode == 0x5))
+	if(	((groupTypeCode == 0x4) && (endOfBlock == C || endOfBlock == D)) ||
+		((groupTypeCode == 0x5) && (endOfBlock == D)))
 	{
 		GetChar(output, characters);
 		result->type = RT_CHAR;
