@@ -127,8 +127,16 @@ void main()
 	{
 		if(fgets(line, sizeof(line), fInput) == NULL)
 		{
-			printf("\nError with fgets()\n");
-			exit(1);
+			if(feof(fInput))
+			{
+				printf("End of file has been reached\n");
+				return;
+			}
+			else
+			{
+				printf("\nError with fgets()\n");
+				exit(1);
+			}
 		}
 		//read next bit
 		if(line[0]=='0')
@@ -191,20 +199,21 @@ void main()
 				currentBlock = (shift_register_26bit >> endOfBlock.drift) & 0x3FFFFFF;
 			else
 				currentBlock = shift_register_26bit & 0x3FFFFFF;
+
+			//read ANNEX B in the specification for details
+			struct DecodeResult result;
+			Decode(currentBlock, endOfBlock.endOfBlock, &result);
+
+			if(result.type == PI_CODE)
+			{
+				fprintf(fOutput, "PI Code: %X\n", result.actResult.piCode);
+			}
+			else if(result.type == RT_CHAR)
+			{
+				fprintf(fOutput, "Radio Text: %s\n", radioText);
+			}
 		}
 
-		//read ANNEX B in the specification for details
-		struct DecodeResult result;
-		Decode(currentBlock, endOfBlock.endOfBlock, &result);
-
-		if(result.type == PI_CODE)
-		{
-			printf("PI Code: %X\n", result.actResult.piCode);
-		}
-		else if(result.type == RT_CHAR)
-		{
-			printf("Radio Text: %s\n", radioText);
-		}
 	}
 }
 
@@ -223,6 +232,10 @@ struct EndOfBlockPlausible CheckEndOfBlock(uint16_t syndrome, uint16_t offset_wo
 	endOfBlock.historyPlausible = false;
 	endOfBlock.endOfBlock = NO_END;
 	endOfBlock.assume = false;
+
+	printf("insync: ");
+	printf(insync ? "true" : "false");
+	printf("\n");
 
 	if(syndrome == SYNDROM_A)
 	{

@@ -1,9 +1,9 @@
-clear
+%clear
 close all
 
-AUDIO_ONLY = 1;		%skips the RDS part
+AUDIO_ONLY = 0;		%skips the RDS part
 
-debugread=1;
+debugread=0;
 if debugread==0
 fileID = fopen('samples.bin');
 inputdata=fread(fileID,'uint8');
@@ -17,7 +17,7 @@ inputdata = textread('dump1.txt','%2c');
 inputdata=hex2dec(char(inputdata));
 end
 %Einlesen und IQ aus Datenpunkten aufbauen
-anzsamp=floor(size(inputdata)/(2^0));%Anz der einzulesenden Datenpunkte
+anzsamp=floor(size(inputdata)/(2^4));%Anz der einzulesenden Datenpunkte
 inputdata=inputdata-127;
 IQ=inputdata(1:2:anzsamp-1)+1i.*inputdata(2:2:anzsamp);
 clear inputdata anzsamp fileID
@@ -38,8 +38,6 @@ clear IQ
 % end
 %Bis hier um den Filter auszukommentieren
 
-beforedecsignal=mixedsignal99_9MHz;
-
 %IIR Filter als Referenz
 load('iir_lowpass_5_60kHz_num.mat');
 b=num';
@@ -49,19 +47,19 @@ a=den';
 b=b.*(1/a(1));
 a=a.*(1/a(1));
 
-%beforedecsignal=filter(b,a,mixedsignal99_9MHz);
+beforedecsignal=filter(b,a,mixedsignal99_9MHz);
 
-a=a(2:end);
-a=-1*a;
-xhist=zeros(length(b),1);
-yhist=zeros(length(a),1);
-for index=1:length(mixedsignal99_9MHz)
-   xhist=circshift(xhist,[1,0]);
-   xhist(1)=mixedsignal99_9MHz(index);
-   beforedecsignal(index)=sum(xhist.*b)+sum(yhist.*a);
-   yhist=circshift(yhist,[1,0]);
-   yhist(1)=beforedecsignal(index);
-end
+%a=a(2:end);
+%a=-1*a;
+%xhist=zeros(length(b),1);
+%yhist=zeros(length(a),1);
+%for index=1:length(mixedsignal99_9MHz)
+%   xhist=circshift(xhist,[1,0]);
+%   xhist(1)=mixedsignal99_9MHz(index);
+%   beforedecsignal(index)=sum(xhist.*b)+sum(yhist.*a);
+%   yhist=circshift(yhist,[1,0]);
+%   yhist(1)=beforedecsignal(index);
+%end
 %Bis hier Filter auskommentieren
 
 clear mixedsignal99_9MHz
@@ -82,16 +80,18 @@ fmdemod = imag(conj(decisignal(1:end-1)).*decisignal(2:end));
 clear decisignal
 
 %lowpass filter the audio signal
-%load('fir_lowpass_400_15kHz.mat');
-%b=h.';
-%filteredtonsignal=filter(b,1,fmdemod);
-filteredtonsignal=fmdemod;
+load('iir_lowpass_4_12kHz_num.mat');
+b=num';
+load('iir_lowpass_4_12kHz_den.mat');
+a=den';
+filteredtonsignal=filter(b,a,fmdemod);
+%filteredtonsignal=fmdemod;
  
 
 %clear up the audio signals
 clear a b xhist yhist index
 
-%sound(filteredtonsignal,floor(2.5*10^6/Nth));
+sound(filteredtonsignal,floor(2.5*10^6/Nth));
 
 
 %RDS from fmdemod
@@ -104,6 +104,9 @@ a=den.';
 load('iir_bandpass_7_19kHz_num.mat');
 b=num.';
 pilotTone = filter(b,a,fmdemod);
+
+%the PLL has trouble handling the pilot tone, when it gets too large
+pilotTone = pilotTone/500;
 
 %Initialize PLL Loop
 f = 19000;	%carrier frequency
@@ -156,7 +159,7 @@ lockedHere = zeros(size(pilotTone));
 
 for n=2:length(pilotTone) 
 	%PLL implementation 
-	vco(n)=500*conj(exp(j*(2*pi*n*f/fs+phi_hat(n-1))));	%Compute VCO 
+	vco(n)=conj(exp(j*(2*pi*n*f/fs+phi_hat(n-1))));	%Compute VCO 
 	phd_output(n)=imag(pilotTone(n)*vco(n));	%Complex multiply VCO x pilotTone input 
 	e(n)=e(n-1)+(kp+ki)*phd_output(n)-ki*phd_output(n-1);	%Filter integrator 
 	phi_hat(n)=phi_hat(n-1)+e(n);	%Update VCO 

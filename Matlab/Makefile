@@ -1,2 +1,2 @@
 all:
-	gcc -std=c99 -c RDSDecoder.c -o RDSDecoder
+	gcc -std=c99 RDSDecoder.c -o RDSDecoder
