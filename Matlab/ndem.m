@@ -1,7 +1,7 @@
 clear
 close all
 
-AUDIO_ONLY = 0;		%skips the RDS part
+AUDIO_ONLY = 1;		%skips the RDS part
 
 debugread=0;
 if debugread==0
@@ -17,7 +17,7 @@ inputdata = textread('dump1.txt','%2c');
 inputdata=hex2dec(char(inputdata));
 end
 %Einlesen und IQ aus Datenpunkten aufbauen
-anzsamp=floor(size(inputdata)/(2^2));%Anz der einzulesenden Datenpunkte
+anzsamp=floor(size(inputdata)/(2^4));%Anz der einzulesenden Datenpunkte
 inputdata=inputdata-127;
 IQ=inputdata(1:2:anzsamp-1)+1i.*inputdata(2:2:anzsamp);
 clear inputdata anzsamp fileID
@@ -81,10 +81,15 @@ clear beforedecsignal
 dl = decisignal./abs(decisignal);
 %differentiator filter for the fmdemodulation
 hd = firls(30,[0 100000 127000 128000]/128000, [0 1 0 0], 'differentiator');
-fmdemod = imag(conv(dl,hd,'same').*conj(dl));
+
+signal = filter(hd, 1, dl);
+signal((length(t)/Nth):(length(t)/Nth+15)) = 0;
+fmdemod = imag(signal(16:(length(t)/Nth)+15).*conj(dl));
+
+
 
 %eig ja fmdemod = imag(conj(decisignal(1:end-1)).*decisignal(2:end)); in HW
-clear decisignal dl hd
+clear decisignal
 
 
 
