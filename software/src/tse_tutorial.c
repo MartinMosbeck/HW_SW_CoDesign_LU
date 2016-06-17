@@ -12,13 +12,18 @@
 #include "system.h"
 #include "display.h"
 #include "graphics.h"
+//Wieviel Bytes bei Echtzeitverarbeitung am Stück geholt werden
+#define BUF_SIZE 32//256//32768
 
-#define BUF_SIZE 32768
-#define BUF_SIZE_DBGOUT 65532//64//65532 is das max was ein SGDMA kann
-
-#define DBGOUT_SIZE 1024//1 wenn kein DBG -max derzeit 1024
-
-#define DBGOUT
+//DBGOUT gibt die DATEN aus, die direkt von der HW kommen und beendet dann das Programm
+//#define DBGOUT
+//DBGOUT_SIZE*BUF_SIZE_DBGOUT Bytes werden ausgegeben
+#define BUF_SIZE_DBGOUT 65532//Von 0-65532 erlaubt
+#define DBGOUT_SIZE 1024//Von 1-1024 erlaubt
+//DEBUGOUT gibt Debugdaten bei Echzeitverarbeitung aus (in der while(1) Programm Hauptschleife)
+//Für Debugausgabe diese Direktive nehmen und nur diese und nur in der while(1)
+//DEBUGOUT wird von DBGOUT overrult, das Hauptprogramm natürlich auch
+#define DEBUGOUT
 
 // Allocate descriptors in the descriptor_memory (onchip memory) and rx frames (main memory)
 //alt_sgdma_descriptor rx_descriptor[3]  __attribute__ (( section ( ".descriptor_memory" )));
@@ -34,18 +39,14 @@ int main(void)
 {
 	// Create sgdma receive device
 	alt_sgdma_dev * sgdma_rx_dev;
-
+	//SG-DMA-Variablen
 	unsigned char act_frame = 0;
-
-	short* song = NULL;
-	unsigned char* song_ptr_b = NULL;
-	int sample = 0;
-
-	unsigned int avail = 0;
-	unsigned int i = 0;
 	int status = 1;
+	unsigned char* sgdma_daten = NULL;
+	//Laufvariable für die Streamausgabe
+	unsigned int i = 0;
 
-	char outtext[80];
+	char outtext[80];//Vornehmlich für Debugaufgaben
 		
 	// Open the sgdma receive device
 	sgdma_rx_dev = alt_avalon_sgdma_open ("/dev/sgdma_rx");
@@ -75,71 +76,68 @@ int main(void)
 	// Print a message
 	display_print(bunny);//bunny || snowman || sonic
 
-	// Allocate memory for the song (SDRAM)
+	// Allocate memory where sgdma writes the stream into
 	#ifdef DBGOUT
-	song= (short*)malloc(BUF_SIZE_DBGOUT*DBGOUT_SIZE);
+	sgdma_daten= (short*)malloc(BUF_SIZE_DBGOUT*DBGOUT_SIZE);
 	#else
-	song = (short*)malloc(BUF_SIZE*DBGOUT_SIZE);
+	sgdma_daten = (short*)malloc(BUF_SIZE*DBGOUT_SIZE);
 	#endif
-	
-	if (song == NULL)
-	{
+	if (sgdma_daten == NULL){
 		display_print("Could not allocate memory for audio file!\n");
 		return -1;
 	}
 	int versatz=0;
 
-	// Set a pointer (byte-access) to the song
-	song_ptr_b = (unsigned char*)song;
 	//Speicherbereich löschen um ihn sicher leer zu haben
 	#ifdef DBGOUT
 	for(i=0; i<BUF_SIZE_DBGOUT*DBGOUT_SIZE; i++){
 	#else
 	for(i=0; i<BUF_SIZE*DBGOUT_SIZE; i++){
 	#endif
-		song_ptr_b[i]=0;
+		sgdma_daten[i]=0;
 	}
 
 	#ifndef DBGOUT
 	// Create sgdma receive descriptor
-	alt_avalon_sgdma_construct_stream_to_mem_desc( &rx_descriptor[0], &rx_descriptor[1], &song_ptr_b[0], BUF_SIZE, 0 );//(alt_u32 *)rx_audio[0
+	alt_avalon_sgdma_construct_stream_to_mem_desc( &rx_descriptor[1], &rx_descriptor[0], &sgdma_daten[BUF_SIZE], BUF_SIZE, 0);
+	alt_avalon_sgdma_construct_stream_to_mem_desc( &rx_descriptor[0], &rx_descriptor[1], &sgdma_daten[0], BUF_SIZE, 0 );
 
 	display_print ("Ready to receive data!\n");
 
 	// Set up non-blocking transfer of sgdma receive descriptor
 	alt_avalon_sgdma_do_async_transfer( sgdma_rx_dev, &rx_descriptor[0] );
 	//Auch am Anfang auf Daten warten
-	//while (alt_avalon_sgdma_check_descriptor_status(&rx_descriptor[act_frame])!=0);
+	//while (alt_avalon_sgdma_check_descriptor_status(&rx_descriptor[0])!=0);
 
 	act_frame = 0;
-	status = 0;
-
+	i=0;
+	int frm=act_frame;
+	//------------------------HAUPTPROGRAMM-SCHLEIFE--------------------------------------------
 	while(1)
 	{
-		//Unter entwicklung, sgdma abwechselnd abarbeiten, während der andere grade befüllt wird
+		//Unter entwicklung, sgdma abwechselnd abarbeiten, während der andere grade befüllt wird (technisch so nicht machbar)
 		if(status == 0){
 			// Create sgdma receive descriptor
-			alt_avalon_sgdma_construct_stream_to_mem_desc( &rx_descriptor[1-act_frame], &rx_descriptor[act_frame], &song_ptr_b[(1-act_frame)*BUF_SIZE] , BUF_SIZE, 0 );//(alt_u32 *)rx_audio[1-act_frame]
-
-			// Set up non-blocking transfer of sgdma receive descriptor
-			//alt_avalon_sgdma_do_async_transfer( sgdma_rx_dev, &rx_descriptor[1-act_frame] );
+			alt_avalon_sgdma_construct_stream_to_mem_desc( &rx_descriptor[act_frame], &rx_descriptor[1-act_frame], &sgdma_daten[act_frame*BUF_SIZE] , BUF_SIZE, 0 );
 			
 			act_frame = 1-act_frame;
-			
-			alt_printf("OK\n");
 		}
 		status = alt_avalon_sgdma_check_descriptor_status(&rx_descriptor[act_frame]);
 
-		for (i = 0; i < BUF_SIZE; i ++){
-			/*if(i%4==0){
-				alt_printf(" ");
-			}*/
-			sprintf(outtext, "%02x",song_ptr_b[i]);
-			//display_print(outtext);
-			alt_printf(outtext);
+		#ifdef DEBUGOUT
+		sprintf(outtext, "%02x",sgdma_daten[i+frm*BUF_SIZE]);
+		alt_printf(outtext);
+		i++;
+		if(i==BUF_SIZE){
+			frm=1-frm;
+			i=0;
+			alt_printf("\n");
 		}
+		#endif
 
+		//Hier kommt der RDS-Stream rein und kann was von der HW noch fehlt fertig verarbeitet werden
 	}
+	//------------------------HAUPTPROGRAMM-SCHLEIFE-ENDE---------------------------------------
 	#endif
 
 	#ifdef DBGOUT
@@ -149,7 +147,7 @@ int main(void)
 	
 	int runs;
 	for(runs=0; runs<DBGOUT_SIZE; runs++){
-		alt_avalon_sgdma_construct_stream_to_mem_desc( &rx_descriptor[runs], &rx_descriptor[runs+1],&song_ptr_b[runs*BUF_SIZE_DBGOUT] , BUF_SIZE_DBGOUT, 0 );
+		alt_avalon_sgdma_construct_stream_to_mem_desc( &rx_descriptor[runs], &rx_descriptor[runs+1],&sgdma_daten[runs*BUF_SIZE_DBGOUT] , BUF_SIZE_DBGOUT, 0 );
 	}
 	alt_avalon_sgdma_do_async_transfer(sgdma_rx_dev, &rx_descriptor[0]);
 	display_print("Init abgeschlossen\n");
@@ -160,7 +158,7 @@ int main(void)
 		/*if(i%4==0){
 			alt_printf(" ");
 		}*/
-		sprintf(outtext, "%02x",song_ptr_b[i]);
+		sprintf(outtext, "%02x",sgdma_daten[i]);
 		//display_print(outtext);
 		alt_printf(outtext);
 	}
