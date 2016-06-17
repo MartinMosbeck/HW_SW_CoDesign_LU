@@ -15,6 +15,7 @@
 #define BLOCK_SIZE		26
 #define GROUP_SIZE		4*BLOCK_SIZE
 #define PLAUSIBLE_TOLERANCE	3
+#define TEXT_LENGTH		BUFFER_SIZE
 
 #ifndef WIN
 	#define SYNDROM_A		0b01 0111 1111
@@ -29,19 +30,17 @@
 	#define OFFSETWORD_Cs	0b11 0101 0000
 	#define OFFSETWORD_D	0b01 1011 0100
 #else
-	//dummy values to remove compiler errors in windows and for easier testing
-	//should be replaced by actual hex values
-	#define SYNDROM_A		0
-	#define SYNDROM_B		1
-	#define SYNDROM_C		2
-	#define SYNDROM_Cs		3
-	#define SYNDROM_D		4
+	#define SYNDROM_A		0x17F
+	#define SYNDROM_B		0x00E
+	#define SYNDROM_C		0x12F
+	#define SYNDROM_Cs		0x2EC
+	#define SYNDROM_D		0x297
 
-	#define OFFSETWORD_A	0
-	#define OFFSETWORD_B	1
-	#define OFFSETWORD_C	2
-	#define OFFSETWORD_Cs	3
-	#define OFFSETWORD_D	4
+	#define OFFSETWORD_A	0x0FC
+	#define OFFSETWORD_B	0x198
+	#define OFFSETWORD_C	0x168
+	#define OFFSETWORD_Cs	0x350
+	#define OFFSETWORD_D	0x1B4
 #endif
 
 //0b 0001 1000 1101
@@ -86,6 +85,8 @@ struct EndOfBlockPlausible
 
 //indicates whether the RDS detection is currently in sync
 static bool insync = false;
+static char radioText[TEXT_LENGTH];
+static uint8_t textSegmentAddrCode;
 
 /***********************************Prototypes***********************************/
 struct EndOfBlockPlausible CheckEndOfBlock(uint16_t syndrome, uint16_t offset_word);
@@ -195,7 +196,15 @@ void main()
 		//read ANNEX B in the specification for details
 		struct DecodeResult result;
 		Decode(currentBlock, endOfBlock.endOfBlock, &result);
-		//TODO
+
+		if(result.type == PI_CODE)
+		{
+			printf("PI Code: %X\n", result.actResult.piCode);
+		}
+		else if(result.type == RT_CHAR)
+		{
+			printf("Radio Text: %s\n", radioText);
+		}
 	}
 }
 
@@ -378,7 +387,6 @@ void Decode(uint32_t block, enum EndOfBlock endOfBlock, struct DecodeResult *res
 	uint8_t andOutput = 0x0;
 
 	static uint8_t groupTypeCode;
-	static uint8_t textSegmentAddrCode = 0;
 	static char characters[2];		//only static so that it can be passed on outside the function
 
 
@@ -514,13 +522,33 @@ void Decode(uint32_t block, enum EndOfBlock endOfBlock, struct DecodeResult *res
 	}
 
 	//if the current block contains RT (radio text)
-	if(	((groupTypeCode == 0x4) && (endOfBlock == C || endOfBlock == D)) ||
+	if( ((groupTypeCode == 0x4) && (endOfBlock == C || endOfBlock == D)) ||
 		((groupTypeCode == 0x5) && (endOfBlock == D)))
 	{
 		GetChar(output, characters);
 		result->type = RT_CHAR;
 		result->actResult.radioTextChars = characters;
+		
+		if(groupTypeCode == 0x4 && endOfBlock == C)
+		{
+			radioText[textSegmentAddrCode*4] = characters[0];
+			radioText[textSegmentAddrCode*4 + 1] = characters[1];
+			radioText[textSegmentAddrCode*4 + 2] = '\0';
+		}
+		else if(groupTypeCode == 0x4 && endOfBlock == D)
+		{
+			radioText[textSegmentAddrCode*4 + 2] = characters[0];
+			radioText[textSegmentAddrCode*4 + 3] = characters[1];
+			radioText[textSegmentAddrCode*4 + 4] = '\0';
+		}
+		else if(groupTypeCode == 0x5 && endOfBlock == D)
+		{
+			radioText[textSegmentAddrCode*2] = characters[0];
+			radioText[textSegmentAddrCode*2 + 1] = characters[1];
+			radioText[textSegmentAddrCode*2 + 2] = '\0';
+		}
 	}
+
 }
 
 
