@@ -392,6 +392,7 @@ struct EndOfBlockPlausible CheckEndOfBlock(uint16_t syndrome, uint16_t offset_wo
 void Decode(uint32_t block, enum EndOfBlock endOfBlock, struct DecodeResult *result)
 {
 	uint16_t offsetWord;
+	uint16_t output = 0x0;
 	//a)
 	uint16_t syndromReg_10bit = 0x0;
 	uint16_t bufferReg_16bit = 0x0;
@@ -433,86 +434,86 @@ void Decode(uint32_t block, enum EndOfBlock endOfBlock, struct DecodeResult *res
 		break;
 	}
 
-	//b) f.
-	//the 16 information bits are fed into the syndrome and buffer register
-	uint8_t inputBit = 0x0;
-	uint8_t syndromOutBit= 0x0;
+//	//b) f.
+//	//the 16 information bits are fed into the syndrome and buffer register
+//	uint8_t inputBit = 0x0;
+//	uint8_t syndromOutBit= 0x0;
+//
+//	bufferReg_16bit = (block >> 10) & 0xFFFF;
+//	checkWord = block & 0x3FF;
+//	
+//	for(int z = 0; z < 26; z++)
+//	{
+//		//select next input bit
+//		inputBit = (block >> (25-z)) & 0x1;
+//		//c)
+//		//The 10 checkbits are fed into the the syndrome register and the
+//		//appropriate offset word is subtracted (via the mod 2 adder)
+//		if(z >= 16)
+//			inputBit ^= (offsetWord >> (25-z)) & 0x1;
+//
+//		//mask out the current last bit of the syndrom register
+//		syndromOutBit = (syndromReg_10bit >> 9) & 0x1;
+//
+//		//perform the appropriate polynomial divisions
+//		if(inputBit)
+//		{
+//			syndromReg_10bit ^= DECODE_INPUT_POLYNOMIAL;
+//		}
+//		if(syndromOutBit)
+//		{
+//			syndromReg_10bit ^= DECODE_OUTPUT_POLYNOMIAL;
+//		}
+//
+//		//shift the syndrom register
+//		syndromReg_10bit <<= 1;
+//
+//		//calculate the next input bit for the syndrom register
+//		if(inputBit ^ syndromOutBit)
+//			syndromReg_10bit |= 0x1;
+//	}
+//
+//	//d)
+//	//clock the 16 information bits in the buffer register to the output
+//	//and rotate the content of the syndrome register
+//	//note that there is no input
+//	for(int z = 0; z < 16; z++)
+//	{
+//		//mask the current last bit of the syndrom register
+//		syndromOutBit = (syndromReg_10bit >> 9) & 0x1;
+//
+//		//perform the appropriate polynomial divisions
+//		if(syndromOutBit)
+//		{
+//			syndromReg_10bit ^= DECODE_OUTPUT_POLYNOMIAL;
+//		}
+//
+//		//NOR gate
+//		norOutput = syndromReg_10bit & 0x1;
+//		norOutput |= (syndromReg_10bit >> 1) & 0x1;
+//		norOutput |= (syndromReg_10bit >> 2) & 0x1;
+//		norOutput |= (syndromReg_10bit >> 3) & 0x1;
+//		norOutput |= (syndromReg_10bit >> 4) & 0x1;
+//		norOutput = ~norOutput;
+//
+//		//AND gate
+//		andOutput = norOutput & syndromOutBit;
+//
+//		//shift the syndrom register
+//		syndromReg_10bit <<= 1;
+//
+//		output <<= 1;
+//		//do a mod 2 addition with the current buffer register bit
+//		//and the output of the logical AND unit
+//		if(andOutput ^ ((bufferReg_16bit >> (15-z)) & 0x1))
+//			output |= 0x1;
+//	}
+//
+//	//f)
+//	//standard not clear!
+//	//TODO
 
-	bufferReg_16bit = (block >> 10) & 0xFFFF;
-	checkWord = block & 0x3FF;
-	
-	for(int z = 0; z < 26; z++)
-	{
-		//select next input bit
-		inputBit = (block >> (25-z)) & 0x1;
-		//c)
-		//The 10 checkbits are fed into the the syndrome register and the
-		//appropriate offset word is subtracted (via the mod 2 adder)
-		if(z >= 16)
-			inputBit ^= (offsetWord >> (25-z)) & 0x1;
-
-		//mask out the current last bit of the syndrom register
-		syndromOutBit = (syndromReg_10bit >> 9) & 0x1;
-
-		//perform the appropriate polynomial divisions
-		if(inputBit)
-		{
-			syndromReg_10bit ^= DECODE_INPUT_POLYNOMIAL;
-		}
-		if(syndromOutBit)
-		{
-			syndromReg_10bit ^= DECODE_OUTPUT_POLYNOMIAL;
-		}
-
-		//shift the syndrom register
-		syndromReg_10bit <<= 1;
-
-		//calculate the next input bit for the syndrom register
-		if(inputBit ^ syndromOutBit)
-			syndromReg_10bit |= 0x1;
-	}
-
-	//d)
-	//clock the 16 information bits in the buffer register to the output
-	//and rotate the content of the syndrome register
-	//note that there is no input
-	uint16_t output = 0x0;
-	for(int z = 0; z < 16; z++)
-	{
-		//mask the current last bit of the syndrom register
-		syndromOutBit = (syndromReg_10bit >> 9) & 0x1;
-
-		//perform the appropriate polynomial divisions
-		if(syndromOutBit)
-		{
-			syndromReg_10bit ^= DECODE_OUTPUT_POLYNOMIAL;
-		}
-
-		//NOR gate
-		norOutput = syndromReg_10bit & 0x1;
-		norOutput |= (syndromReg_10bit >> 1) & 0x1;
-		norOutput |= (syndromReg_10bit >> 2) & 0x1;
-		norOutput |= (syndromReg_10bit >> 3) & 0x1;
-		norOutput |= (syndromReg_10bit >> 4) & 0x1;
-		norOutput = ~norOutput;
-
-		//AND gate
-		andOutput = norOutput & syndromOutBit;
-
-		//shift the syndrom register
-		syndromReg_10bit <<= 1;
-
-		output <<= 1;
-		//do a mod 2 addition with the current buffer register bit
-		//and the output of the logical AND unit
-		if(andOutput ^ ((bufferReg_16bit >> (15-z)) & 0x1))
-			output |= 0x1;
-	}
-
-	//f)
-	//standard not clear!
-	//TODO
-
+output = (block >> 16) & 0xFFFF;
 
 /********************Start of actual decoding process********************/
 

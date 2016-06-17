@@ -1,4 +1,4 @@
-%clear
+clear
 close all
 
 AUDIO_ONLY = 0;		%skips the RDS part
@@ -17,7 +17,7 @@ inputdata = textread('dump1.txt','%2c');
 inputdata=hex2dec(char(inputdata));
 end
 %Einlesen und IQ aus Datenpunkten aufbauen
-anzsamp=floor(size(inputdata)/(2^4));%Anz der einzulesenden Datenpunkte
+anzsamp=floor(size(inputdata)/(2^2));%Anz der einzulesenden Datenpunkte
 inputdata=inputdata-127;
 IQ=inputdata(1:2:anzsamp-1)+1i.*inputdata(2:2:anzsamp);
 clear inputdata anzsamp fileID
@@ -75,9 +75,18 @@ clear beforedecsignal
 
 %FM-Demodulation
 %fmdemod = angle(conj(decisignal(1:end-1)).*decisignal(2:end));
-fmdemod = imag(conj(decisignal(1:end-1)).*decisignal(2:end));
+%fmdemod = imag(conj(decisignal(1:end-1)).*decisignal(2:end));
+
+%taken from web.stanford.edu/class/ee179/labs/Lab5.html
+dl = decisignal./abs(decisignal);
+%differentiator filter for the fmdemodulation
+hd = firls(30,[0 100000 127000 128000]/128000, [0 1 0 0], 'differentiator');
+fmdemod = imag(conv(dl,hd,'same').*conj(dl));
+
 %eig ja fmdemod = imag(conj(decisignal(1:end-1)).*decisignal(2:end)); in HW
-clear decisignal
+clear decisignal dl hd
+
+
 
 %lowpass filter the audio signal
 load('iir_lowpass_4_12kHz_num.mat');
@@ -106,7 +115,7 @@ b=num.';
 pilotTone = filter(b,a,fmdemod);
 
 %the PLL has trouble handling the pilot tone, when it gets too large
-pilotTone = pilotTone/500;
+pilotTone = 2*pilotTone;
 
 %Initialize PLL Loop
 f = 19000;	%carrier frequency
@@ -123,12 +132,12 @@ ki=0.1; %Integrator constant
 symbolRate = 1187.5;
 bitRate = 2*symbolRate;
 bitDur = floor(fs/(bitRate));
-vcoRiseEdgeCounter = 0;
+vcoRiseEdgeCounter = 2;
 bitDurInVcoEdges = 19000/bitRate;	%number of rising edges of the 19kHz vco during a bit duration
 phase = 2*pi*5/12;
 
 %matched filter
-load('RDSmatched.mat');
+load('RDSmatched_other.mat');
 b=h.';
 xhist=zeros(length(b),1);
 
@@ -159,15 +168,13 @@ lockedHere = zeros(size(pilotTone));
 
 for n=2:length(pilotTone) 
 	%PLL implementation 
-	vco(n)=conj(exp(j*(2*pi*n*f/fs+phi_hat(n-1))));	%Compute VCO 
+	vco(n)=conj(exp(1i*(2*pi*n*f/fs+phi_hat(n-1))));	%Compute VCO 
 	phd_output(n)=imag(pilotTone(n)*vco(n));	%Complex multiply VCO x pilotTone input 
 	e(n)=e(n-1)+(kp+ki)*phd_output(n)-ki*phd_output(n-1);	%Filter integrator 
 	phi_hat(n)=phi_hat(n-1)+e(n);	%Update VCO 
-
+    vco3(n) = vco(n) * vco(n) * vco(n);
 	%mixing
-	mixedsignal(n) = fmdemod(n) * vco(n) * exp(i*phase);
-	mixedsignal(n) = mixedsignal(n) * vco(n) * exp(i*phase);
-	mixedsignal(n) = mixedsignal(n) * vco(n) * exp(i*phase);
+	mixedsignal(n) = fmdemod(n) * vco3(n) * exp(1i*phase);
 
 	%Matched Filter
     xhist=circshift(xhist,[1,0]);
@@ -304,10 +311,16 @@ end
 clear a b e f n fs phd_output phi_hat sampleCounter ki kp
 clear startOfSymbol t symbCurSign symbOldSign symbolRate h phase
 clear sampleDur vcoRiseEdgeCounter xhist bitDur bitDurInVcoEdges
-clear bitRate index timeAfterZeroCrossing fmdemod
+clear bitRate index timeAfterZeroCrossing
 
 draw = 1;
 if draw == 1
+    %figure 
+    %plot(abs(fftshift(fft(fmdemod))));
+    
+    figure 
+    plot(abs(fftshift(fft(vco))),'r');
+    
 	figure
 	plot(real(mixedsignal),'g');
 	hold on
@@ -321,14 +334,17 @@ if draw == 1
 	plot(pilotTone,'r');
 	hold on
 	plot(real(vco),'g');
+    hold on
+    plot(real(vco3),'b');
 end
 clear mixedsignal samplePoints samplePointsBiphase
 
 if draw == 1
 	figure
+    axis normal;
 	plot(biphasesymbols,'b.');
-	hold on
-	plot(symbols,'g.');
+	%hold on
+	%plot(symbols,'g.');
 end
 
 %clear biphasesymbols
