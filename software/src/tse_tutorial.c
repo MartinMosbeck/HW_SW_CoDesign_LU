@@ -13,7 +13,7 @@
 #include "display.h"
 #include "graphics.h"
 //Wieviel Bytes bei Echtzeitverarbeitung am Stück geholt werden
-#define BUF_SIZE 32//256//32768
+#define BUF_SIZE 30//256//32768
 
 //DBGOUT gibt die DATEN aus, die direkt von der HW kommen und beendet dann das Programm
 //#define DBGOUT
@@ -23,7 +23,7 @@
 //DEBUGOUT gibt Debugdaten bei Echzeitverarbeitung aus (in der while(1) Programm Hauptschleife)
 //Für Debugausgabe diese Direktive nehmen und nur diese und nur in der while(1)
 //DEBUGOUT wird von DBGOUT overrult, das Hauptprogramm natürlich auch
-#define DEBUGOUT
+//#define DEBUGOUT
 
 // Allocate descriptors in the descriptor_memory (onchip memory) and rx frames (main memory)
 //alt_sgdma_descriptor rx_descriptor[3]  __attribute__ (( section ( ".descriptor_memory" )));
@@ -99,43 +99,73 @@ int main(void)
 
 	#ifndef DBGOUT
 	// Create sgdma receive descriptor
-	alt_avalon_sgdma_construct_stream_to_mem_desc( &rx_descriptor[1], &rx_descriptor[0], &sgdma_daten[BUF_SIZE], BUF_SIZE, 0);
-	alt_avalon_sgdma_construct_stream_to_mem_desc( &rx_descriptor[0], &rx_descriptor[1], &sgdma_daten[0], BUF_SIZE, 0 );
+	alt_avalon_sgdma_construct_stream_to_mem_desc( &rx_descriptor[1], &rx_descriptor[2], &sgdma_daten[BUF_SIZE], BUF_SIZE, 0);
+	alt_avalon_sgdma_construct_stream_to_mem_desc( &rx_descriptor[0], &rx_descriptor[2], &sgdma_daten[0], BUF_SIZE, 0 );
 
 	display_print ("Ready to receive data!\n");
 
 	// Set up non-blocking transfer of sgdma receive descriptor
 	alt_avalon_sgdma_do_async_transfer( sgdma_rx_dev, &rx_descriptor[0] );
 	//Auch am Anfang auf Daten warten
-	//while (alt_avalon_sgdma_check_descriptor_status(&rx_descriptor[0])!=0);
+	while (alt_avalon_sgdma_check_descriptor_status(&rx_descriptor[0])!=0);
 
-	act_frame = 0;
+	act_frame = 1;
 	i=0;
-	int frm=act_frame;
+	unsigned char neueDaten[2] = {0,0};
+	int frm=0;
 	//------------------------HAUPTPROGRAMM-SCHLEIFE--------------------------------------------
-	while(1)
+	while(42)
 	{
-		//Unter entwicklung, sgdma abwechselnd abarbeiten, während der andere grade befüllt wird (technisch so nicht machbar)
+		//sgdma starten wenn der andere fertig ist und den anderen schon vorbereiten dass er gleich wieder gestartet werden kann
 		if(status == 0){
-			// Create sgdma receive descriptor
-			alt_avalon_sgdma_construct_stream_to_mem_desc( &rx_descriptor[act_frame], &rx_descriptor[1-act_frame], &sgdma_daten[act_frame*BUF_SIZE] , BUF_SIZE, 0 );
+			alt_avalon_sgdma_do_async_transfer(sgdma_rx_dev, &rx_descriptor[act_frame]);
 			
 			act_frame = 1-act_frame;
+			
+			neueDaten[1-act_frame] = 1;
+			
+			alt_avalon_sgdma_construct_stream_to_mem_desc( &rx_descriptor[act_frame], &rx_descriptor[2], &sgdma_daten[act_frame*BUF_SIZE] , BUF_SIZE, 0 );
+
+			if(frm == 1-act_frame){
+				alt_printf("[WARNUNG] Timingproblem: Daten konnten nicht in sgdma-Intervall abgearbeitet werden!\n");
+			}
 		}
-		status = alt_avalon_sgdma_check_descriptor_status(&rx_descriptor[act_frame]);
+		status = alt_avalon_sgdma_check_descriptor_status(&rx_descriptor[1-act_frame]);
 
 		#ifdef DEBUGOUT
-		sprintf(outtext, "%02x",sgdma_daten[i+frm*BUF_SIZE]);
-		alt_printf(outtext);
-		i++;
-		if(i==BUF_SIZE){
-			frm=1-frm;
+		if(i<BUF_SIZE){
+			sprintf(outtext, "%02x",sgdma_daten[i+frm*BUF_SIZE]);
+			alt_printf(outtext);
+			i++;
+			if(i==BUF_SIZE){
+				frm=1-frm;
+				alt_printf("\n");
+			}
+		}
+		if(i==BUF_SIZE && neueDaten[frm]){
 			i=0;
-			alt_printf("\n");
+			neueDaten[frm]=0;
 		}
 		#endif
 
+#ifndef DEBUGOUT
 		//Hier kommt der RDS-Stream rein und kann was von der HW noch fehlt fertig verarbeitet werden
+		for(; i<BUF_SIZE;){
+			//Hier mit sgdma_daten[i+frm*BUF_SIZE] Byteweise abarbeiten vor dem i++
+			
+			
+			
+			
+			i++;
+			if(i==BUF_SIZE){
+				frm=1-frm;
+			}
+		}
+		if(i==BUF_SIZE && neueDaten[frm]){
+			i=0;
+			neueDaten[frm]=0;
+		}
+#endif
 	}
 	//------------------------HAUPTPROGRAMM-SCHLEIFE-ENDE---------------------------------------
 	#endif
