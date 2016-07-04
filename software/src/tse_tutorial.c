@@ -13,7 +13,7 @@
 #include "display.h"
 #include "graphics.h"
 //Wieviel Bytes bei Echtzeitverarbeitung am Stück geholt werden
-#define BUF_SIZE 30//256//32768
+#define BUF_SIZE 256//32768
 
 //DBGOUT gibt die DATEN aus, die direkt von der HW kommen und beendet dann das Programm
 //#define DBGOUT
@@ -113,6 +113,7 @@ int main(void)
 	i=0;
 	unsigned char neueDaten[2] = {0,0};
 	int frm=0;
+	status = 0;
 	//------------------------HAUPTPROGRAMM-SCHLEIFE--------------------------------------------
 	while(42)
 	{
@@ -120,13 +121,13 @@ int main(void)
 		if(status == 0){
 			alt_avalon_sgdma_do_async_transfer(sgdma_rx_dev, &rx_descriptor[act_frame]);
 			
-			act_frame = 1-act_frame;
+			neueDaten[act_frame] = 1;
 			
-			neueDaten[1-act_frame] = 1;
+			act_frame = 1-act_frame;
 			
 			alt_avalon_sgdma_construct_stream_to_mem_desc( &rx_descriptor[act_frame], &rx_descriptor[2], &sgdma_daten[act_frame*BUF_SIZE] , BUF_SIZE, 0 );
 
-			if(frm == 1-act_frame){
+			if(frm == act_frame && i!=0){
 				alt_printf("[WARNUNG] Timingproblem: Daten konnten nicht in sgdma-Intervall abgearbeitet werden!\n");
 			}
 		}
@@ -150,18 +151,24 @@ int main(void)
 
 #ifndef DEBUGOUT
 		//Hier kommt der RDS-Stream rein und kann was von der HW noch fehlt fertig verarbeitet werden
-		for(; i<BUF_SIZE;){
+		if(i<BUF_SIZE){
 			//Hier mit sgdma_daten[i+frm*BUF_SIZE] Byteweise abarbeiten vor dem i++
+			//Alternativ soviele Bytes hintereinander abarbeiten wie gewünscht und i unbedingt statt
+			//i++ um diesen Wert erhöhen
+			//--------------VIEL SPAß--------------
 			
+			int j;
+			for(j=0; j<300; ++j){
+			}
+			alt_printf("Ich habe einen großen Hunger!\n");
 			
-			
-			
-			i++;
-			if(i==BUF_SIZE){
+			//------------ENDE VIEL SPAß-----------
+			i++;//Besagtes i++
+			if(i>=BUF_SIZE){
 				frm=1-frm;
 			}
 		}
-		if(i==BUF_SIZE && neueDaten[frm]){
+		if(i>=BUF_SIZE && neueDaten[frm]){
 			i=0;
 			neueDaten[frm]=0;
 		}
