@@ -13,13 +13,13 @@
 #include "display.h"
 #include "graphics.h"
 //Wieviel Bytes bei Echtzeitverarbeitung am Stück geholt werden
-#define BUF_SIZE 256//32768
+#define BUF_SIZE 256//104 Byte wäre ein voller RDS-Block
 
 //DBGOUT gibt die DATEN aus, die direkt von der HW kommen und beendet dann das Programm
 //#define DBGOUT
 //DBGOUT_SIZE*BUF_SIZE_DBGOUT Bytes werden ausgegeben
 #define BUF_SIZE_DBGOUT 65532//Von 0-65532 erlaubt
-#define DBGOUT_SIZE 1024//Von 1-1024 erlaubt
+#define DBGOUT_SIZE 1024//Von 1-1024 erlaubt (derzeit, Normalbetrieb braucht 3 descriptoren ==> descriptor-memory kleiner)
 //DEBUGOUT gibt Debugdaten bei Echzeitverarbeitung aus (in der while(1) Programm Hauptschleife)
 //Für Debugausgabe diese Direktive nehmen und nur diese und nur in der while(1)
 //DEBUGOUT wird von DBGOUT overrult, das Hauptprogramm natürlich auch
@@ -110,7 +110,7 @@ int main(void)
 	while (alt_avalon_sgdma_check_descriptor_status(&rx_descriptor[0])!=0);
 
 	act_frame = 1;
-	i=0;
+	i=BUF_SIZE;
 	unsigned char neueDaten[2] = {0,0};
 	int frm=0;
 	status = 0;
@@ -121,37 +121,32 @@ int main(void)
 		if(status == 0){
 			alt_avalon_sgdma_do_async_transfer(sgdma_rx_dev, &rx_descriptor[act_frame]);
 			
-			neueDaten[act_frame] = 1;
-			
 			act_frame = 1-act_frame;
+            
+            if(neueDaten[act_frame]){
+                //Wenn ein Frame solange zu bearbeiten dauerte, dass sgdma und Bearbeitung wieder auf 
+                //verschiedenen Speicherbereichen arbeiten, aber die Bearbeitung noch immer beim 1. ist
+                //und somit ein BUF_SIZE-Datum schon komplett übersehen hat
+                alt_printf("[FEHLER] Integrität des Systems nicht mehr gewährleistet\n");
+            }else{
+                neueDaten[act_frame] = 1;
+            }
 			
 			alt_avalon_sgdma_construct_stream_to_mem_desc( &rx_descriptor[act_frame], &rx_descriptor[2], &sgdma_daten[act_frame*BUF_SIZE] , BUF_SIZE, 0 );
 
-			if(frm == act_frame && i!=0){
+			if(frm != act_frame){
+                //Alternativ hier frm umbiegen und die fertig-Bearbeitung überspringen um wieder synchron zu werden
 				alt_printf("[WARNUNG] Timingproblem: Daten konnten nicht in sgdma-Intervall abgearbeitet werden!\n");
 			}
 		}
 		status = alt_avalon_sgdma_check_descriptor_status(&rx_descriptor[1-act_frame]);
 
-		#ifdef DEBUGOUT
-		if(i<BUF_SIZE){
-			sprintf(outtext, "%02x",sgdma_daten[i+frm*BUF_SIZE]);
-			alt_printf(outtext);
-			i++;
-			if(i==BUF_SIZE){
-				frm=1-frm;
-				alt_printf("\n");
-			}
-		}
-		if(i==BUF_SIZE && neueDaten[frm]){
-			i=0;
-			neueDaten[frm]=0;
-		}
-		#endif
-
-#ifndef DEBUGOUT
 		//Hier kommt der RDS-Stream rein und kann was von der HW noch fehlt fertig verarbeitet werden
 		if(i<BUF_SIZE){
+            #ifdef DEBUGOUT
+            sprintf(outtext, "%02x",sgdma_daten[i+frm*BUF_SIZE]);
+			alt_printf(outtext);
+            #endif
 			//Hier mit sgdma_daten[i+frm*BUF_SIZE] Byteweise abarbeiten vor dem i++
 			//Alternativ soviele Bytes hintereinander abarbeiten wie gewünscht und i unbedingt statt
 			//i++ um diesen Wert erhöhen
@@ -166,13 +161,18 @@ int main(void)
 			i++;//Besagtes i++
 			if(i>=BUF_SIZE){
 				frm=1-frm;
+                #ifdef DEBUGOUT
+                alt_printf("\n");
+                #endif
+                if(neueDaten[frm]){
+                    i=0;
+                    neueDaten[frm]=0;
+                }
 			}
-		}
-		if(i>=BUF_SIZE && neueDaten[frm]){
+		}else if(neueDaten[frm]){//i>=BUF_SIZE && neueDaten[frm]
 			i=0;
 			neueDaten[frm]=0;
 		}
-#endif
 	}
 	//------------------------HAUPTPROGRAMM-SCHLEIFE-ENDE---------------------------------------
 	#endif
