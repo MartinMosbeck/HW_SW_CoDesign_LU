@@ -2,7 +2,7 @@ clear
 close all
 
 AUDIO_ONLY = 0;		%skips the RDS part
-
+fs = 2.5*10^6;
 debugread=0;
 if debugread==0
 fileID = fopen('samples.bin');
@@ -17,7 +17,7 @@ inputdata = textread('dump1.txt','%2c');
 inputdata=hex2dec(char(inputdata));
 end
 %Einlesen und IQ aus Datenpunkten aufbauen
-anzsamp=floor(size(inputdata)/(2^8));%Anz der einzulesenden Datenpunkte
+anzsamp=floor(size(inputdata)/(2^10));%Anz der einzulesenden Datenpunkte
 inputdata=inputdata-127;
 IQ=inputdata(1:2:anzsamp-1)+1i.*inputdata(2:2:anzsamp);
 clear inputdata anzsamp fileID
@@ -25,89 +25,64 @@ clear inputdata anzsamp fileID
 %Mixer
 t=(0:size(IQ)-1)*1/(2.5*10^6);%von 0-IQsize*1/Fs         
 mixedsignal99_9MHz=IQ.*exp(-1i*2*pi*(-0.6*10^6)*t');
+tp = t;
 clear IQ t
 
-%Lowpass filter
-%load('fir_lowpass_400_60kHz.mat');%b.mat=400 Punkte, b200.mat=200, b14.mat=14, Erstellt mit filterremeztest
-%b=h.';
-% xhist=zeros(length(b),1);
-% for index=1:length(mixedsignal99_9MHz)
-%    xhist=circshift(xhist,[1,0]);
-%    xhist(1)=mixedsignal99_9MHz(index);
-%    mixedsignal99_9MHz(index)=sum(xhist.*b);
-% end
-%Bis hier um den Filter auszukommentieren
+%60 kHz lowpass (FIR)
+load('fir_lowpass_400_60kHz_Fs2500000.mat');
+b=h';
 
-%IIR Filter als Referenz
-load('iir_lowpass_5_60kHz_num.mat');
-b=num';
-load('iir_lowpass_5_60kHz_den.mat');
-a=den';
-
-b=b.*(1/a(1));
-a=a.*(1/a(1));
+a = 1;
 
 beforedecsignal=filter(b,a,mixedsignal99_9MHz);
-
-%a=a(2:end);
-%a=-1*a;
-%xhist=zeros(length(b),1);
-%yhist=zeros(length(a),1);
-%for index=1:length(mixedsignal99_9MHz)
-%   xhist=circshift(xhist,[1,0]);
-%   xhist(1)=mixedsignal99_9MHz(index);
-%   beforedecsignal(index)=sum(xhist.*b)+sum(yhist.*a);
-%   yhist=circshift(yhist,[1,0]);
-%   yhist(1)=beforedecsignal(index);
-%end
-%Bis hier Filter auskommentieren
 
 clear mixedsignal99_9MHz
 
 %Decimation
-Nth=20;		%take every 20th sample
-decisignal=[1:floor(size(beforedecsignal)/Nth)]';
-for index=1:floor(size(beforedecsignal)/Nth)
-    decisignal(index)=beforedecsignal(index*Nth);
-end
+%Nth=20;		%take every 20th sample
+%decisignal=[1:floor(size(beforedecsignal)/Nth)]';
+%for index=1:floor(size(beforedecsignal)/Nth)
+%    decisignal(index)=beforedecsignal(index*Nth);
+%end
+
+decisignal = beforedecsignal;
 
 clear beforedecsignal
 
-%FM-Demodulation
-%fmdemod = angle(conj(decisignal(1:end-1)).*decisignal(2:end));
-%fmdemod = imag(conj(decisignal(1:end-1)).*decisignal(2:end));
 
 %taken from web.stanford.edu/class/ee179/labs/Lab5.html
 dl = decisignal./abs(decisignal);
 %differentiator filter for the fmdemodulation
-hd = firls(30,[0 60000 61000 62500]/62500, [0 1 0 0], 'differentiator');
+hd = firls(30,[0 60000 61000 fs/2]/(fs/2), [0 1 0 0], 'differentiator');
 
-fvtool(hd);
+%fvtool(hd);
 
 signal = filter(hd, 1, dl);
 signal(length(dl):length(dl)+15) = 0;
 fmdemod = imag(signal(16:length(dl)+15).*conj(dl));
 
-
-
-%eig ja fmdemod = imag(conj(decisignal(1:end-1)).*decisignal(2:end)); in HW
-clear decisignal dl signal hd
+clear decisignal dl signal hd b a
 
 
 
 %lowpass filter the audio signal
-load('iir_lowpass_4_12kHz_num.mat');
-b=num';
-load('iir_lowpass_4_12kHz_den.mat');
-a=den';
+load('fir_lowpass_400_12kHz_Fs2500000.mat');
+b=h';
+a = 1;
 filteredtonsignal=filter(b,a,fmdemod);
-%filteredtonsignal=fmdemod;
+
+%Decimation only for sound output
+Nth=20;		%take every 20th sample
+decisignal=[1:floor(size(filteredtonsignal)/Nth)]';
+for index=1:floor(size(filteredtonsignal)/Nth)
+    decisignal(index)=filteredtonsignal(index*Nth);
+end
  
 
 %clear up the audio signals
-clear a b xhist yhist index
+clear a b xhist yhist index filteredtonsignal
 
-sound(filteredtonsignal,floor(2.5*10^6/Nth));
+sound(decisignal, floor(fs/Nth));
 
 
 %RDS from fmdemod
@@ -115,18 +90,18 @@ sound(filteredtonsignal,floor(2.5*10^6/Nth));
 if AUDIO_ONLY == 0
 %synchronization with respect to the 19kHz pilot tone
 %retrieve the pilot tone
-load('iir_bandpass_7_19kHz_den.mat');
-a=den.';
-load('iir_bandpass_7_19kHz_num.mat');
-b=num.';
+load('fir_bandpass_5000_19kHz_Fs2500000.mat');
+b=h.';
+a = 1;
 pilotTone = filter(b,a,fmdemod);
+clear a b
 
-%the PLL has trouble handling the pilot tone, when it gets too large
+%the PLL has trouble handling the pilot tone, when the pilot tone's size differs too much from its own output
 pilotTone = 2*pilotTone;
 
 %Initialize PLL Loop
 f = 19000;	%carrier frequency
-fs = (2.5*10^6)/Nth;
+%fs = (2.5*10^6)/Nth;
 phi_hat(1)=30; 
 e(1)=0; 
 phd_output(1)=0; 
@@ -145,11 +120,11 @@ phase = 2*pi*5/12;
 
 %matched filter
 %load('RDSmatched_other.mat');
-load('RDSmatched_other.mat');
+load('RDSmatched.mat');
 b=h.';
 xhist=zeros(length(b),1);
 
-load('fir_lowpass_400_2_4kHz.mat');
+load('fir_lowpass_400_2kHz_Fs2500000.mat');
 bLow=h.';
 xhistLow=zeros(length(bLow),1);
 
@@ -189,10 +164,10 @@ for n=2:length(pilotTone)
     xhist(1)=mixedsignal(n);
     mixedsignal(n)=sum(xhist.*b);
 
-	%%additional low pass filter
-    %xhistLow=circshift(xhistLow,[1,0]);
-    %xhistLow(1)=mixedsignal(n);
-    %mixedsignal(n)=sum(xhistLow.*bLow);
+	%additional low pass filter (cutoff at around 2kHz)
+    xhistLow=circshift(xhistLow,[1,0]);
+    xhistLow(1)=mixedsignal(n);
+    mixedsignal(n)=sum(xhistLow.*bLow);
 	
 	%detect rising edge in vco
 	if(real(vco(n-1)) < 0 && real(vco(n)) >= 0)
@@ -317,9 +292,9 @@ for n=2:length(pilotTone)
 	%end;
 end
 clear a b e f n fs phd_output sampleCounter ki kp
-clear startOfSymbol t symbCurSign symbOldSign symbolRate h phase
-clear sampleDur vcoRiseEdgeCounter xhist bitDur bitDurInVcoEdges
-clear bitRate index timeAfterZeroCrossing
+clear startOfSymbol t symbCurSign symbOldSign h phase
+clear sampleDur vcoRiseEdgeCounter xhist
+clear index timeAfterZeroCrossing
 
 draw = 1;
 if draw == 1
@@ -339,13 +314,13 @@ if draw == 1
 	plot(real(lockedHere), 'y');
 
 	figure
-	%plot(pilotTone,'r.');
-	%hold on
+	plot(pilotTone,'r');
+	hold on
 	plot(real(vco),'g');
     hold on
     plot(real(vco3),'b');
 end
-clear mixedsignal samplePoints samplePointsBiphase
+clear samplePoints samplePointsBiphase
 
 if draw == 1
 	figure
