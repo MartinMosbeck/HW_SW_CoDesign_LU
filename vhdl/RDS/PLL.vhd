@@ -8,25 +8,38 @@ use work.audiocore_pkg.all;
 entity PLL
 port
 (
-	clk : in std_logic;
-	res_n : in std_logic;
-	validin : in std_logic;
-	data_in : in fixpoint;
+	clk			: in std_logic;
+	res_n		: in std_logic;
+	validin		: in std_logic;
+	pilotTone	: in fixpoint;
 
-	pilotTone : in fixpoint;
-
-	validout : out std_logic;
-	vcoQ_out : out fixpoint;
-	vcoI_out : out fixpoint;
+	validout	: out std_logic;
+	vcoQ_out	: out fixpoint;
+	vcoI_out	: out fixpoint;
 
 );
 end PLL;
 
 architecture PLL_beh of PLL is
-	constant kp : fixpoint := "00000000001001100110011001100110";
-	constant ki : fixpoint := "00000000000110011001100110011001";
+
+	function fixpoint_mult(a,b:fixpoint) return fixpoint is
+		variable result_full : fixpoint_product;
+	begin
+		result_full := a * b;
+
+		return result_full(47 downto 16);
+	end function;
+
+	--constant kp : fixpoint := "00000000001001100110011001100110";
+	constant kp : fixpoint := "00000000000000000010011001100110";
+
+	--constant ki : fixpoint := "00000000000110011001100110011001";
+	constant ki : fixpoint := "00000000000000000001100110011001";
+
+	constant kpPLUSki : fixpoint := "00000000000000000100000000000000";
 	
-	constant exp_arg : fixpoint := "00000000111101000111110111000110";	--this is 2*pi*f/fs
+	--constant exp_arg : fixpoint := "00000000111101000111110111000110";  --this is 2*pi*f/fs
+	constant exp_arg : fixpoint := "00000000000000001111010001111101";	--this is 2*pi*f/fs
 
 	signal vcoI : fixpoint := (others => '0');
 	signal vcoQ : fixpoint := (others => '0');
@@ -40,14 +53,19 @@ architecture PLL_beh of PLL is
 	signal e : fixpoint := (others => '0');
 	signal e_old : fixpoint := (others => '0');
 	signal e_old_next : fixpoint := (others => '0');
+
 	signal phi_hat : fixpoint := (others => '0');
+
 	signal phi_hat_old : fixpoint := (others => '0');
 	signal phi_hat_old_next : fixpoint := (others => '0');
+
 	signal phd_output : fixpoint := (others => '0');
 	signal phd_output_old : fixpoint := (others => '0');
 	signal phd_output_old_next : fixpoint := (others => '0');
+
 	signal sin_arg : fixpoint;
 	signal cos_arg : fixpoint;
+
 	signal n : unsigned(31 downto 0) := (others => '0');
 	signal n_next : unsigned(31 downto 0) := (others => '0');
 
@@ -94,13 +112,17 @@ begin
 	--actual pll implementation
 	calculate_vco : process(phi_hat_old, sin_arg, vcoI, vcoQ, pilotTone_cur, phd_output, phd_output_old, e, e_old)
 	begin
-		
-		sin_arg <= exp_arg*n + phi_hat_old;
+		-- Problem: n müsste fixpoint sein
+		sin_arg <= exp_arg*n + phi_hat_old; 
 		cos_arg <= sin_arg;
+		-- Problem: sin_arg cos_arg sind signale--> nicht sofort verfügbar
 		vcoQ <= cos_lookup(cos_arg);
 		vcoI <= -sin_lookup(sin_arg);
 		phd_output <= fixpoint_mult(pilotTone_cur, vcoI);	--imag(pilotTone*vco)
-		e <= e_old + (kp+ki) * phd_output - ki*phd_output_old;	--Filter integrator 
+		-- Problem: viele Multiplikationen-->Pipeline?
+		-- Pipeline hätte das Problem dass wir wegen Rückkopplung Buffern müssen
+		-- TODO: Müsste alles auf fixpoint_mult umgestellt werden
+		e <= e_old + kpPLUSki * phd_output - ki*phd_output_old;	--Filter integrator 
 		phi_hat <= phi_hat_old + e;		--Update VCO 
 	end process;
 
