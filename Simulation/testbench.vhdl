@@ -34,7 +34,7 @@ architecture testbench of audiocore_Simulation is
   signal counter: integer:=30000;
   
   begin
-    dut : entity work.IIRFilter
+    dut : entity work.FIRFilter
 		port map
 		(
 		clk => clk,

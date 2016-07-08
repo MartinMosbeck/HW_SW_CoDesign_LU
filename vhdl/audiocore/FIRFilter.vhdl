@@ -6,7 +6,7 @@ library work;
 use work.audiocore_pkg.all;
 
 
-entity IIRFilter is	
+entity FIRFilter is
 	port 
 	(
 		clk 		: in std_logic;
@@ -18,9 +18,9 @@ entity IIRFilter is
 		data_out 	: out fixpoint;
 		validout 	: out std_logic
 	);
-end IIRFilter;
+end FIRFilter;
 
-architecture behavior of IIRFIlter is
+architecture behavior of FIRFilter is
 	function fixpoint_mult(a,b:fixpoint) return fixpoint is
 		variable result_full : fixpoint_product;
 	begin
