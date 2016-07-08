@@ -347,6 +347,37 @@ package audiocore_pkg is
 		I_in	: in fixpoint;
 		I_out	: out fixpoint;
 		Q_in	: in fixpoint;
-		Q_out	: out fixpoint;
+		Q_out	: out fixpoint
 	);
+	end component;
+	
+	component FIRFilter_demod is
+	port 
+	(
+		clk 		: in std_logic;
+		res_n 		: in std_logic;
+
+		data_in 	: in fixpoint;
+		validin 	: in std_logic;
+
+		data_out 	: out fixpoint;
+		validout 	: out std_logic
+	);
+	end component;
+	
+	component demodulator_FIR is
+	port 
+	(
+		clk : in std_logic;
+		res_n : in std_logic;
+
+		data_in_I : in fixpoint;
+		data_in_Q : in fixpoint;
+		validin_I : in std_logic;
+		validin_Q : in std_logic;
+		
+		data_out : out fixpoint;
+		validout : out std_logic
+	);
+	end component;
 end package audiocore_pkg;

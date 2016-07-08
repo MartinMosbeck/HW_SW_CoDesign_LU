@@ -189,7 +189,7 @@ begin
 		validout 	=> Qdeci_validout
 	);
 
-	FMdemod : demodulator
+	FMdemod : demodulator_FIR
 	port map
 	(
 		clk		=> clk_top,

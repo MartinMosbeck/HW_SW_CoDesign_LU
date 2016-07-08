@@ -6,7 +6,7 @@ library work;
 use work.audiocore_pkg.all;
 
 
-entity FIRFilter is
+entity FIRFilter_demod is
 	port 
 	(
 		clk 		: in std_logic;
@@ -18,9 +18,9 @@ entity FIRFilter is
 		data_out 	: out fixpoint;
 		validout 	: out std_logic
 	);
-end FIRFilter;
+end FIRFilter_demod;
 
-architecture behavior of FIRFilter is
+architecture behavior of FIRFilter_demod is
 	function fixpoint_mult(a,b:fixpoint) return fixpoint is
 		variable result_full : fixpoint_product;
 	begin

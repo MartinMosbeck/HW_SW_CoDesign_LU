@@ -21,7 +21,7 @@ entity fixpoint_magnitude is
 		I_in	: in fixpoint;
 		I_out	: out fixpoint;
 		Q_in	: in fixpoint;
-		Q_out	: out fixpoint;
+		Q_out	: out fixpoint
 	);
  end fixpoint_magnitude;
 
@@ -130,11 +130,12 @@ begin
 		data_out_cur <= data_out_next;
 		valid_out_cur <= valid_out_next;
 		state_cur <= state_next;
+	end if;
 end process sync;
 
 	I_out <= I_out_cur;
 	Q_out <= Q_out_cur;
 	data_out <= data_out_cur;
-	valid_out <= valid_out_cur
+	valid_out <= valid_out_cur;
 
 end  behavior;
