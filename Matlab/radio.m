@@ -17,7 +17,7 @@ inputdata = textread('dump1.txt','%2c');
 inputdata=hex2dec(char(inputdata));
 end
 %Einlesen und IQ aus Datenpunkten aufbauen
-anzsamp=floor(size(inputdata)/(2^10));%Anz der einzulesenden Datenpunkte
+anzsamp=floor(size(inputdata)/(2^7));%Anz der einzulesenden Datenpunkte
 inputdata=inputdata-127;
 IQ=inputdata(1:2:anzsamp-1)+1i.*inputdata(2:2:anzsamp);
 clear inputdata anzsamp fileID
@@ -29,7 +29,7 @@ tp = t;
 clear IQ t
 
 %60 kHz lowpass (FIR)
-load('fir_lowpass_400_60kHz_Fs2500000.mat');
+load('fir_lowpass_1500_60kHz_Fs2500000.mat');
 b=h';
 
 a = 1;
@@ -39,13 +39,12 @@ beforedecsignal=filter(b,a,mixedsignal99_9MHz);
 clear mixedsignal99_9MHz
 
 %Decimation
-%Nth=20;		%take every 20th sample
-%decisignal=[1:floor(size(beforedecsignal)/Nth)]';
-%for index=1:floor(size(beforedecsignal)/Nth)
-%    decisignal(index)=beforedecsignal(index*Nth);
-%end
-
-decisignal = beforedecsignal;
+Nth=20;		%take every 20th sample
+decisignal=[1:floor(size(beforedecsignal)/Nth)]';
+for index=1:floor(size(beforedecsignal)/Nth)
+    decisignal(index)=beforedecsignal(index*Nth);
+end
+fs = fs/Nth;
 
 clear beforedecsignal
 
@@ -64,25 +63,16 @@ fmdemod = imag(signal(16:length(dl)+15).*conj(dl));
 clear decisignal dl signal hd b a
 
 
-
 %lowpass filter the audio signal
-load('fir_lowpass_400_12kHz_Fs2500000.mat');
+load('fir_lowpass_400_12kHz_Fs125000.mat');
 b=h';
 a = 1;
 filteredtonsignal=filter(b,a,fmdemod);
 
-%Decimation only for sound output
-Nth=20;		%take every 20th sample
-decisignal=[1:floor(size(filteredtonsignal)/Nth)]';
-for index=1:floor(size(filteredtonsignal)/Nth)
-    decisignal(index)=filteredtonsignal(index*Nth);
-end
- 
+sound(filteredtonsignal, fs);
 
 %clear up the audio signals
 clear a b xhist yhist index filteredtonsignal
-
-sound(decisignal, floor(fs/Nth));
 
 
 %RDS from fmdemod
@@ -90,7 +80,7 @@ sound(decisignal, floor(fs/Nth));
 if AUDIO_ONLY == 0
 %synchronization with respect to the 19kHz pilot tone
 %retrieve the pilot tone
-load('fir_bandpass_5000_19kHz_Fs2500000.mat');
+load('fir_bandpass_500_19kHz_Fs125000.mat');
 b=h.';
 a = 1;
 pilotTone = filter(b,a,fmdemod);
@@ -114,23 +104,23 @@ ki=0.1; %Integrator constant
 symbolRate = 1187.5;
 bitRate = 2*symbolRate;
 bitDur = floor(fs/(bitRate));
-vcoRiseEdgeCounter = 2;
+vcoRiseEdgeCounter = 0;
 bitDurInVcoEdges = 19000/bitRate;	%number of rising edges of the 19kHz vco during a bit duration
-phase = 2*pi*5/12;
 
 %matched filter
 %load('RDSmatched_other.mat');
 load('RDSmatched.mat');
 b=h.';
-xhist=zeros(length(b),1);
 
-load('fir_lowpass_400_2kHz_Fs2500000.mat');
+load('fir_lowpass_400_2kHz_Fs125000.mat');
 bLow=h.';
 xhistLow=zeros(length(bLow),1);
 
+PHASE_STEPS = 12;
+
 samplePoints = zeros(size(pilotTone)) - 0.3;
 samplePointsBiphase = zeros(size(pilotTone)) - 0.3;
-biphasesymbols=zeros(ceil(length(pilotTone)/(bitDur)),1);
+biphasesymbols=zeros(ceil(length(pilotTone)/(bitDur)), bitDurInVcoEdges, PHASE_STEPS);
 biphaseindex=1;
 samples = zeros(100,1);	%samples during one bit clock
 sampleCounter = 1;
@@ -138,158 +128,184 @@ timeAfterZeroCrossing = -10000;
 locked = 0;		%if 1, then we have found two successive valid bits with the same value
 				%meaning that we now know where a symbol starts
 startOfSymbol = 1;
-symbols = zeros(ceil(size(biphasesymbols)/2)) - 0.3;
+symbols = zeros(ceil(size(biphasesymbols,1)/2), bitDurInVcoEdges, PHASE_STEPS);
 symbolsIndex = 1;
 index=1;
 sampleInt = zeros(size(pilotTone)) - 0.3;
 sampleDur = floor(9/16*bitDur);
-validThreshold = 0.03;
+validThreshold = 0.01;
 bitsymbolsIndex = 1;
-bitsymbols = zeros(ceil(length(biphasesymbols)/2),1) - 1;
+bitsymbols = zeros(ceil(size(biphasesymbols,1)/2),1) - 1;
 sampleBitSymb = zeros(size(pilotTone)) - 0.3;
 lockedHere = zeros(size(pilotTone));
+mixedsignal = zeros(length(pilotTone), bitDurInVcoEdges, PHASE_STEPS);
 
-for n=2:length(pilotTone) 
-	%PLL implementation 
-	vco(n)=conj(exp(1i*(2*pi*n*f/fs+phi_hat(n-1))));	%Compute VCO 
-	phd_output(n)=imag(pilotTone(n)*vco(n));	%Complex multiply VCO x pilotTone input 
-	e(n)=e(n-1)+(kp+ki)*phd_output(n)-ki*phd_output(n-1);	%Filter integrator 
-	phi_hat(n)=phi_hat(n-1)+e(n);	%Update VCO 
-    vco3(n) = vco(n) * vco(n) * vco(n);
-	%mixing
-	mixedsignal(n) = fmdemod(n) * vco3(n) * exp(1i*phase);
+phases = zeros(size(pilotTone));
 
-	%Matched Filter
-    xhist=circshift(xhist,[1,0]);
-    xhist(1)=mixedsignal(n);
-    mixedsignal(n)=sum(xhist.*b);
+%experimental mixing and machted filtering in one step without the pll
+%t=(0:size(pilotTone)-1)/(fs);%von 0-IQsize*1/Fs         
+%%mixing
+%mixedsignal = fmdemod.*exp(-1i*2*pi*3*f*t' + 1i*2*pi*(1/4));
+%%matched filtering
+%mixedsignal = filter(b, 1, mixedsignal);
+%figure
+%plot(real(mixedsignal), 'g');
+%figure
+%plot(abs(fftshift(fft(mixedsignal))));
 
-	%additional low pass filter (cutoff at around 2kHz)
-    xhistLow=circshift(xhistLow,[1,0]);
-    xhistLow(1)=mixedsignal(n);
-    mixedsignal(n)=sum(xhistLow.*bLow);
-	
-	%detect rising edge in vco
-	if(real(vco(n-1)) < 0 && real(vco(n)) >= 0)
-		vcoRiseEdgeCounter = vcoRiseEdgeCounter + 1;
-	end
+for phSteps = 1 : PHASE_STEPS
+phase = 2*pi*(phSteps/PHASE_STEPS);
+	for k = 1 : bitDurInVcoEdges
+		vcoRiseEdgeCounter = k
+		xhist=zeros(length(b),1);
+		biphaseindex = 1;
+		symbolsIndex = 1;
+		locked = 0;
+		startOfSymbol = 0;
+		for n=2:length(pilotTone) 
+			%PLL implementation 
+			vco(n)=conj(exp(1i*(2*pi*n*f/fs+phi_hat(n-1))));	%Compute VCO 
+			phd_output(n)=imag(pilotTone(n)*vco(n));	%Complex multiply VCO x pilotTone input 
+			e(n)=e(n-1)+(kp+ki)*phd_output(n)-ki*phd_output(n-1);	%Filter integrator 
+			phi_hat(n)=phi_hat(n-1)+e(n);	%Update VCO 
+			vco3(n) = vco(n) * vco(n) * vco(n);
+			%mixing
+			mixedsignal(n, k, phSteps) = fmdemod(n) * vco3(n) * exp(1i*phase);
 
-	%use the 19kHz pilot for sampling
-	if vcoRiseEdgeCounter == bitDurInVcoEdges
-		%phase correction
-		a = sign(mixedsignal(n));
-		phase = phase - 0.3*angle(a*mixedsignal(n));
+			%Matched Filter
+			xhist=circshift(xhist,[1,0]);
+			xhist(1)=mixedsignal(n, k, phSteps);
+			mixedsignal(n, k, phSteps)=sum(xhist.*b);
 
-		biphasesymbols(biphaseindex) = mixedsignal(n);
-		samplePoints(n) = mixedsignal(n);
-		vcoRiseEdgeCounter = 0;
-
-		%symbol decoding
-		if (locked == 0) && (biphaseindex > 1)
-			symbCurSign = sign(real(biphasesymbols(biphaseindex)));
-			symbOldSign = sign(real(biphasesymbols(biphaseindex-1)));
-			if symbCurSign == symbOldSign && (abs(real(biphasesymbols(biphaseindex))) > validThreshold) && (abs(real(biphasesymbols(biphaseindex-1))) > validThreshold)
-				locked = 1;
-				startOfSymbol = 0;
-				lockedHere(n) = 0.1;
+			%additional low pass filter (cutoff at around 2kHz)
+			%xhistLow=circshift(xhistLow,[1,0]);
+			%xhistLow(1)=mixedsignal(n);
+			%mixedsignal(n)=sum(xhistLow.*bLow);
+			
+			%detect rising edge in vco
+			if(real(vco(n-1)) < 0 && real(vco(n)) >= 0)
+				vcoRiseEdgeCounter = vcoRiseEdgeCounter + 1;
 			end
-		elseif locked == 1
-			if startOfSymbol == 0
-				symbCurSign = sign(real(biphasesymbols(biphaseindex)));
-				symbOldSign = sign(real(biphasesymbols(biphaseindex-1)));
-				
-				%symbol 1
-				if real(biphasesymbols(biphaseindex-1)) > real(biphasesymbols(biphaseindex))
-					symbols(symbolsIndex) = abs(real(biphasesymbols(biphaseindex-1) - biphasesymbols(biphaseindex))) + 1i*imag(biphasesymbols(biphaseindex-1) - biphasesymbols(biphaseindex));
-					bitsymbols(bitsymbolsIndex) = 1;
-					sampleBitSymb(n) = 0.1;
-				%symbol 0
-				elseif real(biphasesymbols(biphaseindex-1)) < real(biphasesymbols(biphaseindex))
-					symbols(symbolsIndex) = -abs(real(biphasesymbols(biphaseindex-1) - biphasesymbols(biphaseindex))) + 1*i*imag(biphasesymbols(biphaseindex-1) - biphasesymbols(biphaseindex));
-					bitsymbols(bitsymbolsIndex) = 0;
-					sampleBitSymb(n) = -0.1;
+
+			%use the 19kHz pilot for sampling
+			if vcoRiseEdgeCounter >= bitDurInVcoEdges
+				%phase correction
+				%a = sign(mixedsignal(n, k, phSteps));
+				%phase = phase - 0.3*angle(a*mixedsignal(n, k, phSteps));
+				%phases(n) = phase;
+
+				biphasesymbols(biphaseindex, k, phSteps) = mixedsignal(n, k, phSteps);
+				samplePoints(n) = mixedsignal(n, k, phSteps);
+				vcoRiseEdgeCounter = 0;
+
+				%symbol decoding
+				if (locked == 0) && (biphaseindex > 1)
+					symbCurSign = sign(real(biphasesymbols(biphaseindex, k, phSteps)));
+					symbOldSign = sign(real(biphasesymbols(biphaseindex-1, k, phSteps)));
+					if symbCurSign == symbOldSign && (abs(real(biphasesymbols(biphaseindex, k, phSteps))) > validThreshold) && (abs(real(biphasesymbols(biphaseindex-1, k, phSteps))) > validThreshold)
+						locked = 1;
+						startOfSymbol = 0;
+						lockedHere(n) = 0.1;
+					end
+				elseif locked == 1
+					if startOfSymbol == 0
+						symbCurSign = sign(real(biphasesymbols(biphaseindex, k, phSteps)));
+						symbOldSign = sign(real(biphasesymbols(biphaseindex-1, k, phSteps)));
+						
+						%symbol 1
+						if real(biphasesymbols(biphaseindex-1, k, phSteps)) > real(biphasesymbols(biphaseindex, k, phSteps))
+							symbols(symbolsIndex, k, phSteps) = abs(real(biphasesymbols(biphaseindex-1, k, phSteps) - biphasesymbols(biphaseindex, k, phSteps))) + 1i*imag(biphasesymbols(biphaseindex-1, k, phSteps) - biphasesymbols(biphaseindex, k, phSteps));
+							bitsymbols(bitsymbolsIndex) = 1;
+							sampleBitSymb(n) = 0.1;
+						%symbol 0
+						elseif real(biphasesymbols(biphaseindex-1, k, phSteps)) < real(biphasesymbols(biphaseindex, k, phSteps))
+							symbols(symbolsIndex, k, phSteps) = -abs(real(biphasesymbols(biphaseindex-1, k, phSteps) - biphasesymbols(biphaseindex, k, phSteps))) + 1*i*imag(biphasesymbols(biphaseindex-1, k, phSteps) - biphasesymbols(biphaseindex, k, phSteps));
+							bitsymbols(bitsymbolsIndex) = 0;
+							sampleBitSymb(n) = -0.1;
+						end
+						bitsymbolsIndex = bitsymbolsIndex + 1;
+						symbolsIndex = symbolsIndex + 1;
+						startOfSymbol = 1;
+					else
+						startOfSymbol = 0;
+					end
 				end
-				bitsymbolsIndex = bitsymbolsIndex + 1;
-				symbolsIndex = symbolsIndex + 1;
-				startOfSymbol = 1;
-			else
-				startOfSymbol = 0;
+				biphaseindex = biphaseindex + 1;
 			end
+
+			%%detect zero-crossing in the mixed signal
+			%if(real(mixedsignal(n-1)) > 0 && real(mixedsignal(n)) < 0) || (real(mixedsignal(n-1)) < 0 && real(mixedsignal(n)) > 0)
+			%	timeAfterZeroCrossing = 0;
+
+			%	%%symbol clock correction
+			%	%vcoRiseEdgeCounter = ceil(bitDurInVcoEdges/2);
+			%end
+			%if timeAfterZeroCrossing == ceil(bitDur/2)
+			%	%phase correction
+			%	a = sign(real(mixedsignal(n)));
+			%	phase = phase - 0.3*angle(a*mixedsignal(n));
+
+			%	%timeAfterZeroCrossing = -ceil(bitDur/2);
+			%	%biphaseindex = biphaseindex + 1;
+			%end
+
+			%%reset samples
+			%if timeAfterZeroCrossing == 0 || timeAfterZeroCrossing == bitDur
+			%	samples = zeros(100,1);
+			%	sampleInt(n) = 0.1;
+			%	sampleCounter = 0;
+			%end
+
+			%%bit interpretation
+			%if (timeAfterZeroCrossing == floor(sampleDur)) || (timeAfterZeroCrossing == (bitDur + floor(sampleDur)))
+			%	[~, index] = max(abs(real(samples(1:bitDur))));
+			%	biphasesymbols(biphaseindex) = samples(index);
+			%	samplePoints(n-sampleDur+index) = samples(index);
+			%	%symbol decoding
+			%	if (locked == 0) && (biphaseindex > 1)
+			%		symbCurSign = sign(real(biphasesymbols(biphaseindex)));
+			%		symbOldSign = sign(real(biphasesymbols(biphaseindex-1)));
+			%		if symbCurSign == symbOldSign
+			%			locked = 1;
+			%			startOfSymbol = 0;
+			%		end
+			%	elseif locked == 1
+			%		if startOfSymbol == 0
+			%			symbCurSign = sign(real(biphasesymbols(biphaseindex)));
+			%			symbOldSign = sign(real(biphasesymbols(biphaseindex-1)));
+			%			%most likely an error happened and the symbol start needs to be reset
+			%			if symbCurSign == symbOldSign
+			%				startOfSymbol = 0;
+
+			%				%store the last symbol as this symbol (just to get the expected number of symbols and not skip any)
+			%				if symbolsIndex > 1
+			%					symbols(symbolsIndex) = symbols(symbolsIndex-1);
+			%				else symbols(symbolsIndex) = biphasesymbols(biphaseindex);
+			%				end
+			%				symbolsIndex = symbolsIndex + 1;
+			%			%decode the biphase symbol
+			%			else
+			%				symbols(symbolsIndex) = (biphasesymbols(biphaseindex-1) - biphasesymbols(biphaseindex));
+			%				symbolsIndex = symbolsIndex + 1;
+			%				startOfSymbol = 1;
+			%				sampleBitSymb(n) = real(symbols(symbolsIndex-1));
+			%			end
+			%		else
+			%			startOfSymbol = 0;
+			%		end
+			%	end
+			%	biphaseindex = biphaseindex + 1;
+			%	sampleInt(n) = 0.05;
+			%end
+			% 
+			%timeAfterZeroCrossing = timeAfterZeroCrossing + 1;
+			%sampleCounter = sampleCounter + 1;
+			%%wait with the sampling until the first zero crossing (only relevent in the beginning)
+			%if timeAfterZeroCrossing > 0
+			%	samples(sampleCounter) = mixedsignal(n);
+			%end;
 		end
-		biphaseindex = biphaseindex + 1;
 	end
-
-	%%detect zero-crossing in the mixed signal
-    %if(real(mixedsignal(n-1)) > 0 && real(mixedsignal(n)) < 0) || (real(mixedsignal(n-1)) < 0 && real(mixedsignal(n)) > 0)
-	%	timeAfterZeroCrossing = 0;
-
-	%	%%symbol clock correction
-	%	%vcoRiseEdgeCounter = ceil(bitDurInVcoEdges/2);
-    %end
-	%if timeAfterZeroCrossing == ceil(bitDur/2)
-	%	%phase correction
-	%	a = sign(real(mixedsignal(n)));
-	%	phase = phase - 0.3*angle(a*mixedsignal(n));
-
-	%	%timeAfterZeroCrossing = -ceil(bitDur/2);
-	%	%biphaseindex = biphaseindex + 1;
-	%end
-
-	%%reset samples
-	%if timeAfterZeroCrossing == 0 || timeAfterZeroCrossing == bitDur
-	%	samples = zeros(100,1);
-	%	sampleInt(n) = 0.1;
-	%	sampleCounter = 0;
-    %end
-
-	%%bit interpretation
-	%if (timeAfterZeroCrossing == floor(sampleDur)) || (timeAfterZeroCrossing == (bitDur + floor(sampleDur)))
-	%	[~, index] = max(abs(real(samples(1:bitDur))));
-	%	biphasesymbols(biphaseindex) = samples(index);
-	%	samplePoints(n-sampleDur+index) = samples(index);
-	%	%symbol decoding
-	%	if (locked == 0) && (biphaseindex > 1)
-	%		symbCurSign = sign(real(biphasesymbols(biphaseindex)));
-	%		symbOldSign = sign(real(biphasesymbols(biphaseindex-1)));
-	%		if symbCurSign == symbOldSign
-	%			locked = 1;
-	%			startOfSymbol = 0;
-	%		end
-	%	elseif locked == 1
-	%		if startOfSymbol == 0
-	%			symbCurSign = sign(real(biphasesymbols(biphaseindex)));
-	%			symbOldSign = sign(real(biphasesymbols(biphaseindex-1)));
-	%			%most likely an error happened and the symbol start needs to be reset
-	%			if symbCurSign == symbOldSign
-	%				startOfSymbol = 0;
-
-	%				%store the last symbol as this symbol (just to get the expected number of symbols and not skip any)
-	%				if symbolsIndex > 1
-	%					symbols(symbolsIndex) = symbols(symbolsIndex-1);
-	%				else symbols(symbolsIndex) = biphasesymbols(biphaseindex);
-	%				end
-	%				symbolsIndex = symbolsIndex + 1;
-	%			%decode the biphase symbol
-	%			else
-	%				symbols(symbolsIndex) = (biphasesymbols(biphaseindex-1) - biphasesymbols(biphaseindex));
-	%				symbolsIndex = symbolsIndex + 1;
-	%				startOfSymbol = 1;
-	%				sampleBitSymb(n) = real(symbols(symbolsIndex-1));
-	%			end
-	%		else
-	%			startOfSymbol = 0;
-	%		end
-	%	end
-	%	biphaseindex = biphaseindex + 1;
-	%	sampleInt(n) = 0.05;
-	%end
-	% 
-	%timeAfterZeroCrossing = timeAfterZeroCrossing + 1;
-	%sampleCounter = sampleCounter + 1;
-	%%wait with the sampling until the first zero crossing (only relevent in the beginning)
-	%if timeAfterZeroCrossing > 0
-	%	samples(sampleCounter) = mixedsignal(n);
-	%end;
 end
 clear a b e f n fs phd_output sampleCounter ki kp
 clear startOfSymbol t symbCurSign symbOldSign h phase
@@ -303,22 +319,27 @@ if draw == 1
     
     %figure 
     %plot(abs(fftshift(fft(vco))),'r');
-    
-	figure
-	plot(real(mixedsignal),'g');
-	hold on
-	plot(sampleBitSymb, 'b.');
-	hold on
-	plot(real(samplePoints), 'r.')
-	hold on
-	plot(real(lockedHere), 'y');
 
-	figure
-	plot(pilotTone,'r');
-	hold on
-	plot(real(vco),'g');
-    hold on
-    plot(real(vco3),'b');
+	%figure
+	%plot(mixedsignal, 'g');
+    %
+	%figure
+	%plot(real(mixedsignal),'g');
+	%hold on
+	%plot(sampleBitSymb, 'b.');
+	%hold on
+	%plot(real(samplePoints), 'r.')
+	%hold on
+	%plot(real(lockedHere), 'y');
+
+	%figure
+	%plot(real(0.2*exp(1i*2*pi*19000*20*tp)), 'g');
+	%hold on
+	%plot(pilotTone,'r');
+	%hold on
+	%plot(real(vco),'g');
+    %hold on
+    %plot(real(vco3),'b');
 end
 clear samplePoints samplePointsBiphase
 

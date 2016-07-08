@@ -145,7 +145,7 @@ phase = 2*pi*5/12;
 
 %matched filter
 %load('RDSmatched_other.mat');
-load('RDSmatched_other.mat');
+load('RDSmatched.mat');
 b=h.';
 xhist=zeros(length(b),1);
 
@@ -323,8 +323,14 @@ clear bitRate index timeAfterZeroCrossing
 
 draw = 1;
 if draw == 1
-    figure 
+    
+    figure
     plot(abs(fftshift(fft(fmdemod))));
+    title('fmdemod')
+    
+    figure
+    plot(abs(fftshift(fft(mixedsignal))));
+    title('mixedsignal')
     
     %figure 
     %plot(abs(fftshift(fft(vco))),'r');
@@ -345,7 +351,7 @@ if draw == 1
     hold on
     plot(real(vco3),'b');
 end
-clear mixedsignal samplePoints samplePointsBiphase
+clear samplePoints samplePointsBiphase
 
 if draw == 1
 	figure
