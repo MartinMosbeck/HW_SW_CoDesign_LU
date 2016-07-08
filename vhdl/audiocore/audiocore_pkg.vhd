@@ -331,4 +331,22 @@ package audiocore_pkg is
 		validout 	: out std_logic
 	);
 	end component;
+
+	component fixpoint_magnitude is
+	port
+	(
+		clk			: in std_logic;
+		res_n		: in std_logic;
+		valid_in	: in std_logic;
+		data_in		: in fixpoint;
+
+		valid_out	: out std_logic;
+		data_out	: out fixpoint;
+
+		-- durchschleifen von I und Q
+		I_in	: in fixpoint;
+		I_out	: out fixpoint;
+		Q_in	: in fixpoint;
+		Q_out	: out fixpoint;
+	);
 end package audiocore_pkg;
