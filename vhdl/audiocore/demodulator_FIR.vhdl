@@ -34,7 +34,7 @@ architecture behavior of demodulator_FIR is
 	signal filteredI, filteredQ: fixpoint;
 	signal validin_FIRI, validin_FIRQ: std_logic;
 	--normalization-process
-	signal valid_to_FIR: std_logic;
+	signal valid_to_FIR, valid_to_FIRQ: std_logic;
 	signal normalI, normalQ: fixpoint;
 	--sqrt-signale
 	signal data_sqrt_I, data_sqrt_Q, sqrt: fixpoint;
@@ -51,14 +51,6 @@ architecture behavior of demodulator_FIR is
 
 		return result_full(47 downto 16);
 	end function;
-	
-	function fixpoint_div(a,b:fixpoint) return fixpoint is
-				variable result_full : fixpoint_product;
-	begin
-		result_full := a / b;
-
-		return result_full(47 downto 16);
-	end function;
 begin
 
 	prepare_sqrt: process(data_in_I, data_in_Q,validin_I, data_to_sqrt_I_cur, data_to_sqrt_Q_cur, input_to_sqrt_cur)
@@ -71,7 +63,7 @@ begin
 			data_to_sqrt_I_next <= data_in_I;
 			data_to_sqrt_Q_next <= data_in_Q;
 			--Das braucht eventuell 2 Takte
-			input_to_sqrt_next <= fixpoint_mult(data_in_I,data_in_I) + fixpoint_mult(data_in_Q,data_in_Q);
+			input_to_sqrt_next <= (others => '0');--unnötig!!! DER GANZE BLOCK eig--fixpoint_mult(data_in_I,data_in_I) + fixpoint_mult(data_in_Q,data_in_Q);
 			valid_to_sqrt_next <= '1';
 		else
 			valid_to_sqrt_next <= '0';
@@ -84,7 +76,7 @@ begin
 	(
 		clk => clk,
 		res_n => res_n,
-		data_in => input_to_sqrt_cur,
+		data_in => input_to_sqrt_cur,--not used
 		valid_in => valid_to_sqrt_cur,
 		I_in => data_to_sqrt_I_cur,
 		Q_in => data_to_sqrt_Q_cur,
@@ -102,7 +94,7 @@ begin
 		div_in1 => data_sqrt_I,
 		div_in2 => sqrt,
 		validin => validin_sqrt,
-		div_out => normalQ,
+		div_out => normalI,
 		validout => valid_to_FIR
 	);
 	
@@ -115,7 +107,7 @@ begin
 		div_in2 => sqrt,
 		validin => validin_sqrt,
 		div_out => normalQ,
-		validout => valid_to_FIR
+		validout => valid_to_FIRQ
 	);
 
 	filterI : FIRFilter_demod

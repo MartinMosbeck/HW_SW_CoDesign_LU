@@ -27,6 +27,8 @@ architecture behavior of division_block is
 	signal akku_array_cur, akku_array_next: fixpoint_array (62 downto 0) := (others => (others => '0'));
 	signal divisor_array_cur, divisor_array_next: fixpoint_array(62 downto 0);
 	signal dividend_array_cur, dividend_array_next: fixpoint_array(62 downto 0);
+	signal data_out_cur, data_out_next: fixpoint;
+	signal validout_cur, validout_next: std_logic;
 	
 	type double_array is array(natural range <>) of signed(63 downto 0);
 	signal quotient_array_cur, quotient_array_next: double_array(62 downto 0);
@@ -66,14 +68,14 @@ begin
 		
 		--invarianten
 		for i in 1 to 62 loop
-			if(i <= 32 and dividend_array_cur(i-1)(32-i))then
-				akku_tmp(i) <= akku_array_cur(i-1)(31 downto 1) & '1';
+			if(i <= 32 and dividend_array_cur(i-1)(32-i) = '1')then
+				akku_tmp(i) := akku_array_cur(i-1)(31 downto 1) & '1';
 			else
-				akku_tmp(i) <= akku_array_cur(i-1) sll 1;
+				akku_tmp(i) := akku_array_cur(i-1) sll 1;
 			end if;
 			if(divisor_array_cur(i-1) < akku_tmp(i))then
 				quotient_array_next(i) <= quotient_array_cur(i-1)(63 downto 1) & '1';
-				akku_array_next(i) := akku_tmp(i) - divisor_array_cur(i-1);
+				akku_array_next(i) <= akku_tmp(i) - divisor_array_cur(i-1);
 			else
 				quotient_array_next(i) <= quotient_array_cur(i-1) sll 1;
 				akku_array_next(i) <= akku_tmp(i);
@@ -91,6 +93,7 @@ begin
 			data_out_next <= sol;
 			validout_next <= '1';
 		else
+			data_out_next <= data_out_cur;
 			validout_next <= '0';
 		end if;
 	end process do_division;
@@ -104,6 +107,8 @@ begin
 			divisor_array_cur <= (others => (others => '0'));
 			dividend_array_cur <= (others => (others => '0'));
 			quotient_array_cur <= (others => (others => '0'));
+			data_out_cur <= (others => '0');
+			validout_cur <= '0';
 		elsif rising_edge(clk) then
 			--internals
 			sign_array_cur <= sign_array_next;
@@ -112,6 +117,8 @@ begin
 			divisor_array_cur <= divisor_array_next;
 			dividend_array_cur <= dividend_array_next;
 			quotient_array_cur <= quotient_array_next;
+			data_out_cur <= data_out_next;
+			validout_cur <= validout_next;
 
 			--outputs
 			div_out <= data_out_next;
