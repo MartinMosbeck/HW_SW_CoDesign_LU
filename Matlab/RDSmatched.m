@@ -13,7 +13,7 @@
 % h=D.Numerator;
 %--------------------------------------------------------------------------
 
-f_nyquist = (2500000/20)/2;
+f_nyquist = (2500000/10)/2;
 td = 1/1187.5;
 n = 100;
 
@@ -23,7 +23,7 @@ n = 100;
 
 f_break = 2/td;
 
-num_f1 = floor(f_break/n);
+num_f1 = floor(f_break/n)-1;
 num_f2 = floor((f_nyquist-f_break)/n)+1; %+1 because of >2/td
 filterorder=500;
 
