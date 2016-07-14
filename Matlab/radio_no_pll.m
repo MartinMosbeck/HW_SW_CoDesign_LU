@@ -17,93 +17,99 @@ inputdata = textread('dump1.txt','%2c');
 inputdata=hex2dec(char(inputdata));
 end
 %Einlesen und IQ aus Datenpunkten aufbauen
-anzsamp=floor(size(inputdata)/(2^4));%Anz der einzulesenden Datenpunkte
+anzsamp=floor(size(inputdata)/(2^9));%Anz der einzulesenden Datenpunkte
 inputdata=inputdata-127;
 IQ=inputdata(1:2:anzsamp-1)+1i.*inputdata(2:2:anzsamp);
-clear inputdata anzsamp fileID
+clear inputdata fileID
 
-%Mixer
-t=(0:size(IQ)-1)*1/(2.5*10^6);%von 0-IQsize*1/Fs         
-mixedsignal99_9MHz=IQ.*exp(-1i*2*pi*(-0.608*10^6)*t');
-tp = t;
-clear IQ t
 
 %60 kHz lowpass (FIR)
 load('fir_lowpass_1500_60kHz_Fs2500000.mat');
-b=h';
+b60kHzLowpass = h';
+filterState60kHz = zeros(length(b60kHzLowpass)-1, 1);
 
-a = 1;
+load('fir_demodFilter_Fs250000.mat');
+hd = h';
+filterStateDemod = zeros(length(hd)-1, 1);
 
-beforedecsignal=filter(b,a,mixedsignal99_9MHz);
+%lowpass filter for the audio signal
+load('fir_lowpass_400_12kHz_Fs250000.mat');
+b12kHzLowpass = h';
+filterState12kHz = zeros(length(b12kHzLowpass)-1, 1);
 
-clear mixedsignal99_9MHz
+%15Hz lowpass (IIR)
+load('iir_lowpass_20_15Hz_num.mat');
+bIIRLowpass = num.';
+load('iir_lowpass_20_15Hz_den.mat');
+aIIRLowpass = den.';
+filterStateIIR = zeros(length(aIIRLowpass)-1, 1);
 
-%Decimation
-Nth=10;		%take every 10th sample
-decisignal=[1:floor(size(beforedecsignal)/Nth)]';
-for index=1:floor(size(beforedecsignal)/Nth)
-    decisignal(index)=beforedecsignal(index*Nth);
+%decimator parameter (only take every Nth value)
+Nth = 10;
+delay15 = zeros(15, 1);
+phi = 0;
+phiInc = 2*pi*0.6*10^6/fs;
+phiCorr = 0;
+fmdemodCount = 1;
+threshold = 0.1;
+fmdemod = zeros(ceil(length(IQ)/Nth), 1);
+
+for n = 1 : length(IQ)
+	%Mixer
+	mixedsignal99_9MHz = IQ(n) * exp(-1i*phi);
+
+	%60kHz lowpass filtering
+	[lpFiltered filterState60kHz] = filter(b60kHzLowpass, 1, mixedsignal99_9MHz, filterState60kHz);
+
+	%FM Demodulation
+	if lpFiltered ~= 0
+		dl = lpFiltered./abs(lpFiltered);
+	else
+		dl = 0;
+	end
+
+	[signal filterStateDemod] = filter(hd, 1, dl, filterStateDemod);
+	delayOut = delay15(15);
+	delay15 = circshift(delay15, [1, 0]);
+	delay15(1) = dl;
+	demod = imag(signal*conj(delayOut));
+
+	%lowpass filter the demodulated signal below 15Hz and feed it back to the mixer as frequency correction
+	[feedback filterStateIIR] = filter(bIIRLowpass, aIIRLowpass, demod, filterStateIIR);
+
+	phiCorr = phiCorr + 2*pi*feedback/(fs);
+
+	if mod(n,Nth) == 0
+		fmdemod(fmdemodCount) = demod;
+		fmdemodCount = fmdemodCount + 1;
+	end
+
+	%print progress to console
+	if mod(n, Nth*100) == 0
+		fmdemodCount
+	end
+
+	phi = phi + phiInc + phiCorr;
 end
 fs = fs/Nth;
 
-clear beforedecsignal
-
-
-%taken from web.stanford.edu/class/ee179/labs/Lab5.html
-dl = decisignal./abs(decisignal);
-%differentiator filter for the fmdemodulation
-hd = firls(30,[0 60000 61000 fs/2]/(fs/2), [0 1 0 0], 'differentiator');
-
-%fvtool(hd);
-
-signal = filter(hd, 1, dl);
-signal(length(dl):length(dl)+15) = 0;
-fmdemod = imag(signal(16:length(dl)+15).*conj(dl));
-
-clear decisignal dl signal hd b a
-
-
-%%lowpass filter the audio signal
-%load('fir_lowpass_400_12kHz_Fs125000.mat');
-%b=h';
-%a = 1;
-%filteredtonsignal=filter(b,a,fmdemod);
-%
-%sound(filteredtonsignal, fs);
-
-%clear up the audio signals
-clear a b xhist yhist index filteredtonsignal
-
-
+%12kHz filtering for audio output
+filteredtonsignal = filter(b12kHzLowpass, 1, fmdemod);
+sound(filteredtonsignal, 200000);
+plot(fftshift(abs(fft(fmdemod))));
 %RDS from fmdemod
+%clear filteredtonsignal
 
 if AUDIO_ONLY == 0
-%synchronization with respect to the 19kHz pilot tone
-%retrieve the pilot tone
-load('fir_bandpass_500_19kHz_Fs250000.mat');
-b=h.';
-a = 1;
-pilotTone = filter(b,a,fmdemod);
-clear a b
-
-%the PLL has trouble handling the pilot tone, when the pilot tone's size differs too much from its own output
-pilotTone = 2*pilotTone;
 
 symbolRate = 1187.5;
 bitRate = 2*symbolRate;
 bitDur = floor(fs/(bitRate));
-vcoRiseEdgeCounter = 0;
-bitDurInVcoEdges = 19000/bitRate;	%number of rising edges of the 19kHz vco during a bit duration
 
 %matched filter
-%load('RDSmatched_other.mat');
 load('RDSmatched_Fs250000.mat');
 b=h.';
 xhist=zeros(length(b),1);
-
-load('fir_lowpass_400_2kHz_Fs125000.mat');
-bLow=h.';
-xhistLow=zeros(length(bLow),1);
 
 PHASE_STEPS = 1;
 
