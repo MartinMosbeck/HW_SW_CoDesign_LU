@@ -34,8 +34,8 @@ architecture behavior of demodulator_FIR is
 	signal filteredI, filteredQ: fixpoint;
 	signal validin_FIRI, validin_FIRQ: std_logic;
 	--normalization-process
-	signal valid_to_FIR_cur, valid_to_FIR_next: std_logic;
-	signal normalI_cur, normalI_next, normalQ_cur, normalQ_next: fixpoint;
+	signal valid_to_FIR: std_logic;
+	signal normalI, normalQ: fixpoint;
 	--sqrt-signale
 	signal data_sqrt_I, data_sqrt_Q, sqrt: fixpoint;
 	signal validin_sqrt: std_logic;
@@ -94,30 +94,37 @@ begin
 		Q_out => data_sqrt_Q
 	);
 	
-	do_normalization: process(data_sqrt_I, data_sqrt_Q, sqrt, validin_sqrt, normalI_cur, normalQ_cur)
-	begin
-		normalI_next <= normalI_cur;
-		normalQ_next <= normalQ_cur;
-
-		if(validin_sqrt = '1') then
-			--Das wird sicher länger als einen Takt brauchen
-			-- und musst auch eine fixpoint_div sein
-			normalI_next <= fixpoint_div(data_sqrt_I,sqrt);
-			normalQ_next <= fixpoint_div(data_sqrt_Q,sqrt);
-			valid_to_FIR_next <= '1';
-		else
-			valid_to_FIR_next <= '0';
-		end if;
-		
-	end process do_normalization;
+	divI: division_block
+	port map
+	(
+		clk => clk,
+		res_n => res_n,
+		div_in1 => data_sqrt_I,
+		div_in2 => sqrt,
+		validin => validin_sqrt,
+		div_out => normalQ,
+		validout => valid_to_FIR
+	);
+	
+	divQ: division_block
+	port map
+	(
+		clk => clk,
+		res_n => res_n,
+		div_in1 => data_sqrt_Q,
+		div_in2 => sqrt,
+		validin => validin_sqrt,
+		div_out => normalQ,
+		validout => valid_to_FIR
+	);
 
 	filterI : FIRFilter_demod
 	port map
 	(
 		clk => clk,
 		res_n => res_n,
-		data_in => normalI_cur,
-		validin => valid_to_FIR_cur,
+		data_in => normalI,
+		validin => valid_to_FIR,
 		data_out => filteredI,
 		validout => validin_FIRI
 	);
@@ -126,16 +133,16 @@ begin
 	(
 		clk => clk,
 		res_n => res_n,
-		data_in => normalQ_cur,
-		validin => valid_to_FIR_cur,
+		data_in => normalQ,
+		validin => valid_to_FIR,
 		data_out => filteredQ,
 		validout => validin_FIRQ
 	);
 	
-	do_demodulation: process (filteredQ,filteredI,validintern_cur,data1_cur,data2_cur, normalI_array_cur, normalQ_array_cur, normalI_cur, normalQ_cur, data_out_cur, validin_FIRI)
+	do_demodulation: process (filteredQ,filteredI,validintern_cur,data1_cur,data2_cur, normalI_array_cur, normalQ_array_cur, normalI, normalQ, data_out_cur, validin_FIRI)
 	begin
-		normalI_array_next(0) <= normalI_cur;
-		normalQ_array_next(0) <= normalQ_cur;
+		normalI_array_next(0) <= normalI;
+		normalQ_array_next(0) <= normalQ;
 		normalI_array_next(max downto 1) <= normalI_array_cur(max-1 downto 0);
 		normalQ_array_next(max downto 1) <= normalQ_array_cur(max-1 downto 0);
 		data_out_next <= data_out_cur;
@@ -174,11 +181,7 @@ begin
 			validintern_cur <= '0';
 			normalI_array_cur <= (others =>  (others => '0'));
 			normalQ_array_cur <= (others =>  (others => '0'));
-			
-			valid_to_FIR_cur <= '0';
-			normalI_cur <= (others => '0');
-			normalQ_cur <= (others => '0');
-			
+
 			data_to_sqrt_I_cur <= (others => '0');
 			data_to_sqrt_Q_cur <= (others => '0');
 			input_to_sqrt_cur <= (others => '0');
@@ -194,11 +197,7 @@ begin
 				validintern_cur <= validintern_next;
 				normalI_array_cur <= normalQ_array_next;
 				normalQ_array_cur <= normalQ_array_next;
-				
-				valid_to_FIR_cur <= valid_to_FIR_next;
-				normalI_cur <= normalI_next;
-				normalQ_cur <= normalQ_next;
-				
+
 				data_to_sqrt_I_cur <= data_to_sqrt_I_next;
 				data_to_sqrt_Q_cur <= data_to_sqrt_Q_next;
 				input_to_sqrt_cur <= input_to_sqrt_next;

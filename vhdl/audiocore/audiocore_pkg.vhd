@@ -380,4 +380,19 @@ package audiocore_pkg is
 		validout : out std_logic
 	);
 	end component;
+	
+	component division_block is
+	port 
+	(
+		clk : in std_logic;
+		res_n : in std_logic;
+
+		div_in1 : in fixpoint;
+		div_in2 : in fixpoint;
+		validin : in std_logic;
+
+		div_out : out fixpoint;
+		validout : out std_logic
+	);
+	end component;
 end package audiocore_pkg;
