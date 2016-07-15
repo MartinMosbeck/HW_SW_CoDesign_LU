@@ -21,6 +21,23 @@ float zeigeFixpoint(uint32_t x){
 	return zahl;
 }
 
+void printBin(uint64_t* x, int u64){
+	int i,grenze=31;
+	char ausgabe[65];
+	if(u64){
+		grenze=63;
+	}
+	for(i=grenze;i>=0;--i){
+		if(x[i]){
+			ausgabe[grenze-i]='1';
+		}else{
+			ausgabe[grenze-i]='0';
+		}
+	}
+	ausgabe[grenze-i]='\0';
+	printf("%s",ausgabe);
+}
+
 //Mit signconvert, was unsere FPGA-HW auch macht
 int fixpoint_mult(int a, int b){
 	long ergebnis=(long)a*(long)b;
@@ -59,19 +76,34 @@ int main(int argc, char *argv[]){
 	}
 	sign=sign1 ^ sign2; //XOR
 	
+	printf("dividend:");
+	printBin(&dividend,0);
+	printf("\ndivisor:");
+	printBin(&divisor,0);
+	printf("\n");
+	
 	//Eigentliche DIV
 	int i;
 	for(i=63; i>=0; i--){
+		printf("Schritt %i:\n",64-i);
 		if(i>31 && (dividend&1<<(i-32))){
 			akku= (akku<<1) | 1;//am Ende die nächste Zahl durch
 		}else{
 			akku=(akku<<1);
 		}
+		printf("AKKU:");
+		printBin(&akku,0);
 		quotient = quotient << 1;
+		printf("\nQUOTIENT:");
+		printBin(&quotient,1);
 		if(divisor<akku){
+			printf("\ndiv<akku\n");
 			quotient = quotient | 1;
 			akku = akku - divisor;
+			printf("QUOTIENT:");
+			printBin(&quotient,1);
 		}
+		printf("\n");
 	}
 	
 	sol=(quotient>>16);
