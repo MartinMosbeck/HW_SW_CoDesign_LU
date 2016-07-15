@@ -1,7 +1,7 @@
 clear
 close all
 
-AUDIO_ONLY = 0;		%skips the RDS part
+AUDIO_ONLY = 1;		%skips the RDS part
 fs = 2.5*10^6;
 debugread=0;
 if debugread==0
@@ -77,7 +77,7 @@ for n = 1 : length(IQ)
 	%lowpass filter the demodulated signal below 15Hz and feed it back to the mixer as frequency correction
 	[feedback filterStateIIR] = filter(bIIRLowpass, aIIRLowpass, demod, filterStateIIR);
 
-	phiCorr = phiCorr + 2*pi*feedback/(fs);
+	phiCorr = phiCorr - 0.00000001*2*pi*feedback/(fs);
 
 	if mod(n,Nth) == 0
 		fmdemod(fmdemodCount) = demod;
