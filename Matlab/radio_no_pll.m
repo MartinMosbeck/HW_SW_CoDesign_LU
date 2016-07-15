@@ -1,7 +1,7 @@
 clear
 close all
 
-AUDIO_ONLY = 1;		%skips the RDS part
+AUDIO_ONLY = 0;		%skips the RDS part
 fs = 2.5*10^6;
 debugread=0;
 if debugread==0
@@ -17,7 +17,7 @@ inputdata = textread('dump1.txt','%2c');
 inputdata=hex2dec(char(inputdata));
 end
 %Einlesen und IQ aus Datenpunkten aufbauen
-anzsamp=floor(size(inputdata)/(2^9));%Anz der einzulesenden Datenpunkte
+anzsamp=floor(size(inputdata)/(2^5));%Anz der einzulesenden Datenpunkte
 inputdata=inputdata-127;
 IQ=inputdata(1:2:anzsamp-1)+1i.*inputdata(2:2:anzsamp);
 clear inputdata fileID
@@ -38,11 +38,12 @@ b12kHzLowpass = h';
 filterState12kHz = zeros(length(b12kHzLowpass)-1, 1);
 
 %15Hz lowpass (IIR)
-load('iir_lowpass_20_15Hz_num.mat');
+load('iir_lowpass_15Hz_Fs250000num.mat');
 bIIRLowpass = num.';
-load('iir_lowpass_20_15Hz_den.mat');
+load('iir_lowpass_15Hz_Fs250000den.mat');
 aIIRLowpass = den.';
-filterStateIIR = zeros(length(aIIRLowpass)-1, 1);
+filterStateLength = max(length(aIIRLowpass), length(bIIRLowpass))-1;
+filterStateIIR = zeros(filterStateLength, 1);
 
 %decimator parameter (only take every Nth value)
 Nth = 10;
@@ -54,12 +55,15 @@ fmdemodCount = 1;
 threshold = 0.1;
 fmdemod = zeros(ceil(length(IQ)/Nth), 1);
 
+%factor for the frequency correction (controller parameter)
+FREQ_CORR_I = 0.1;
+
 for n = 1 : length(IQ)
 	%Mixer
 	mixedsignal99_9MHz = IQ(n) * exp(-1i*phi);
 
 	%60kHz lowpass filtering
-	[lpFiltered filterState60kHz] = filter(b60kHzLowpass, 1, mixedsignal99_9MHz, filterState60kHz);
+	[lpFiltered, filterState60kHz] = filter(b60kHzLowpass, 1, mixedsignal99_9MHz, filterState60kHz);
 
 	%FM Demodulation
 	if lpFiltered ~= 0
@@ -68,16 +72,16 @@ for n = 1 : length(IQ)
 		dl = 0;
 	end
 
-	[signal filterStateDemod] = filter(hd, 1, dl, filterStateDemod);
+	[signal, filterStateDemod] = filter(hd, 1, dl, filterStateDemod);
 	delayOut = delay15(15);
 	delay15 = circshift(delay15, [1, 0]);
 	delay15(1) = dl;
 	demod = imag(signal*conj(delayOut));
 
 	%lowpass filter the demodulated signal below 15Hz and feed it back to the mixer as frequency correction
-	[feedback filterStateIIR] = filter(bIIRLowpass, aIIRLowpass, demod, filterStateIIR);
+	[feedback, filterStateIIR] = filter(bIIRLowpass, aIIRLowpass, demod, filterStateIIR);
 
-	phiCorr = phiCorr - 0.00000001*2*pi*feedback/(fs);
+	phiCorr = phiCorr + FREQ_CORR_I*2*pi*feedback/(fs);
 
 	if mod(n,Nth) == 0
 		fmdemod(fmdemodCount) = demod;
@@ -96,7 +100,42 @@ fs = fs/Nth;
 %12kHz filtering for audio output
 filteredtonsignal = filter(b12kHzLowpass, 1, fmdemod);
 sound(filteredtonsignal, 200000);
-plot(fftshift(abs(fft(fmdemod))));
+
+%--------------------------------------------------------
+%signal processingn without the mixer feedback
+t=(0:size(IQ)-1)*1/(2.5*10^6);%von 0-IQsize*1/Fs         
+mixed_alt = IQ.*exp(-1i*2*pi*(-0.6*10^6)*t');
+
+%60 kHz lowpass (FIR)
+beforedecsignal=filter(b60kHzLowpass, 1, mixed_alt);
+clear mixed_alt t
+
+%Decimation
+Nth=10;		%take every 10th sample
+decisignal=[1:floor(size(beforedecsignal)/Nth)]';
+for index=1:floor(size(beforedecsignal)/Nth)
+    decisignal(index)=beforedecsignal(index*Nth);
+end
+clear beforedecsignal
+dl = decisignal./abs(decisignal);
+signal = filter(hd, 1, dl);
+signal(length(dl):length(dl)+15) = 0;
+fmdemod_alt = imag(signal(16:length(dl)+15).*conj(dl));
+%--------------------------------------------------------
+
+%comparison between the mixing with and without feedback
+Y = fft(fmdemod);
+Y = abs(Y(1:ceil(length(Y)/2)));
+f = fs*(0:length(Y)-1)/(2*length(Y));
+figure
+plot(f, Y, 'r');
+
+Y_alt = fft(fmdemod_alt);
+Y_alt = abs(Y_alt(1:ceil(length(Y_alt)/2)));
+f = fs*(0:length(Y_alt)-1)/(2*length(Y_alt));
+figure
+plot(f, Y_alt, 'b');
+
 %RDS from fmdemod
 %clear filteredtonsignal
 
@@ -114,9 +153,9 @@ xhist=zeros(length(b),1);
 PHASE_STEPS = 1;
 
 f = 57000;
-samplePoints = zeros(size(pilotTone)) - 0.3;
-samplePointsBiphase = zeros(size(pilotTone)) - 0.3;
-biphasesymbols=zeros(ceil(length(pilotTone)/(bitDur)), 1, PHASE_STEPS);
+samplePoints = zeros(size(fmdemod)) - 0.3;
+samplePointsBiphase = zeros(size(fmdemod)) - 0.3;
+biphasesymbols=zeros(ceil(length(fmdemod)/(bitDur)), 1, PHASE_STEPS);
 biphaseindex=1;
 samples = zeros(100,1);	%samples during one bit clock
 sampleCounter = 1;
@@ -127,14 +166,14 @@ startOfSymbol = 1;
 symbols = zeros(ceil(size(biphasesymbols,1)/2), 1, PHASE_STEPS);
 symbolsIndex = 1;
 index=1;
-sampleInt = zeros(size(pilotTone)) - 0.3;
+sampleInt = zeros(size(fmdemod)) - 0.3;
 sampleDur = floor(9/16*bitDur);
 validThreshold = 0.01;
 bitsymbolsIndex = 1;
 bitsymbols = zeros(ceil(size(biphasesymbols,1)/2),1) - 1;
-sampleBitSymb = zeros(size(pilotTone)) - 0.3;
-lockedHere = zeros(size(pilotTone));
-mixedsignal = zeros(length(pilotTone), bitDurInVcoEdges, PHASE_STEPS);
+sampleBitSymb = zeros(size(fmdemod)) - 0.3;
+lockedHere = zeros(size(fmdemod));
+mixedsignal = zeros(length(fmdemod), 8, PHASE_STEPS);
 
 PPhaseOut = 0;
 IPhaseOut = 0;
@@ -153,9 +192,9 @@ phaseCorr = 0;
 deltaPhiAvg = 0;
 feedback = 0;
 
-zeroCrossings = zeros(size(pilotTone));
+zeroCrossings = zeros(size(fmdemod));
 
-for n=2:length(pilotTone) 
+for n=2:length(fmdemod) 
 	%mixing
 	mixedsignal(n, k, phSteps) = fmdemod(n) * exp(-1i*phi);
 
@@ -163,11 +202,6 @@ for n=2:length(pilotTone)
 	xhist=circshift(xhist,[1,0]);
 	xhist(1)=mixedsignal(n, k, phSteps);
 	mixedsignal(n, k, phSteps)=sum(xhist.*b);
-
-	%additional low pass filter (cutoff at around 2kHz)
-	%xhistLow=circshift(xhistLow,[1,0]);
-	%xhistLow(1)=mixedsignal(n);
-	%mixedsignal(n)=sum(xhistLow.*bLow);
 
 	%apply actual phase correction only after mixing and matched filtering
 	mixedsignal(n, k, phSteps) = mixedsignal(n, k, phSteps) * exp(1i*phaseCorr);
@@ -183,13 +217,8 @@ for n=2:length(pilotTone)
 		a = sign(real(mixedsignal(n)));
 		feedback = angle(a*mixedsignal(n));
 
-		%delta_phi = angle(mixedsignal(n, k, phSteps));
-		%if real(mixedsignal(n, k, phSteps))>0
-		%	feedback_source = wrapToPi(delta_phi);  
-		%else
-		%	feedback_source = -(pi - wrapTo2Pi(delta_phi)) ;     
-		%end
-
+		% stuff from the other group
+		
 		if sign(feedback) ~= sign(deltaPhiAvg)
 			 deltaPhiAvg = -deltaPhiAvg;
 		end
@@ -285,8 +314,6 @@ if draw == 1
 
 	%figure
 	%plot(real(0.2*exp(1i*2*pi*19000*20*tp)), 'g');
-	%hold on
-	%plot(pilotTone,'r');
 	%hold on
 	%plot(real(vco),'g');
     %hold on
