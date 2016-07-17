@@ -1,2 +1,4 @@
 .) PLL from:
 http://www.mathworks.com/matlabcentral/fileexchange/24167-simple-pll-demostration/content/simple_PLL.m
+.) Costas loop design from:
+https://www.mathworks.com/matlabcentral/fileexchange/32956-costas-loop/content/Costas_loop.m

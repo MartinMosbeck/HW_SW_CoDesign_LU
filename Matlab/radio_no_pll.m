@@ -58,43 +58,43 @@ fmdemod = zeros(ceil(length(IQ)/Nth), 1);
 %factor for the frequency correction (controller parameter)
 FREQ_CORR_I = 0.1;
 
-for n = 1 : length(IQ)
-	%Mixer
-	mixedsignal99_9MHz = IQ(n) * exp(-1i*phi);
-
-	%60kHz lowpass filtering
-	[lpFiltered, filterState60kHz] = filter(b60kHzLowpass, 1, mixedsignal99_9MHz, filterState60kHz);
-
-	%FM Demodulation
-	if lpFiltered ~= 0
-		dl = lpFiltered./abs(lpFiltered);
-	else
-		dl = 0;
-	end
-
-	[signal, filterStateDemod] = filter(hd, 1, dl, filterStateDemod);
-	delayOut = delay15(15);
-	delay15 = circshift(delay15, [1, 0]);
-	delay15(1) = dl;
-	demod = imag(signal*conj(delayOut));
-
-	%lowpass filter the demodulated signal below 15Hz and feed it back to the mixer as frequency correction
-	[feedback, filterStateIIR] = filter(bIIRLowpass, aIIRLowpass, demod, filterStateIIR);
-
-	phiCorr = phiCorr + FREQ_CORR_I*2*pi*feedback/(fs);
-
-	if mod(n,Nth) == 0
-		fmdemod(fmdemodCount) = demod;
-		fmdemodCount = fmdemodCount + 1;
-	end
-
-	%print progress to console
-	if mod(n, Nth*100) == 0
-		fmdemodCount
-	end
-
-	phi = phi + phiInc + phiCorr;
-end
+%for n = 1 : length(IQ)
+%	%Mixer
+%	mixedsignal99_9MHz = IQ(n) * exp(-1i*phi);
+%
+%	%60kHz lowpass filtering
+%	[lpFiltered, filterState60kHz] = filter(b60kHzLowpass, 1, mixedsignal99_9MHz, filterState60kHz);
+%
+%	%FM Demodulation
+%	if lpFiltered ~= 0
+%		dl = lpFiltered./abs(lpFiltered);
+%	else
+%		dl = 0;
+%	end
+%
+%	[signal, filterStateDemod] = filter(hd, 1, dl, filterStateDemod);
+%	delayOut = delay15(15);
+%	delay15 = circshift(delay15, [1, 0]);
+%	delay15(1) = dl;
+%	demod = imag(signal*conj(delayOut));
+%
+%	%lowpass filter the demodulated signal below 15Hz and feed it back to the mixer as frequency correction
+%	[feedback, filterStateIIR] = filter(bIIRLowpass, aIIRLowpass, demod, filterStateIIR);
+%
+%	phiCorr = phiCorr + FREQ_CORR_I*2*pi*feedback/(fs);
+%
+%	if mod(n,Nth) == 0
+%		fmdemod(fmdemodCount) = demod;
+%		fmdemodCount = fmdemodCount + 1;
+%	end
+%
+%	%print progress to console
+%	if mod(n, Nth*100) == 0
+%		fmdemodCount
+%	end
+%
+%	phi = phi + phiInc + phiCorr;
+%end
 fs = fs/Nth;
 
 %12kHz filtering for audio output
@@ -121,20 +121,22 @@ dl = decisignal./abs(decisignal);
 signal = filter(hd, 1, dl);
 signal(length(dl):length(dl)+15) = 0;
 fmdemod_alt = imag(signal(16:length(dl)+15).*conj(dl));
+fmdemod = fmdemod_alt;
+clear fmdemod_alt
 %--------------------------------------------------------
 
-%comparison between the mixing with and without feedback
-Y = fft(fmdemod);
-Y = abs(Y(1:ceil(length(Y)/2)));
-f = fs*(0:length(Y)-1)/(2*length(Y));
-figure
-plot(f, Y, 'r');
-
-Y_alt = fft(fmdemod_alt);
-Y_alt = abs(Y_alt(1:ceil(length(Y_alt)/2)));
-f = fs*(0:length(Y_alt)-1)/(2*length(Y_alt));
-figure
-plot(f, Y_alt, 'b');
+%%comparison between the mixing with and without feedback
+%Y = fft(fmdemod);
+%Y = abs(Y(1:ceil(length(Y)/2)));
+%f = fs*(0:length(Y)-1)/(2*length(Y));
+%figure
+%plot(f, Y, 'r');
+%
+%Y_alt = fft(fmdemod_alt);
+%Y_alt = abs(Y_alt(1:ceil(length(Y_alt)/2)));
+%f = fs*(0:length(Y_alt)-1)/(2*length(Y_alt));
+%figure
+%plot(f, Y_alt, 'b');
 
 %RDS from fmdemod
 %clear filteredtonsignal
@@ -174,6 +176,11 @@ bitsymbols = zeros(ceil(size(biphasesymbols,1)/2),1) - 1;
 sampleBitSymb = zeros(size(fmdemod)) - 0.3;
 lockedHere = zeros(size(fmdemod));
 mixedsignal = zeros(length(fmdemod), 8, PHASE_STEPS);
+phiC = zeros(length(fmdemod),1);
+s1 = zeros(length(fmdemod),1); 
+s2 = zeros(length(fmdemod),1);
+y1 = zeros(length(fmdemod),1);
+y2 = zeros(length(fmdemod),1);
 
 PPhaseOut = 0;
 IPhaseOut = 0;
@@ -194,6 +201,8 @@ feedback = 0;
 
 zeroCrossings = zeros(size(fmdemod));
 
+fc = symbolRate;
+
 for n=2:length(fmdemod) 
 	%mixing
 	mixedsignal(n, k, phSteps) = fmdemod(n) * exp(-1i*phi);
@@ -205,6 +214,37 @@ for n=2:length(fmdemod)
 
 	%apply actual phase correction only after mixing and matched filtering
 	mixedsignal(n, k, phSteps) = mixedsignal(n, k, phSteps) * exp(1i*phaseCorr);
+
+	%experimental costas loop design
+
+		
+		if n>1
+	% The step in which phase is changed is pi*5*10*-5, it can be varied.        
+			phiC(n) = phiC(n-1) - (5*10^-5)*pi*sign(y1(n-1)*y2(n-1));
+		end
+		
+		s1(n) = mixedsignal(n, k, phSteps) * cos(2*pi*fc*n/fs  + phiC(n));
+		s2(n) = mixedsignal(n, k, phSteps) * sin(2*pi*fc*n/fs  + phiC(n));
+
+	% -----------------------INTEGRATOR------------------------------------
+		if n<=100
+	%  If sample index is less than 100 (Tc/Ts) then we sum available previous
+	%  samples
+			for j=1:n
+				y1(n) = y1(n) + s1(j);
+				y2(n) = y2(n) + s2(j);
+			end
+		  
+		else
+	% Summing previous 100 (Tc/Ts) values        
+			for j = n-99:n
+				y1(n) = y1(n) + s1(j);
+				y2(n) = y2(n) + s2(j);
+			end
+		end
+		mixedsignal(n) = y1(n);
+		mixedsignal(n) = mixedsignal(n) + 1i*y2(n);
+	%----------------------------------------------------------------------    
 	
 	%detect zero-crossing in the mixed signal
 	if(real(mixedsignal(n-1)) > 0 && real(mixedsignal(n)) < 0) || (real(mixedsignal(n-1)) < 0 && real(mixedsignal(n)) > 0)
