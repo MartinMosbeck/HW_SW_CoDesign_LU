@@ -43,8 +43,8 @@ begin
 		sign_array_next(62 downto 1) <= sign_array_cur(61 downto 0);
 		dividend_array_next(62 downto 1) <= dividend_array_cur(61 downto 0);
 		divisor_array_next(62 downto 1) <= divisor_array_cur(61 downto 0);
-		quotient_array_next(0)<= (others => '0');--?
-		akku_array_next(0)<= (others => '0');--?
+		quotient_array_next(0)<= (others => '0');
+		akku_array_next(0)<= (others => '0');
 
 		--Init
 		if(validin = '1') then
