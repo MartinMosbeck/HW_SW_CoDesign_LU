@@ -41,6 +41,10 @@ begin
 	begin
 		valid_array_next(62 downto 1)<= valid_array_cur(61 downto 0);
 		sign_array_next(62 downto 1) <= sign_array_cur(61 downto 0);
+		dividend_array_next(62 downto 1) <= dividend_array_cur(61 downto 0);
+		divisor_array_next(62 downto 1) <= divisor_array_cur(61 downto 0);
+		quotient_array_next(0)<= (others => '0');--?
+		akku_array_next(0)<= (others => '0');--?
 
 		--Init
 		if(validin = '1') then
@@ -50,12 +54,14 @@ begin
 				in1:=not(div_in1 - 1);
 			else
 				sign1:='0';
+				in1:=div_in1;
 			end if;
 			if(div_in2(31)='1')then
 				sign2:='1';
-				in2:=not(div_in1 - 1);
+				in2:=not(div_in2 - 1);
 			else
 				sign2:='0';
+				in2:=div_in2;
 			end if;
 			sign_array_next(0) <= sign1 xor sign2;
 			dividend_array_next(0) <= in1;
@@ -63,21 +69,24 @@ begin
 			
 			valid_array_next(0) <= '1';
 		else
+			sign_array_next(0) <= '0';
+			dividend_array_next(0) <= (others => '0');
+			divisor_array_next(0) <= (others => '0');
 			valid_array_next(0) <= '0';
 		end if;
 		
 		--invarianten
 		for i in 1 to 62 loop
 			if(i <= 32 and dividend_array_cur(i-1)(32-i) = '1')then
-				akku_tmp(i) := akku_array_cur(i-1)(31 downto 1) & '1';
+				akku_tmp(i) := akku_array_cur(i-1)(30 downto 0) & '1';
 			else
-				akku_tmp(i) := akku_array_cur(i-1) sll 1;
+				akku_tmp(i) := akku_array_cur(i-1)(30 downto 0) & '0';
 			end if;
 			if(divisor_array_cur(i-1) < akku_tmp(i))then
-				quotient_array_next(i) <= quotient_array_cur(i-1)(63 downto 1) & '1';
+				quotient_array_next(i) <= quotient_array_cur(i-1)(62 downto 0) & '1';
 				akku_array_next(i) <= akku_tmp(i) - divisor_array_cur(i-1);
 			else
-				quotient_array_next(i) <= quotient_array_cur(i-1) sll 1;
+				quotient_array_next(i) <= quotient_array_cur(i-1)(62 downto 0) & '0';
 				akku_array_next(i) <= akku_tmp(i);
 			end if;
 		end loop;
