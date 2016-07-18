@@ -39,7 +39,7 @@ beforedecsignal=filter(b,a,mixedsignal99_9MHz);
 clear mixedsignal99_9MHz
 
 %Decimation
-Nth=20;		%take every 20th sample
+Nth=10;		%take every 20th sample
 decisignal=[1:floor(size(beforedecsignal)/Nth)]';
 for index=1:floor(size(beforedecsignal)/Nth)
     decisignal(index)=beforedecsignal(index*Nth);
@@ -64,7 +64,7 @@ clear decisignal dl signal hd b a
 
 
 %lowpass filter the audio signal
-load('fir_lowpass_400_12kHz_Fs125000.mat');
+load('fir_lowpass_400_12kHz_Fs250000.mat');
 b=h';
 a = 1;
 filteredtonsignal=filter(b,a,fmdemod);
