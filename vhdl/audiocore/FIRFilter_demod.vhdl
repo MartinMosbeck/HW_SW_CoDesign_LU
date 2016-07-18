@@ -31,21 +31,73 @@ architecture behavior of FIRFilter_demod is
 	
 	--FIR-FILTER: Nachfolgend die Filterordnung eintragen und die Koeffizienten b[x]
 	--Koeffizienten in der Form 16 Vorkomma/16 Nachkomma Stellen Zweierkomplement Fixpunkt
-	constant order: natural := 4;
+	constant order: natural := 30;
 	function b(index:index) 
 		return fixpoint is
 	begin 
 		case index is
-		     when 0 =>
-			    return "00000000000000000000000001001010";
-		    when 1 =>
-			    return "11111111111111111111111100001000";
-		    when 2 =>
-			    return "00000000000000000000000101100000";
-		    when 3 =>
-			    return "11111111111111111111111100001000";
-		    when 4 =>
-			    return "00000000000000000000000001001010";
+		    when 0 =>
+					return "00000000000000000000000011011100";
+			when 1 =>
+					return "11111111111111111111110111011101";
+			when 2 =>
+					return "00000000000000000000001011100110";
+			when 3 =>
+					return "11111111111111111111110001010011";
+			when 4 =>
+					return "00000000000000000000010010001100";
+			when 5 =>
+					return "11111111111111111111101001110011";
+			when 6 =>
+					return "00000000000000000000011010111110";
+			when 7 =>
+					return "11111111111111111111011111010010";
+			when 8 =>
+					return "00000000000000000000100111111000";
+			when 9 =>
+					return "11111111111111111111001110111010";
+			when 10 =>
+					return "00000000000000000000111101100110";
+			when 11 =>
+					return "11111111111111111110110000001101";
+			when 12 =>
+					return "00000000000000000001101101010101";
+			when 13 =>
+					return "11111111111111111101011000110100";
+			when 14 =>
+					return "00000000000000000101010010001110";
+			when 15 =>
+					return "00000000000000000000000000000000";
+			when 16 =>
+					return "11111111111111111010101101110010";
+			when 17 =>
+					return "00000000000000000010100111001100";
+			when 18 =>
+					return "11111111111111111110010010101011";
+			when 19 =>
+					return "00000000000000000001001111110011";
+			when 20 =>
+					return "11111111111111111111000010011010";
+			when 21 =>
+					return "00000000000000000000110001000110";
+			when 22 =>
+					return "11111111111111111111011000001000";
+			when 23 =>
+					return "00000000000000000000100000101110";
+			when 24 =>
+					return "11111111111111111111100101000010";
+			when 25 =>
+					return "00000000000000000000010110001101";
+			when 26 =>
+					return "11111111111111111111101101110100";
+			when 27 =>
+					return "00000000000000000000001110101101";
+			when 28 =>
+					return "11111111111111111111110100011010";
+			when 29 =>
+					return "00000000000000000000001000100011";
+			when 30 =>
+					return "11111111111111111111111100100100";
 		    when others=> return x"FFFFFFFF";
 		end case;
 	end function;
