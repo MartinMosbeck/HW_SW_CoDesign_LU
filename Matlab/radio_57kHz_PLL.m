@@ -22,6 +22,12 @@ inputdata=inputdata-127;
 IQ=inputdata(1:2:anzsamp-1)+1i.*inputdata(2:2:anzsamp);
 clear inputdata fileID
 
+	Y_IQ = fft(IQ);
+	Y_IQ = abs(Y_IQ(1:ceil(length(Y_IQ)/2)));
+	f = fs*(0:length(Y_IQ)-1)/(2*length(Y_IQ));
+	figure
+	plot(f, Y_IQ, 'b');
+	title('spectrum of IQ');
 
 %60 kHz lowpass (FIR)
 load('fir_lowpass_1500_60kHz_Fs2500000.mat');
@@ -58,6 +64,7 @@ filterState114kHz = zeros(length(b114kHzBandpass)-1, 1);
 load('fir_lowpass_500_57kHz_Fs250000.mat');
 b57kHzLowpass = h';
 filterState57kHz = zeros(length(b57kHzLowpass)-1, 1);
+filterState57kHzVco = zeros(length(b57kHzLowpass)-1, 1);
 
 %decimator parameter (only take every Nth value)
 Nth = 10;
@@ -109,7 +116,6 @@ FREQ_CORR_I = 0.1;
 %
 %	phi = phi + phiInc + phiCorr;
 %end
-fs = fs/Nth;
 
 %%12kHz filtering for audio output
 %filteredtonsignal = filter(b12kHzLowpass, 1, fmdemod);
@@ -120,6 +126,15 @@ fs = fs/Nth;
 t=(0:size(IQ)-1)*1/(2.5*10^6);%von 0-IQsize*1/Fs         
 mixed_alt = IQ.*exp(-1i*2*pi*(-0.6*10^6)*t');
 
+
+	Y_mixed_alt = fft(mixed_alt);
+	Y_mixed_alt = abs(Y_mixed_alt(1:ceil(length(Y_mixed_alt)/2)));
+	f = fs*(0:length(Y_mixed_alt)-1)/(2*length(Y_mixed_alt));
+	figure
+	plot(f, Y_mixed_alt, 'b');
+	title('spectrum of mixed_alt');
+
+fs = fs/Nth;
 %60 kHz lowpass (FIR)
 beforedecsignal=filter(b60kHzLowpass, 1, mixed_alt);
 clear mixed_alt t
@@ -136,6 +151,10 @@ signal = filter(hd, 1, dl);
 signal(length(dl):length(dl)+15) = 0;
 fmdemod_alt = imag(signal(16:length(dl)+15).*conj(dl));
 fmdemod = fmdemod_alt;
+
+%12kHz filtering for audio output
+filteredtonsignal = filter(b12kHzLowpass, 1, fmdemod);
+sound(filteredtonsignal, 200000);
 
 clear fmdemod_alt
 %--------------------------------------------------------
@@ -241,11 +260,11 @@ for n=2:length(fmdemod)
 	subCarrier2(n) = subCarrier(n) * subCarrier(n);
 
 	%use bandpass filter to isolate the 114hKz frequency
-	[subCarrier2(n) filterState114kHz] = filter(b114kHzBandpass, 1, subCarrier2(n), filterState114kHz);
+	[subCarrier2(n), filterState114kHz] = filter(b114kHzBandpass, 1, subCarrier2(n), filterState114kHz);
 
 	%apply a digital frequency divisor to obtain a clean 57kHz carrier signal
 	divFilterIn(n) = 10^3*subCarrier2(ceil(n/2));
-	[divOut(n) filterState57kHz] = filter(b57kHzLowpass, 1, divFilterIn(n), filterState57kHz);
+	[divOut(n), filterState57kHz] = filter(b57kHzLowpass, 1, divFilterIn(n), filterState57kHz);
 
 	%apply frequency divisor to obtain a clean 57kHz carrier signal
 	%divFilterIn(n) = subCarrier2(n) * real(vco(n-1));
@@ -257,6 +276,9 @@ for n=2:length(fmdemod)
 	phd_output(n)=imag(divOut(n)*vco(n));	%Complex multiply VCO x pilotTone input 
 	e(n)=e(n-1)+(kp+ki)*phd_output(n)-ki*phd_output(n-1);	%Filter integrator 
 	phi_hat(n)=phi_hat(n-1)+e(n);	%Update VCO 
+
+	%%try to filter the vco signal
+	%[vco(n), filterState57kHzVco] = filter(b57kHzLowpass, 1, vco(n), filterState57kHzVco);
 
 	%mixing
 	mixedsignal(n, k, phSteps) = fmdemod(n) * vco(n);
