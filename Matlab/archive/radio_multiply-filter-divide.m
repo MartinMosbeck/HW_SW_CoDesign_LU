@@ -17,11 +17,17 @@ inputdata = textread('dump1.txt','%2c');
 inputdata=hex2dec(char(inputdata));
 end
 %Einlesen und IQ aus Datenpunkten aufbauen
-anzsamp=floor(size(inputdata)/(2^5));%Anz der einzulesenden Datenpunkte
+anzsamp=floor(size(inputdata)/(2^4));%Anz der einzulesenden Datenpunkte
 inputdata=inputdata-127;
 IQ=inputdata(1:2:anzsamp-1)+1i.*inputdata(2:2:anzsamp);
 clear inputdata fileID
 
+	Y_IQ = fft(IQ);
+	Y_IQ = abs(Y_IQ(1:ceil(length(Y_IQ)/2)));
+	f = fs*(0:length(Y_IQ)-1)/(2*length(Y_IQ));
+	figure
+	plot(f, Y_IQ, 'b');
+	title('spectrum of IQ');
 
 %60 kHz lowpass (FIR)
 load('fir_lowpass_1500_60kHz_Fs2500000.mat');
@@ -44,6 +50,21 @@ load('iir_lowpass_15Hz_Fs250000den.mat');
 aIIRLowpass = den.';
 filterStateLength = max(length(aIIRLowpass), length(bIIRLowpass))-1;
 filterStateIIR = zeros(filterStateLength, 1);
+
+%57kHz bandpass filter
+load('fir_bandpass_500_57kHz_Fs250000.mat');
+b57kHzBandpass = h.';
+
+%114kHz bandpass filter
+load('fir_bandpass_500_114kHz_Fs250000.mat');
+b114kHzBandpass = h';
+filterState114kHz = zeros(length(b114kHzBandpass)-1, 1);
+
+%57kHz lowpass filter
+load('fir_lowpass_500_57kHz_Fs250000.mat');
+b57kHzLowpass = h';
+filterState57kHz = zeros(length(b57kHzLowpass)-1, 1);
+filterState57kHzVco = zeros(length(b57kHzLowpass)-1, 1);
 
 %decimator parameter (only take every Nth value)
 Nth = 10;
@@ -95,17 +116,25 @@ FREQ_CORR_I = 0.1;
 %
 %	phi = phi + phiInc + phiCorr;
 %end
-fs = fs/Nth;
 
-%12kHz filtering for audio output
-filteredtonsignal = filter(b12kHzLowpass, 1, fmdemod);
-sound(filteredtonsignal, 200000);
+%%12kHz filtering for audio output
+%filteredtonsignal = filter(b12kHzLowpass, 1, fmdemod);
+%sound(filteredtonsignal, 200000);
 
 %--------------------------------------------------------
 %signal processingn without the mixer feedback
 t=(0:size(IQ)-1)*1/(2.5*10^6);%von 0-IQsize*1/Fs         
 mixed_alt = IQ.*exp(-1i*2*pi*(-0.6*10^6)*t');
 
+
+	Y_mixed_alt = fft(mixed_alt);
+	Y_mixed_alt = abs(Y_mixed_alt(1:ceil(length(Y_mixed_alt)/2)));
+	f = fs*(0:length(Y_mixed_alt)-1)/(2*length(Y_mixed_alt));
+	figure
+	plot(f, Y_mixed_alt, 'b');
+	title('spectrum of mixed_alt');
+
+fs = fs/Nth;
 %60 kHz lowpass (FIR)
 beforedecsignal=filter(b60kHzLowpass, 1, mixed_alt);
 clear mixed_alt t
@@ -122,6 +151,11 @@ signal = filter(hd, 1, dl);
 signal(length(dl):length(dl)+15) = 0;
 fmdemod_alt = imag(signal(16:length(dl)+15).*conj(dl));
 fmdemod = fmdemod_alt;
+
+%12kHz filtering for audio output
+filteredtonsignal = filter(b12kHzLowpass, 1, fmdemod);
+sound(filteredtonsignal, 200000);
+
 clear fmdemod_alt
 %--------------------------------------------------------
 
@@ -149,14 +183,26 @@ bitDur = floor(fs/(bitRate));
 
 %matched filter
 load('RDSmatched_Fs250000.mat');
-b=h.';
-xhist=zeros(length(b),1);
+bMatched = h.';
+filterStateMatched = zeros(length(bMatched) - 1,1);
 
 PHASE_STEPS = 1;
 
+% define PLL parameters
 f = 57000;
+phd_output = zeros(size(fmdemod));
+e = zeros(size(fmdemod));
+phi_hat = zeros(size(fmdemod));
+phi_hat(1)=30; 
+e(1)=0; 
+phd_output(1)=0; 
+vco = zeros(size(fmdemod));
+%Define Loop Filter parameters (sets damping)
+kp=0.15; %Proportional constant 
+ki=0.1; %Integrator constant 
+
+
 samplePoints = zeros(size(fmdemod)) - 0.3;
-samplePointsBiphase = zeros(size(fmdemod)) - 0.3;
 biphasesymbols=zeros(ceil(length(fmdemod)/(bitDur)), 1, PHASE_STEPS);
 biphaseindex=1;
 samples = zeros(100,1);	%samples during one bit clock
@@ -168,7 +214,6 @@ startOfSymbol = 1;
 symbols = zeros(ceil(size(biphasesymbols,1)/2), 1, PHASE_STEPS);
 symbolsIndex = 1;
 index=1;
-sampleInt = zeros(size(fmdemod)) - 0.3;
 sampleDur = floor(9/16*bitDur);
 validThreshold = 0.01;
 bitsymbolsIndex = 1;
@@ -176,11 +221,6 @@ bitsymbols = zeros(ceil(size(biphasesymbols,1)/2),1) - 1;
 sampleBitSymb = zeros(size(fmdemod)) - 0.3;
 lockedHere = zeros(size(fmdemod));
 mixedsignal = zeros(length(fmdemod), 8, PHASE_STEPS);
-phiC = zeros(length(fmdemod),1);
-s1 = zeros(length(fmdemod),1); 
-s2 = zeros(length(fmdemod),1);
-y1 = zeros(length(fmdemod),1);
-y2 = zeros(length(fmdemod),1);
 
 PPhaseOut = 0;
 IPhaseOut = 0;
@@ -203,17 +243,51 @@ zeroCrossings = zeros(size(fmdemod));
 
 fc = symbolRate;
 
+divFilterIn = zeros(size(fmdemod));
+subCarrier2 = zeros(size(fmdemod));
+divOut = zeros(size(fmdemod));
+divOut(1) = 0;	%if this were 0 the multiplication in the freq divisor would always return 0
+
+%retrieve the subcarrier with a 57kHz bandpass
+subCarrier = filter(b57kHzBandpass,1,fmdemod);
+clear b57kHzBandpass
+
+% Using the "Multiply-filter-divide" method
+
 for n=2:length(fmdemod) 
+
+	%square the signal 57kHz signal --> 114kHz
+	subCarrier2(n) = subCarrier(n) * subCarrier(n);
+
+	%use bandpass filter to isolate the 114hKz frequency
+	[subCarrier2(n), filterState114kHz] = filter(b114kHzBandpass, 1, subCarrier2(n), filterState114kHz);
+
+	%apply a digital frequency divisor to obtain a clean 57kHz carrier signal
+	divFilterIn(n) = 10^3*subCarrier2(ceil(n/2));
+	[divOut(n), filterState57kHz] = filter(b57kHzLowpass, 1, divFilterIn(n), filterState57kHz);
+
+	%apply frequency divisor to obtain a clean 57kHz carrier signal
+	%divFilterIn(n) = subCarrier2(n) * real(vco(n-1));
+	%[divOut(n) filterState57kHz] = filter(b57kHzLowpass, 1, divFilterIn(n), filterState57kHz);
+	%divOut(n) = 10^4*divOut(n);
+
+	%main PLL implementation 
+	vco(n)=conj(exp(1i*(2*pi*n*f/fs+phi_hat(n-1))));	%Compute VCO 
+	phd_output(n)=imag(divOut(n)*vco(n));	%Complex multiply VCO x pilotTone input 
+	e(n)=e(n-1)+(kp+ki)*phd_output(n)-ki*phd_output(n-1);	%Filter integrator 
+	phi_hat(n)=phi_hat(n-1)+e(n);	%Update VCO 
+
+	%%try to filter the vco signal
+	%[vco(n), filterState57kHzVco] = filter(b57kHzLowpass, 1, vco(n), filterState57kHzVco);
+
 	%mixing
-	mixedsignal(n, k, phSteps) = fmdemod(n) * exp(-1i*phi);
+	mixedsignal(n, k, phSteps) = fmdemod(n) * vco(n);
 
 	%Matched Filter
-	xhist=circshift(xhist,[1,0]);
-	xhist(1)=mixedsignal(n, k, phSteps);
-	mixedsignal(n, k, phSteps)=sum(xhist.*b);
+	[mixedsignal(n, k, phSteps), filterStateMatched] = filter(bMatched, 1, mixedsignal(n, k, phSteps), filterStateMatched);
 
 	%apply actual phase correction only after mixing and matched filtering
-	mixedsignal(n, k, phSteps) = mixedsignal(n, k, phSteps) * exp(1i*phaseCorr);
+	%mixedsignal(n, k, phSteps) = mixedsignal(n, k, phSteps) * exp(1i*phaseCorr);
 
 	%detect zero-crossing in the mixed signal
 	if(real(mixedsignal(n-1)) > 0 && real(mixedsignal(n)) < 0) || (real(mixedsignal(n-1)) < 0 && real(mixedsignal(n)) > 0)
@@ -223,26 +297,29 @@ for n=2:length(fmdemod)
 	if mod(timeAfterZeroCrossing, bitDur) == ceil(bitDur/2)
 
 		%**********experimental phase and frequency correction**********
-		a = sign(real(mixedsignal(n)));
-		feedback = angle(a*mixedsignal(n));
+		%a = sign(real(mixedsignal(n)));
+		%feedback = angle(a*mixedsignal(n));
 
-		% stuff from the other group
-		
-		if sign(feedback) ~= sign(deltaPhiAvg)
-			 deltaPhiAvg = -deltaPhiAvg;
-		end
 
-		deltaPhiAvg = deltaPhiAvg - deltaPhiAvg / bitDur + feedback / bitDur;
-		feedback = deltaPhiAvg;
 
-		if(abs(mixedsignal(n, k, phSteps)) > 0.01)
-			 if(feedback > 0.4)
-				feedback = 0.4;
-			 elseif(feedback < -0.4)
-				feedback = -0.4;
-			 end
-			 phaseCorr = phaseCorr + feedback / 5;
-		end
+		%% stuff from the other group
+		%
+		%if sign(feedback) ~= sign(deltaPhiAvg)
+		%	 deltaPhiAvg = -deltaPhiAvg;
+		%end
+
+		%deltaPhiAvg = deltaPhiAvg - deltaPhiAvg / bitDur + feedback / bitDur;
+		%feedback = deltaPhiAvg;
+
+		%if(abs(mixedsignal(n, k, phSteps)) > 0.01)
+		%	 if(feedback > 0.4)
+		%		feedback = 0.4;
+		%	 elseif(feedback < -0.4)
+		%		feedback = -0.4;
+		%	 end
+		%	 phaseCorr = phaseCorr + feedback / 5;
+		%end
+
 
 
 
@@ -294,15 +371,15 @@ for n=2:length(fmdemod)
 		samples(sampleCounter) = mixedsignal(n);
 	end;
 end
-clear a b e n fs phd_output sampleCounter ki kp
+clear a b e n phd_output sampleCounter ki kp
 clear startOfSymbol t symbCurSign symbOldSign h phase
 clear sampleDur vcoRiseEdgeCounter xhist
 clear index timeAfterZeroCrossing
 
 draw = 1;
 if draw == 1
-    figure 
-    plot(abs(fftshift(fft(fmdemod))));
+    %figure 
+    %plot(abs(fftshift(fft(fmdemod))));
     
     %figure 
     %plot(abs(fftshift(fft(vco))),'r');
@@ -318,15 +395,66 @@ if draw == 1
 	plot(real(samplePoints), 'r.')
 	hold on
 	plot(real(zeroCrossings), 'k');
+	title('Sampling of mixedsignal');
 	%hold on
 	%plot(real(lockedHere), 'y');
 
+	figure
+	plot(imag(mixedsignal(:,1,1)), 'b');
+	title('imag of mixedsignal');
+
 	%figure
-	%plot(real(0.2*exp(1i*2*pi*19000*20*tp)), 'g');
-	%hold on
-	%plot(real(vco),'g');
-    %hold on
-    %plot(real(vco3),'b');
+	%plot(subCarrier2);
+	%title('subCarrier2');
+
+	%figure
+	%plot(divFilterIn);
+	%title('divFilterIn');
+
+	figure
+	plot(real(vco),'r');
+	title('vco');
+    hold on
+	plot(divOut, 'g');
+	title('divOut');
+
+
+	Y = fft(subCarrier2);
+	Y = abs(Y(1:ceil(length(Y)/2)));
+	f = fs*(0:length(Y)-1)/(2*length(Y));
+	figure
+	plot(f, Y, 'b');
+	title('spectrum of subCarrier2');
+
+	Y_alt = fft(divFilterIn);
+	Y_alt = abs(Y_alt(1:ceil(length(Y_alt)/2)));
+	f = fs*(0:length(Y_alt)-1)/(2*length(Y_alt));
+	figure
+	plot(f, Y_alt, 'b');
+	title('spectrum of divFilterIn');
+
+	Y_vco = fft(vco);
+	Y_vco = abs(Y_vco(1:ceil(length(Y_vco)/2)));
+	f = fs*(0:length(Y_vco)-1)/(2*length(Y_vco));
+	figure
+	plot(f, Y_vco, 'b');
+	title('spectrum of vco');
+
+	Y_subCarrier = fft(subCarrier);
+	Y_subCarrier = abs(Y_subCarrier(1:ceil(length(Y_subCarrier)/2)));
+	f = fs*(0:length(Y_subCarrier)-1)/(2*length(Y_subCarrier));
+	figure
+	plot(f, Y_subCarrier, 'b');
+	title('spectrum of subCarrier');
+
+	Y_divOut = fft(divOut);
+	Y_divOut = abs(Y_divOut(1:ceil(length(Y_divOut)/2)));
+	f = fs*(0:length(Y_divOut)-1)/(2*length(Y_divOut));
+	figure
+	plot(f, Y_divOut, 'b');
+	title('spectrum of divOut');
+
+	
 end
 clear samplePoints samplePointsBiphase
 

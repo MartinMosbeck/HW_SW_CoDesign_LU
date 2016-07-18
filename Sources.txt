@@ -2,3 +2,5 @@
 http://www.mathworks.com/matlabcentral/fileexchange/24167-simple-pll-demostration/content/simple_PLL.m
 .) Costas loop design from:
 https://www.mathworks.com/matlabcentral/fileexchange/32956-costas-loop/content/Costas_loop.m
+.) good Costas loop paper:
+http://mobiledevdesign.com/site-files/mobiledevdesign.com/files/archive/mobiledevdesign.com/images/archive/0102Feigin20.pdf
