@@ -134,9 +134,11 @@ begin
 	do_demodulation: process (filteredQ,filteredI,validintern_cur,data1_cur,data2_cur, normalI_array_cur, normalQ_array_cur, normalI, normalQ, data_out_cur, validin_FIRI)
 	begin
 		normalI_array_next(0) <= normalI;
+		normalI_array_next(max-15 downto 1) <= normalI_array_cur(max-15-1 downto 0);
 		normalQ_array_next(0) <= normalQ;
-		normalI_array_next(max downto 1) <= normalI_array_cur(max-1 downto 0);
-		normalQ_array_next(max downto 1) <= normalQ_array_cur(max-1 downto 0);
+		normalQ_array_next(max-15 downto 1) <= normalQ_array_cur(max-15-1 downto 0);
+		normalI_array_next(max downto max-15+1) <= normalI_array_cur(max downto max-15+1);
+		normalQ_array_next(max downto max-15+1) <= normalQ_array_cur(max downto max-15+1);
 		data_out_next <= data_out_cur;
 		data1_next <= data1_cur;
 		data2_next <= data2_cur;
@@ -148,6 +150,11 @@ begin
 		if(validin_FIRI= '1') then
 			data1_next <= fixpoint_mult(filteredQ,normalI_array_cur(max));
 			data2_next <= fixpoint_mult(filteredI,normalQ_array_cur(max));
+
+			normalI_array_next(max-15+1) <= normalI_array_cur(max-15);
+			normalI_array_next(max downto max-15+2) <= normalI_array_cur(max-1 downto max-15+1);
+			normalQ_array_next(max-15+1) <= normalQ_array_cur(max-15);
+			normalQ_array_next(max downto max-15+2) <= normalQ_array_cur(max-1 downto max-15+1);
 			validintern_next <= '1';
 		else
 			validintern_next <= '0';
@@ -187,7 +194,7 @@ begin
 				data1_cur <= data1_next;
 				data2_cur <= data2_next;
 				validintern_cur <= validintern_next;
-				normalI_array_cur <= normalQ_array_next;
+				normalI_array_cur <= normalI_array_next;
 				normalQ_array_cur <= normalQ_array_next;
 
 				data_to_sqrt_I_cur <= data_to_sqrt_I_next;
