@@ -21,20 +21,25 @@ float zeigeFixpoint(uint32_t x){
 	return zahl;
 }
 
-void printBin(uint64_t* x, int u64){
-	int i,grenze=31;
-	char ausgabe[65];
+void printBin(uint64_t x, int u64){
+	int i,grenze=38,off=0;
+	char ausgabe[79];
 	if(u64){
-		grenze=63;
+		grenze=78;
 	}
 	for(i=grenze;i>=0;--i){
-		if(x[i]){
-			ausgabe[grenze-i]='1';
+		if(x & 1){
+			ausgabe[i+off]='1';
 		}else{
-			ausgabe[grenze-i]='0';
+			ausgabe[i+off]='0';
+		}
+		x>>=1;
+		if((i+1)%4==0){
+			off--;
+			ausgabe[i+off]=' ';
 		}
 	}
-	ausgabe[grenze-i]='\0';
+	ausgabe[grenze+1]='\0';
 	printf("%s",ausgabe);
 }
 
@@ -57,7 +62,7 @@ int main(int argc, char *argv[]){
 	dividend=strtol(argv[1],NULL,16);//fixpoint-a
 	divisor=strtol(argv[2],NULL,16);//fixpoint-b
 	}
-	printf("%f/%f=",zeigeFixpoint(dividend),zeigeFixpoint(divisor));
+	printf("%f/%f=\n",zeigeFixpoint(dividend),zeigeFixpoint(divisor));
 	
 	//Unsign + neues Sign feststellen
 	if(dividend&0x80000000){
@@ -76,11 +81,10 @@ int main(int argc, char *argv[]){
 	}
 	sign=sign1 ^ sign2; //XOR
 	
-	printf("dividend:");
-	printBin(&dividend,0);
-	printf("\ndivisor:");
-	printBin(&divisor,0);
-	printf("\n");
+	printBin(dividend,0);
+	printf("/");
+	printBin(divisor,0);
+	printf("(%x/%x)=\n",dividend,divisor);
 	
 	//Eigentliche DIV
 	int i;
@@ -92,27 +96,30 @@ int main(int argc, char *argv[]){
 			akku=(akku<<1);
 		}
 		printf("AKKU:");
-		printBin(&akku,0);
+		printBin(akku,0);
 		quotient = quotient << 1;
 		printf("\nQUOTIENT:");
-		printBin(&quotient,1);
+		printBin(quotient,1);
 		if(divisor<akku){
 			printf("\ndiv<akku\n");
 			quotient = quotient | 1;
 			akku = akku - divisor;
 			printf("QUOTIENT:");
-			printBin(&quotient,1);
+			printBin(quotient,1);
 		}
 		printf("\n");
 	}
 	
 	sol=(quotient>>16);
-	
+	printf("sol:%x(",sol);
+	printBin(sol,0);
+	printf(")\n");
 	//Resign
 	if(sign){
 		sol = ~sol;
 		sol++;
 	}
+	printf("Endsol:%x\n",sol);
 	printf("%f\n",zeigeFixpoint(sol));
 	return EXIT_SUCCESS;
 }
