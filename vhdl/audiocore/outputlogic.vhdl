@@ -52,7 +52,7 @@ begin
 
 
 	do_output: process (data,valid, data_out_cur, validout_cur)
-		constant factor : fixpoint := x"00000300";
+		constant factor : fixpoint := x"007F0000";--x"00000300";
 		variable data_fixp : fixpoint;
 		variable data_out_fixp: fixpoint;
 		constant v127 : fixpoint := "00000000011111110000000000000000";
