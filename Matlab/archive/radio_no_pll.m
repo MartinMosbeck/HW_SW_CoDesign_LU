@@ -204,39 +204,6 @@ zeroCrossings = zeros(size(fmdemod));
 fc = f;
 
 for n=2:length(fmdemod) 
-	%mixing
-	%mixedsignal(n, k, phSteps) = fmdemod(n) * exp(-1i*phi);
-
-
-	% ---------------------------RECEIVER PART-------------------------------
-		
-		if n>1
-	% The step in which phase is changed is pi*5*10*-5, it can be varied.        
-		   
-			phiC(n) = phiC(n-1) - (5*10^-5)*pi*sign(y1(n-1)*y2(n-1));
-		end
-		
-		s1(n) = fmdemod(n) * cos(2*pi*fc*n/fs  + phiC(n));
-		s2(n) = fmdemod(n) * sin(2*pi*fc*n/fs  + phiC(n));
-
-	% -----------------------INTEGRATOR------------------------------------
-		if n<=100
-	%  If sample index is less than 100 (Tc/Ts) then we sum available previous
-	%  samples
-			for j=1:n
-				y1(n) = y1(n) + s1(j);
-				y2(n) = y2(n) + s2(j);
-			end
-		  
-		else
-	% Summing previous 100 (Tc/Ts) values        
-			for j = n-99:n
-				y1(n) = y1(n) + s1(j);
-				y2(n) = y2(n) + s2(j);
-			end
-		end
-	%----------------------------------------------------------------------    
-
 	mixedsignal(n, k, phSteps) = y1(n) + 1i*y2(n);
 
 	%Matched Filter
