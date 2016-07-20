@@ -17,7 +17,7 @@ inputdata = textread('dump1.txt','%2c');
 inputdata=hex2dec(char(inputdata));
 end
 %Einlesen und IQ aus Datenpunkten aufbauen
-anzsamp=floor(size(inputdata)/(2^4));%Anz der einzulesenden Datenpunkte
+anzsamp=floor(size(inputdata)/(2^8));%Anz der einzulesenden Datenpunkte
 inputdata=inputdata-127;
 IQ=inputdata(1:2:anzsamp-1)+1i.*inputdata(2:2:anzsamp);
 clear inputdata fileID
@@ -186,9 +186,16 @@ bitRate = 2*symbolRate;
 bitDur = floor(fs/(bitRate));
 
 %matched filter
-load('RDSmatched_Fs250000.mat');
-bMatched = h.';
-filterStateMatched = zeros(length(bMatched) - 1,1);
+load('RDSmatched_Fs250000_den.mat');
+aMatched = den.';
+load('RDSmatched_Fs250000_num.mat');
+bMatched = num.';
+
+%load('RDSmatched_Fs250000.mat');
+%bMatched = h.';
+%aMatched = 1;
+
+filterStateMatched = zeros(length(max(bMatched, aMatched)) - 1,1);
 
 PHASE_STEPS = 1;
 
@@ -255,12 +262,12 @@ for n=2:length(fmdemod)
 	mixed(n) = fmdemod(n) * exp(-1i*phi);
 
 	%Matched Filter
-	[mixed(n), filterStateMatched] = filter(bMatched, 1, mixed(n), filterStateMatched);
+	[mixed(n), filterStateMatched] = filter(bMatched, aMatched, mixed(n), filterStateMatched);
 
 	mixed(n) = mixed(n) * exp(-1i*phaseCorr);
 
 	%detect zero-crossing in the mixed signal
-	if(mixed(n-1) > 0 && mixed(n) < 0) || (mixed(n-1) < 0 && mixed(n) > 0)
+	if(real(mixed(n-1)) > 0 && real(mixed(n)) < 0) || (real(mixed(n-1)) < 0 && real(mixed(n)) > 0)
 		timeAfterZeroCrossing = 0;
 		zeroCrossings(n) = 0.005;
 	end
