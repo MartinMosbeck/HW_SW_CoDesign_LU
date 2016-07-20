@@ -81,7 +81,7 @@ package audiocore_pkg is
 			Iin : in byte;
 			Qin : in byte;
 			validin : in std_logic;
-			
+
 			Iout : out fixpoint;
 			Qout : out fixpoint;
 			validout : out std_logic	
@@ -100,7 +100,7 @@ package audiocore_pkg is
 
 			data_in : in fixpoint;
 			validin : in std_logic;
-			
+
 			data_out : out fixpoint;
 			validout : out std_logic
 		);	
@@ -116,7 +116,7 @@ package audiocore_pkg is
 			data_in_Q : in fixpoint;
 			validin_I : in std_logic;
 			validin_Q : in std_logic;
-			
+
 			data_out : out fixpoint;
 			validout : out std_logic
 		);
@@ -130,7 +130,7 @@ package audiocore_pkg is
 
 			data_in : in fixpoint;
 			validin : in std_logic;
-			
+
 			data_out : out byte;
 			validout : out std_logic
 		);
@@ -148,13 +148,13 @@ package audiocore_pkg is
 
 			data_in : in byte;
 			validin : in std_logic;
-			
+
 			ready: in std_logic;
 			validout : out std_logic;
 			data_out : out std_logic_vector(31 downto 0)
 		);
 	end component;
-	
+
 	component qp_ram is
 		generic
 		(
@@ -177,7 +177,7 @@ package audiocore_pkg is
 			data_in : in std_logic_vector(DATA_WIDTH - 1 downto 0)
 		);
 	end component;
-	
+
 	component IIRFilter is
 	port 
 	(
@@ -191,7 +191,7 @@ package audiocore_pkg is
 		validout 	: out std_logic
 	);
 	end component;
-	
+
 	component dp_ram is
 	generic
 	(
@@ -207,7 +207,7 @@ package audiocore_pkg is
 		data_in : in fixpoint
 	);
 	end component;
-	
+
 	component tp_ram is
 	generic
 	(
@@ -225,7 +225,7 @@ package audiocore_pkg is
 		data_in2 : in byte
 	);
 	end component;
-	
+
 	component IIRFilter_Buffer is
 	generic
 	(
@@ -244,7 +244,7 @@ package audiocore_pkg is
 		data_out : out fixpoint
 	);
 	end component;
-	
+
 	component outputbuffer_debug is
 	generic
 	(
@@ -257,13 +257,13 @@ package audiocore_pkg is
 
 		data_in : in fixpoint;
 		validin : in std_logic;
-		
+
 		ready: in std_logic;
 		validout : out std_logic;
 		data_out : out std_logic_vector(31 downto 0)
 	);
 	end component;
-	
+
 	component output_mem is
 	generic
 	(
@@ -276,17 +276,17 @@ package audiocore_pkg is
 
 		data_in : in byte;
 		validin : in std_logic;
-		
+
 		audiooutleft_data : out std_logic_vector(31 downto 0);
 		audiooutleft_ready : in std_logic;
 		audiooutleft_valid : out std_logic;
-		
+
 		audiooutright_data : out std_logic_vector(31 downto 0);
 		audiooutright_ready : in std_logic;
 		audiooutright_valid : out std_logic
 	);
 	end component;
-	
+
 	component dp_ram_std is
 	generic
 	(
@@ -303,7 +303,7 @@ package audiocore_pkg is
 		data_in : in std_logic_vector(DATA_WIDTH - 1 downto 0)
 	);
 	end component;
-	
+
 	component IIRFilter_audioout is	
 	port 
 	(
@@ -350,7 +350,7 @@ package audiocore_pkg is
 		Q_out	: out fixpoint
 	);
 	end component;
-	
+
 	component FIRFilter_demod is
 	port 
 	(
@@ -364,7 +364,7 @@ package audiocore_pkg is
 		validout 	: out std_logic
 	);
 	end component;
-	
+
 	component demodulator_FIR is
 	port 
 	(
@@ -375,12 +375,12 @@ package audiocore_pkg is
 		data_in_Q : in fixpoint;
 		validin_I : in std_logic;
 		validin_Q : in std_logic;
-		
+
 		data_out : out fixpoint;
 		validout : out std_logic
 	);
 	end component;
-	
+
 	component division_block is
 	port 
 	(
@@ -392,6 +392,51 @@ package audiocore_pkg is
 		validin : in std_logic;
 
 		div_out : out fixpoint;
+		validout : out std_logic
+	);
+	end component;
+
+	--RDS Komponenten
+	component mixerRDS is
+	port
+	(
+		clk : in std_logic;
+		res_n : in std_logic;
+
+		fixin : in fixpoint;
+		validin : in std_logic;
+
+		Iout : out fixpoint;
+		Qout : out fixpoint;
+		validout : out std_logic
+	);
+	end component;
+
+	component IIRFilter_matched is
+	port
+	(
+		clk 		: in std_logic;
+		res_n 		: in std_logic;
+
+		data_in 	: in fixpoint;
+		validin 	: in std_logic;
+
+		data_out 	: out fixpoint;
+		validout 	: out std_logic
+	);
+	end component;
+
+	component RDSSymboler is
+	port
+	(
+		clk : in std_logic;
+		res_n : in std_logic;
+
+		Iin : in fixpoint;
+		Qin : in fixpoint;
+		validin : in std_logic;
+
+		RDSout : out byte;
 		validout : out std_logic
 	);
 	end component;
