@@ -26,6 +26,8 @@ architecture behavior of mixerRDS is
 	signal Qout_cur, Qout_next : fixpoint;
 	signal validout_cur, validout_next : std_logic;
 	signal t_cur,t_next : index_time;
+	signal lookup_cos_cur, lookup_cos_next: fixpoint;
+	signal lookup_sin_cur, lookup_sin_next: fixpoint;
 
 
 	function fixpoint_mult(a,b:fixpoint) return fixpoint is
@@ -151,7 +153,7 @@ architecture behavior of mixerRDS is
 	end function;
 
 begin
-	mix_it: process (fixin,validin, Iout_cur, Qout_cur, t_cur, validout_cur)
+	mix_it: process (fixin,validin, Iout_cur, Qout_cur, t_cur, validout_cur, lookup_cos_cur, lookup_sin_cur)
 		variable t_temp: index_time;
 	begin
 		Iout_next <= Iout_cur;

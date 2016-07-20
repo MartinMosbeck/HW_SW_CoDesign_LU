@@ -30,10 +30,31 @@ architecture behavior of RDSSymboler is
 		return result_full(47 downto 16);
 	end fixpoint_mult;
 	
+	function lookup_sin(argument:fixpoint)--TODO
+		return fixpoint is
+	begin
+		return x"00000000";
+	end lookup_sin;
+	function lookup_cos(argument:fixpoint)--TODO
+		return fixpoint is
+	begin
+		return x"00000000";
+	end lookup_cos;
+	function lookup_arg(I,Q:fixpoint)--TODO
+		return fixpoint is
+	begin
+		return x"00000000";
+	end lookup_arg;
+
 	constant anzsamplesHalf : natural := 53;
 	constant anzsamples : natural := 105;
 	
-	signal cos_corr_cur, cos_corr_next: fixpoint := 32768;--WERT ANPASSEN AN UNSER FIXPOINT!!!
+	constant ovterm: fixpoint := (others => '0');--WERT ANPASSEN AN UNSER FIXPOINT!!!
+	constant ufterm: fixpoint := (others => '0');--WERT ANPASSEN AN UNSER FIXPOINT!!!
+
+	signal cnt_cur, cnt_next : natural:=0;
+
+	signal cos_corr_cur, cos_corr_next: fixpoint := (others => '0');--WERT ANPASSEN AN UNSER FIXPOINT!!!
 	signal sin_corr_cur, sin_corr_next: fixpoint;
 	
 	signal lastI_cur, lastI_next: fixpoint;
@@ -48,7 +69,7 @@ architecture behavior of RDSSymboler is
 	signal validout_next, validout_cur: std_logic;
 
 begin
-	symboldetection: process (Iin, Qin)
+	symboldetection: process (Iin, Qin, code_mode_cur, cnt_cur, lastI_cur, sin_corr_cur, cos_corr_cur, I_corr_cur, Q_corr_cur, phi_cur, validout_cur, validintern_cur1, validintern_cur2)
 		variable err_term, phi_cor, phi_corr: fixpoint;
 	begin
 		--Latches
@@ -92,15 +113,15 @@ begin
 				code_word_next <= I_corr_cur;--diffcoding(I_corr_cur)
 				validintern_next2 <= '1';
 				err_term := lookup_arg(I_corr_cur,Q_corr_cur);--TODO!!!
-				phi_cor := phi_cur - err_term slr 2 + err_term slr 4;--Einfach nur Teil des Vektors nehmen
-				if(phi_cor >= ovterm)then--OV-UFTERM NOCH DIE RICHTIGEN WERTE FINDEN!!!
+				phi_cor := phi_cur - signed(err_term(31) & err_term(31) & std_logic_vector(err_term(31 downto 2))) + signed(err_term(31) & err_term(31) & err_term(31) & err_term(31) & std_logic_vector(err_term(31 downto 4)));
+				if(phi_cor >= ovterm)then
 					phi_corr := phi_cor - ovterm;
 				elsif(phi_cor <= ufterm)then
 					phi_corr := phi_cor + ufterm;
 				end if;
 				phi_next <= phi_corr;
-				sin_corr_next <= sin_lookup(phi_corr);--TODO!!!
-				cos_corr_next <= cos_lookup(phi_corr);--TODO!!!
+				sin_corr_next <= lookup_sin(phi_corr);--TODO!!!
+				cos_corr_next <= lookup_cos(phi_corr);--TODO!!!
 			end if;
 		end if;
 		
@@ -111,7 +132,7 @@ begin
 			end if;
 			if(code_word_cur(31) = '1' and vor = '1')then
 			elsif(code_word_cur(31) = '0' and vor = '0')then
-			
+			end if;
 			validout_next <= '1';
 		else
 			validout_next <= '0';
@@ -121,9 +142,32 @@ begin
 	sync: process (clk,res_n)
 	begin
 		if res_n ='0' then
-		
+			validintern_cur1 <= '0';
+			validintern_cur2 <= '0';
+			code_word_cur <= (others => '0');
+			code_mode_cur <= '0';
+			sin_corr_cur <= (others => '0');
+			cos_corr_cur <= (others => '1');--TODO!!!!
+			lastI_cur <= (others => '0');
+			I_corr_cur <= (others => '0');
+			Q_corr_cur <= (others => '0');
+			phi_cur <= (others => '0');
+			validout_cur <= '0';
+			cnt_cur <= 0;
 		elsif rising_edge(clk) then
 			--internals
+			validintern_cur1 <= validintern_next1;
+			validintern_cur2 <= validintern_next2;
+			validout_cur <= validout_next;
+			code_word_cur <= code_word_next;
+			code_mode_cur <= code_mode_next;
+			sin_corr_cur <= sin_corr_next;
+			cos_corr_cur <= cos_corr_next;
+			lastI_cur <= lastI_next;
+			I_corr_cur <= I_corr_next;
+			Q_corr_cur <= Q_corr_next;
+			phi_cur <= phi_next;
+			cnt_cur <= cnt_next;
 
 			--outputs
 			validout <= validout_next;
