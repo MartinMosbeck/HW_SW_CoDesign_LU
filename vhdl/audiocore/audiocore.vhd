@@ -210,7 +210,7 @@ begin
 	);
 
 	--AUDIO
-	filter12kHz : IIRFilter_audioout
+	filter14kHz : IIRFilter_audioout
 	port map
 	(
 		clk => clk_top,

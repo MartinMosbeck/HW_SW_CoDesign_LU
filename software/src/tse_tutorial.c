@@ -44,6 +44,7 @@ unsigned char rx_audio[2][BUF_SIZE]    __attribute__ (( section ( ".main_memory"
 
 int main(void)
 {
+	char buffer[128];
 	// Create sgdma receive device
 	alt_sgdma_dev * sgdma_rx_dev;
 	//SG-DMA-Variablen
@@ -111,10 +112,8 @@ int main(void)
 
 	display_print ("Ready to receive data!\n");
 
-	// Set up non-blocking transfer of sgdma receive descriptor
-	alt_avalon_sgdma_do_async_transfer( sgdma_rx_dev, &rx_descriptor[0] );
-	//Auch am Anfang auf Daten warten
-	while (alt_avalon_sgdma_check_descriptor_status(&rx_descriptor[0])!=0);
+	// Den ersten Datenblock abwarten
+	alt_avalon_sgdma_do_sync_transfer( sgdma_rx_dev, &rx_descriptor[0] );
 
 	act_frame = 1;
 	i=BUF_SIZE;
@@ -162,7 +161,11 @@ int main(void)
 			//process the data bytewise
 			int z;
 			for(z = 0; z < BUF_SIZE; z++)
+			{
 				addByte(sgdma_daten[z+frm*BUF_SIZE]);
+				sprintf(buffer, "Byte #%d added\n", z);
+				display_print(buffer);
+			}
 
 			PrintNameAndText();
 			
@@ -223,7 +226,7 @@ int main(void)
 void PrintNameAndText(void)
 {
     display_print("Program Name: ");
-    display_print(name);
+    display_print(name[actName]);
     display_print("\n");
     display_print("Radio Text: ");
     display_print(text);
