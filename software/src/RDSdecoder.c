@@ -69,8 +69,6 @@ uint8_t addBit(uint8_t bit)
 	input = (input<<1);
 	if(bit==1)
 		input |= 0x01;
-	else
-		input &= ~(0x01);
 
 
 	syncCount++;
