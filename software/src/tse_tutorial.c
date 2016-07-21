@@ -12,6 +12,13 @@
 #include "system.h"
 #include "display.h"
 #include "graphics.h"
+#include <math.h>
+
+#include "RDSdecoder.h"
+#include "RDSdataChecker.h"
+
+void PrintNameAndText(void);
+
 //Wieviel Bytes bei Echtzeitverarbeitung am Stück geholt werden
 #define BUF_SIZE 256//104 Byte wäre ein voller RDS-Block
 
@@ -152,13 +159,16 @@ int main(void)
 			//i++ um diesen Wert erhöhen
 			//--------------VIEL SPAß--------------
 			
-			int j;
-			for(j=0; j<300; ++j){
-			}
-			alt_printf("Ich habe einen großen Hunger!\n");
+			//process the data bytewise
+			int z;
+			for(z = 0; z < BUF_SIZE; z++)
+				addByte(sgdma_daten[i+frm*BUF_SIZE]);
+
+			PrintNameAndText();
 			
 			//------------ENDE VIEL SPAß-----------
-			i++;//Besagtes i++
+			//i++;//Besagtes i++
+			i = z;
 			if(i>=BUF_SIZE){
 				frm=1-frm;
                 #ifdef DEBUGOUT
@@ -205,3 +215,18 @@ int main(void)
 	#endif
 	return 0;
 }
+
+/**
+ * @brief Prints the program name and the Radio Text on the display
+ * 
+ */
+void PrintNameAndText(void)
+{
+    display_print("Program Name: ");
+    display_print(name);
+    display_print("\n");
+    display_print("Radio Text: ");
+    display_print(text);
+    display_print("\n\n");
+}
+
