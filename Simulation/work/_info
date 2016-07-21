@@ -18,26 +18,26 @@ n@_opt
 OL;O;10.4c;61
 R0
 Eaudiocore
-Z1 w1465217238
-Z2 DPx4 work 13 audiocore_pkg 0 22 [WM_?cZa<_=3m[FX@PX]83
+Z1 w1469092321
+Z2 DPx4 work 13 audiocore_pkg 0 22 F<jEjONSdj?d^_;PIDV>K3
 Z3 DPx4 ieee 11 numeric_std 0 22 :ASDNFgHXf_ih3J@9F3Ze1
 Z4 DPx3 std 6 textio 0 22 zE1`LPoLg^DX3Oz^4Fj1K3
 Z5 DPx4 ieee 14 std_logic_1164 0 22 eNV`TJ_GofJTzYa?f<@Oe1
-Z6 d/homes/areznicek/Desktop/HW_SW_CoDesign_LU/Simulation
-Z7 8/homes/areznicek/Desktop/HW_SW_CoDesign_LU/vhdl/audiocore/audiocore.vhd
-Z8 F/homes/areznicek/Desktop/HW_SW_CoDesign_LU/vhdl/audiocore/audiocore.vhd
+Z6 dC:/Users/ZECK/Documents/#TU/HWSWCoDLU/Maintask/HW_SW_CoDesign_LU/Simulation
+Z7 8C:/Users/ZECK/Documents/#TU/HWSWCoDLU/Maintask/HW_SW_CoDesign_LU/vhdl/audiocore/audiocore.vhd
+Z8 FC:/Users/ZECK/Documents/#TU/HWSWCoDLU/Maintask/HW_SW_CoDesign_LU/vhdl/audiocore/audiocore.vhd
 l0
-L11
-VaHQ57WJH0gKzcKKTiM0Li2
-!s100 [mL_]Sb_Z4GZ5Nn=an99C1
-Z9 OL;C;10.4c;61
+L7
+VT>S8ZEhbD;EEaAl<R@XSY0
+!s100 <I]MJg`f7[XFX4Ggob_8Y2
+Z9 OV;C;10.4d;61
 32
-Z10 !s110 1465227565
+Z10 !s110 1469094363
 !i10b 1
-Z11 !s108 1465227565.000000
-Z12 !s90 -reportprogress|300|-work|work|-2002|-explicit|-vopt|-stats=none|/homes/areznicek/Desktop/HW_SW_CoDesign_LU/vhdl/audiocore/audiocore.vhd|
-Z13 !s107 /homes/areznicek/Desktop/HW_SW_CoDesign_LU/vhdl/audiocore/audiocore.vhd|
-!i113 0
+Z11 !s108 1469094363.000000
+Z12 !s90 -reportprogress|300|-work|work|-2002|-explicit|-stats=none|C:/Users/ZECK/Documents/#TU/HWSWCoDLU/Maintask/HW_SW_CoDesign_LU/vhdl/audiocore/audiocore.vhd|
+Z13 !s107 C:/Users/ZECK/Documents/#TU/HWSWCoDLU/Maintask/HW_SW_CoDesign_LU/vhdl/audiocore/audiocore.vhd|
+!i113 1
 Z14 o-work work -2002 -explicit
 Z15 tExplicit 1
 Artl
@@ -45,11 +45,11 @@ R2
 R3
 R4
 R5
-DEx4 work 9 audiocore 0 22 aHQ57WJH0gKzcKKTiM0Li2
-l52
-L35
-V6OFbbcQfJZFY65][JXNUd0
-!s100 ZSImk2Uio5;foo19B1Aje0
+Z16 DEx4 work 9 audiocore 0 22 T>S8ZEhbD;EEaAl<R@XSY0
+l64
+L40
+VFiAKYF6om`HBG9jX7[mB93
+!s100 Em9aaAo21JV460NX[XLF=1
 R9
 32
 R10
@@ -57,84 +57,104 @@ R10
 R11
 R12
 R13
-!i113 0
+!i113 1
 R14
 R15
 Paudiocore_pkg
 R3
 R4
 R5
-w1467920164
-Z16 dC:/Users/ZECK/Documents/#TU/HWSWCoDLU/Maintask/HW_SW_CoDesign_LU/Simulation
-8C:/Users/ZECK/Documents/#TU/HWSWCoDLU/Maintask/HW_SW_CoDesign_LU/vhdl/audiocore/audiocore_pkg.vhd
-FC:/Users/ZECK/Documents/#TU/HWSWCoDLU/Maintask/HW_SW_CoDesign_LU/vhdl/audiocore/audiocore_pkg.vhd
+Z17 w1469094356
+R6
+Z18 8C:/Users/ZECK/Documents/#TU/HWSWCoDLU/Maintask/HW_SW_CoDesign_LU/vhdl/audiocore/audiocore_pkg.vhd
+Z19 FC:/Users/ZECK/Documents/#TU/HWSWCoDLU/Maintask/HW_SW_CoDesign_LU/vhdl/audiocore/audiocore_pkg.vhd
 l0
 L5
-VKkaPEgJJZMZfbi:hRf4RM0
-!s100 hGflB82_BDEnLe`2l9FQE2
-Z17 OV;C;10.4d;61
+VF<jEjONSdj?d^_;PIDV>K3
+!s100 1kGCClL]XDg4lkZ[H=PKk0
+R9
 32
-Z18 !s110 1467920247
+b1
+Z20 !s110 1469094362
 !i10b 1
-Z19 !s108 1467920247.000000
-!s90 -reportprogress|300|-work|work|-2002|-explicit|-stats=none|C:/Users/ZECK/Documents/#TU/HWSWCoDLU/Maintask/HW_SW_CoDesign_LU/vhdl/audiocore/audiocore_pkg.vhd|
-!s107 C:/Users/ZECK/Documents/#TU/HWSWCoDLU/Maintask/HW_SW_CoDesign_LU/vhdl/audiocore/audiocore_pkg.vhd|
+Z21 !s108 1469094362.000000
+Z22 !s90 -reportprogress|300|-work|work|-2002|-explicit|-stats=none|C:/Users/ZECK/Documents/#TU/HWSWCoDLU/Maintask/HW_SW_CoDesign_LU/vhdl/audiocore/audiocore_pkg.vhd|
+Z23 !s107 C:/Users/ZECK/Documents/#TU/HWSWCoDLU/Maintask/HW_SW_CoDesign_LU/vhdl/audiocore/audiocore_pkg.vhd|
+!i113 1
+R14
+R15
+Bbody
+R2
+R3
+R4
+R5
+l0
+L447
+V8La54KZ;X:ncToG4iE:SY3
+!s100 4:Ce0HL=>Vo`I1`2UjMdA3
+R9
+32
+R20
+!i10b 1
+R21
+R22
+R23
 !i113 1
 R14
 R15
 Eaudiocore_simulation
-Z20 w1467920089
-Z21 DPx4 work 13 audiocore_pkg 0 22 KkaPEgJJZMZfbi:hRf4RM0
+Z24 w1466154773
+R2
 R3
 R4
 R5
-R16
-Z22 8C:/Users/ZECK/Documents/#TU/HWSWCoDLU/Maintask/HW_SW_CoDesign_LU/Simulation/testbench.vhdl
-Z23 FC:/Users/ZECK/Documents/#TU/HWSWCoDLU/Maintask/HW_SW_CoDesign_LU/Simulation/testbench.vhdl
+R6
+Z25 8C:/Users/ZECK/Documents/#TU/HWSWCoDLU/Maintask/HW_SW_CoDesign_LU/Simulation/testbench_old.vhd
+Z26 FC:/Users/ZECK/Documents/#TU/HWSWCoDLU/Maintask/HW_SW_CoDesign_LU/Simulation/testbench_old.vhd
 l0
 L10
 Vebjmk;Mk?dmeZYeE=5MYW3
 !s100 TjeA;@@?LWo2?==S6?0LY0
-R17
+R9
 32
-R18
+Z27 !s110 1469094366
 !i10b 1
-R19
-Z24 !s90 -reportprogress|300|-work|work|-2002|-explicit|-stats=none|C:/Users/ZECK/Documents/#TU/HWSWCoDLU/Maintask/HW_SW_CoDesign_LU/Simulation/testbench.vhdl|
-Z25 !s107 C:/Users/ZECK/Documents/#TU/HWSWCoDLU/Maintask/HW_SW_CoDesign_LU/Simulation/testbench.vhdl|
+Z28 !s108 1469094366.000000
+Z29 !s90 -reportprogress|300|-work|work|-2002|-explicit|-stats=none|C:/Users/ZECK/Documents/#TU/HWSWCoDLU/Maintask/HW_SW_CoDesign_LU/Simulation/testbench_old.vhd|
+Z30 !s107 C:/Users/ZECK/Documents/#TU/HWSWCoDLU/Maintask/HW_SW_CoDesign_LU/Simulation/testbench_old.vhd|
 !i113 1
 R14
 R15
 Atestbench
-Z26 DEx4 work 9 firfilter 0 22 l;CWLAZAK58adC3QLUP@G1
-R21
+R16
+R2
 R3
 R4
 R5
-DEx4 work 20 audiocore_simulation 0 22 ebjmk;Mk?dmeZYeE=5MYW3
-l36
+Z31 DEx4 work 20 audiocore_simulation 0 22 ebjmk;Mk?dmeZYeE=5MYW3
+l26
 L13
-Ve<kkZVdDhjZL:6fX^dZ;O0
-!s100 W@Hben9P4@VZ?GH:JjJbH0
-R17
+Z32 VFR`kk_?CLb9n8Ih=cXXJ;1
+Z33 !s100 ?GKD1^Xn2YV1NVW7L_H3?1
+R9
 32
-R18
+R27
 !i10b 1
-R19
-R24
-R25
+R28
+R29
+R30
 !i113 1
 R14
 R15
 Edecimator
-Z27 w1460478982
+Z34 w1463131541
 R3
 R2
 R4
 R5
 R6
-Z28 8/homes/areznicek/Desktop/HW_SW_CoDesign_LU/vhdl/audiocore/decimator.vhdl
-Z29 F/homes/areznicek/Desktop/HW_SW_CoDesign_LU/vhdl/audiocore/decimator.vhdl
+Z35 8C:/Users/ZECK/Documents/#TU/HWSWCoDLU/Maintask/HW_SW_CoDesign_LU/vhdl/audiocore/decimator.vhdl
+Z36 FC:/Users/ZECK/Documents/#TU/HWSWCoDLU/Maintask/HW_SW_CoDesign_LU/vhdl/audiocore/decimator.vhdl
 l0
 L7
 VjWX@d^hJ:A]`E<MQL]72l0
@@ -144,9 +164,9 @@ R9
 R10
 !i10b 1
 R11
-Z30 !s90 -reportprogress|300|-work|work|-2002|-explicit|-vopt|-stats=none|/homes/areznicek/Desktop/HW_SW_CoDesign_LU/vhdl/audiocore/decimator.vhdl|
-Z31 !s107 /homes/areznicek/Desktop/HW_SW_CoDesign_LU/vhdl/audiocore/decimator.vhdl|
-!i113 0
+Z37 !s90 -reportprogress|300|-work|work|-2002|-explicit|-stats=none|C:/Users/ZECK/Documents/#TU/HWSWCoDLU/Maintask/HW_SW_CoDesign_LU/vhdl/audiocore/decimator.vhdl|
+Z38 !s107 C:/Users/ZECK/Documents/#TU/HWSWCoDLU/Maintask/HW_SW_CoDesign_LU/vhdl/audiocore/decimator.vhdl|
+!i113 1
 R14
 R15
 Abehavior
@@ -164,20 +184,20 @@ R9
 R10
 !i10b 1
 R11
-R30
-R31
-!i113 0
+R37
+R38
+!i113 1
 R14
 R15
 Edemodulator
-Z32 w1460478489
+Z39 w1469093200
 R2
 R3
 R4
 R5
 R6
-Z33 8/homes/areznicek/Desktop/HW_SW_CoDesign_LU/vhdl/audiocore/demodulator.vhdl
-Z34 F/homes/areznicek/Desktop/HW_SW_CoDesign_LU/vhdl/audiocore/demodulator.vhdl
+Z40 8C:/Users/ZECK/Documents/#TU/HWSWCoDLU/Maintask/HW_SW_CoDesign_LU/vhdl/audiocore/demodulator.vhdl
+Z41 FC:/Users/ZECK/Documents/#TU/HWSWCoDLU/Maintask/HW_SW_CoDesign_LU/vhdl/audiocore/demodulator.vhdl
 l0
 L8
 VVfC1WFk^VCWT]fc1mmXbN0
@@ -187,9 +207,9 @@ R9
 R10
 !i10b 1
 R11
-Z35 !s90 -reportprogress|300|-work|work|-2002|-explicit|-vopt|-stats=none|/homes/areznicek/Desktop/HW_SW_CoDesign_LU/vhdl/audiocore/demodulator.vhdl|
-Z36 !s107 /homes/areznicek/Desktop/HW_SW_CoDesign_LU/vhdl/audiocore/demodulator.vhdl|
-!i113 0
+Z42 !s90 -reportprogress|300|-work|work|-2002|-explicit|-stats=none|C:/Users/ZECK/Documents/#TU/HWSWCoDLU/Maintask/HW_SW_CoDesign_LU/vhdl/audiocore/demodulator.vhdl|
+Z43 !s107 C:/Users/ZECK/Documents/#TU/HWSWCoDLU/Maintask/HW_SW_CoDesign_LU/vhdl/audiocore/demodulator.vhdl|
+!i113 1
 R14
 R15
 Abehavior
@@ -198,41 +218,127 @@ R3
 R4
 R5
 DEx4 work 11 demodulator 0 22 VfC1WFk^VCWT]fc1mmXbN0
-l39
+l31
 L24
-V09TX0W:2ihiF;gDG_K^:B3
-!s100 JOIKSD=EOKaokgc:iM1l40
+V`72eY6K<bDTgSDM>n;oJ41
+!s100 2^49P19>QT_XL6d^CLzEa3
 R9
 32
 R10
 !i10b 1
 R11
-R35
-R36
-!i113 0
+R42
+R43
+!i113 1
 R14
 R15
-Edp_ram
-Z37 w1464183032
+Edemodulator_fir
+Z44 w1469093217
 R2
 R3
 R4
 R5
 R6
-Z38 8/homes/areznicek/Desktop/HW_SW_CoDesign_LU/vhdl/audiocore/dp_ram.vhdl
-Z39 F/homes/areznicek/Desktop/HW_SW_CoDesign_LU/vhdl/audiocore/dp_ram.vhdl
+Z45 8C:/Users/ZECK/Documents/#TU/HWSWCoDLU/Maintask/HW_SW_CoDesign_LU/vhdl/audiocore/demodulator_FIR.vhdl
+Z46 FC:/Users/ZECK/Documents/#TU/HWSWCoDLU/Maintask/HW_SW_CoDesign_LU/vhdl/audiocore/demodulator_FIR.vhdl
+l0
+L8
+Vncib4o;3zIX_z:GhRY=Li0
+!s100 `VIkdW=N[M7MLV@kbL]@N1
+R9
+32
+Z47 !s110 1469094364
+!i10b 1
+Z48 !s108 1469094364.000000
+Z49 !s90 -reportprogress|300|-work|work|-2002|-explicit|-stats=none|C:/Users/ZECK/Documents/#TU/HWSWCoDLU/Maintask/HW_SW_CoDesign_LU/vhdl/audiocore/demodulator_FIR.vhdl|
+Z50 !s107 C:/Users/ZECK/Documents/#TU/HWSWCoDLU/Maintask/HW_SW_CoDesign_LU/vhdl/audiocore/demodulator_FIR.vhdl|
+!i113 1
+R14
+R15
+Abehavior
+R2
+R3
+R4
+R5
+DEx4 work 15 demodulator_fir 0 22 ncib4o;3zIX_z:GhRY=Li0
+l45
+L24
+VQ;k;H]]^nlUnUFD8QS?l51
+!s100 =nKkCQPG^G:P_k8MKEVQl3
+R9
+32
+R47
+!i10b 1
+R48
+R49
+R50
+!i113 1
+R14
+R15
+Edivision_block
+Z51 w1468849020
+R2
+R3
+R4
+R5
+R6
+Z52 8C:/Users/ZECK/Documents/#TU/HWSWCoDLU/Maintask/HW_SW_CoDesign_LU/vhdl/audiocore/division_block.vhdl
+Z53 FC:/Users/ZECK/Documents/#TU/HWSWCoDLU/Maintask/HW_SW_CoDesign_LU/vhdl/audiocore/division_block.vhdl
+l0
+L8
+VIHfjbo>zVbN2daL_=i=i_1
+!s100 BhflXL=h1@<kc8l:OQD]@2
+R9
+32
+R27
+!i10b 1
+R28
+Z54 !s90 -reportprogress|300|-work|work|-2002|-explicit|-stats=none|C:/Users/ZECK/Documents/#TU/HWSWCoDLU/Maintask/HW_SW_CoDesign_LU/vhdl/audiocore/division_block.vhdl|
+Z55 !s107 C:/Users/ZECK/Documents/#TU/HWSWCoDLU/Maintask/HW_SW_CoDesign_LU/vhdl/audiocore/division_block.vhdl|
+!i113 1
+R14
+R15
+Abehavior
+R2
+R3
+R4
+R5
+DEx4 work 14 division_block 0 22 IHfjbo>zVbN2daL_=i=i_1
+l35
+L24
+VOFUKl;W5JYa[[3zJTLo4h2
+!s100 ]72fm]jce`cZ^Se1F0GRR3
+R9
+32
+R27
+!i10b 1
+R28
+R54
+R55
+!i113 1
+R14
+R15
+Edp_ram
+Z56 w1464619768
+R2
+R3
+R4
+R5
+R6
+Z57 8C:/Users/ZECK/Documents/#TU/HWSWCoDLU/Maintask/HW_SW_CoDesign_LU/vhdl/audiocore/dp_ram.vhdl
+Z58 FC:/Users/ZECK/Documents/#TU/HWSWCoDLU/Maintask/HW_SW_CoDesign_LU/vhdl/audiocore/dp_ram.vhdl
 l0
 L8
 VL:81jM5UQ0MR1cd0i=1b:1
 !s100 DbVQNPR?VJ[CWBZS;Q][41
 R9
 32
-R10
+R47
 !i10b 1
-R11
-Z40 !s90 -reportprogress|300|-work|work|-2002|-explicit|-vopt|-stats=none|/homes/areznicek/Desktop/HW_SW_CoDesign_LU/vhdl/audiocore/dp_ram.vhdl|
-Z41 !s107 /homes/areznicek/Desktop/HW_SW_CoDesign_LU/vhdl/audiocore/dp_ram.vhdl|
-!i113 0
+R48
+Z59 !s90 -reportprogress|300|-work|work|-2002|-explicit|-stats=none|C:/Users/ZECK/Documents/#TU/HWSWCoDLU/Maintask/HW_SW_CoDesign_LU/vhdl/audiocore/dp_ram.vhdl|
+Z60 !s107 C:/Users/ZECK/Documents/#TU/HWSWCoDLU/Maintask/HW_SW_CoDesign_LU/vhdl/audiocore/dp_ram.vhdl|
+!i113 1
 R14
 R15
 Abeh
@@ -247,35 +353,78 @@ V3g]YMEJ8R_UnA_P1og:Jn2
 !s100 ckEMRi>BSJL2a8Pd=>2ki1
 R9
 32
-R10
+R47
 !i10b 1
-R11
-R40
-R41
-!i113 0
+R48
+R59
+R60
+!i113 1
+R14
+R15
+Edp_ram_std
+R24
+R2
+R3
+R4
+R5
+R6
+Z61 8C:/Users/ZECK/Documents/#TU/HWSWCoDLU/Maintask/HW_SW_CoDesign_LU/vhdl/audiocore/dp_ram_std.vhdl
+Z62 FC:/Users/ZECK/Documents/#TU/HWSWCoDLU/Maintask/HW_SW_CoDesign_LU/vhdl/audiocore/dp_ram_std.vhdl
+l0
+L8
+VLPaz?J4egenOZOVSXKB;m2
+!s100 F@R:hZ_izgMDDW@H2F`go3
+R9
+32
+R47
+!i10b 1
+R48
+Z63 !s90 -reportprogress|300|-work|work|-2002|-explicit|-stats=none|C:/Users/ZECK/Documents/#TU/HWSWCoDLU/Maintask/HW_SW_CoDesign_LU/vhdl/audiocore/dp_ram_std.vhdl|
+Z64 !s107 C:/Users/ZECK/Documents/#TU/HWSWCoDLU/Maintask/HW_SW_CoDesign_LU/vhdl/audiocore/dp_ram_std.vhdl|
+!i113 1
+R14
+R15
+Abeh
+R2
+R3
+R4
+R5
+DEx4 work 10 dp_ram_std 0 22 LPaz?J4egenOZOVSXKB;m2
+l31
+L27
+VTSY=aDRe^>J`S<d]9=DS31
+!s100 elGcAa6M:TW0o]mXW<h_E0
+R9
+32
+R47
+!i10b 1
+R48
+R63
+R64
+!i113 1
 R14
 R15
 Eenqueuer
-Z42 w1453460723
+Z65 w1452883587
 R3
 R2
 R4
 R5
 R6
-Z43 8/homes/areznicek/Desktop/HW_SW_CoDesign_LU/vhdl/audiocore/enqueuer.vhdl
-Z44 F/homes/areznicek/Desktop/HW_SW_CoDesign_LU/vhdl/audiocore/enqueuer.vhdl
+Z66 8C:/Users/ZECK/Documents/#TU/HWSWCoDLU/Maintask/HW_SW_CoDesign_LU/vhdl/audiocore/enqueuer.vhdl
+Z67 FC:/Users/ZECK/Documents/#TU/HWSWCoDLU/Maintask/HW_SW_CoDesign_LU/vhdl/audiocore/enqueuer.vhdl
 l0
 L8
 V=fZA=Ooe@;F^J2:A:ZWZM0
 !s100 FnLc``Gl83=_CofLNEWCP3
 R9
 32
-R10
+R47
 !i10b 1
-R11
-Z45 !s90 -reportprogress|300|-work|work|-2002|-explicit|-vopt|-stats=none|/homes/areznicek/Desktop/HW_SW_CoDesign_LU/vhdl/audiocore/enqueuer.vhdl|
-Z46 !s107 /homes/areznicek/Desktop/HW_SW_CoDesign_LU/vhdl/audiocore/enqueuer.vhdl|
-!i113 0
+R48
+Z68 !s90 -reportprogress|300|-work|work|-2002|-explicit|-stats=none|C:/Users/ZECK/Documents/#TU/HWSWCoDLU/Maintask/HW_SW_CoDesign_LU/vhdl/audiocore/enqueuer.vhdl|
+Z69 !s107 C:/Users/ZECK/Documents/#TU/HWSWCoDLU/Maintask/HW_SW_CoDesign_LU/vhdl/audiocore/enqueuer.vhdl|
+!i113 1
 R14
 R15
 Abehavior
@@ -290,40 +439,40 @@ VNBVe=[E[e0l^Ra<L1j?YR0
 !s100 M]7`7d]FoJl:EJaSA<PDa0
 R9
 32
-R10
+R47
 !i10b 1
-R11
-R45
-R46
-!i113 0
+R48
+R68
+R69
+!i113 1
 R14
 R15
 Efifo
-Z47 w1465209873
-Z48 DPx4 work 8 math_pkg 0 22 :8G=3n:5T:beicYkUUnWH0
+Z70 w1465228414
+Z71 DPx4 work 8 math_pkg 0 22 :8G=3n:5T:beicYkUUnWH0
 R2
 R3
 R4
 R5
 R6
-Z49 8/homes/areznicek/Desktop/HW_SW_CoDesign_LU/vhdl/audiocore/FIFO.vhdl
-Z50 F/homes/areznicek/Desktop/HW_SW_CoDesign_LU/vhdl/audiocore/FIFO.vhdl
+Z72 8C:/Users/ZECK/Documents/#TU/HWSWCoDLU/Maintask/HW_SW_CoDesign_LU/vhdl/audiocore/FIFO.vhdl
+Z73 FC:/Users/ZECK/Documents/#TU/HWSWCoDLU/Maintask/HW_SW_CoDesign_LU/vhdl/audiocore/FIFO.vhdl
 l0
 L9
 VjoB<6jRJU9j0Ai@8N3B[10
 !s100 YjH9fiDXZ9?0>jdQCX21I2
 R9
 32
-R10
+R47
 !i10b 1
-R11
-Z51 !s90 -reportprogress|300|-work|work|-2002|-explicit|-vopt|-stats=none|/homes/areznicek/Desktop/HW_SW_CoDesign_LU/vhdl/audiocore/FIFO.vhdl|
-Z52 !s107 /homes/areznicek/Desktop/HW_SW_CoDesign_LU/vhdl/audiocore/FIFO.vhdl|
-!i113 0
+R48
+Z74 !s90 -reportprogress|300|-work|work|-2002|-explicit|-stats=none|C:/Users/ZECK/Documents/#TU/HWSWCoDLU/Maintask/HW_SW_CoDesign_LU/vhdl/audiocore/FIFO.vhdl|
+Z75 !s107 C:/Users/ZECK/Documents/#TU/HWSWCoDLU/Maintask/HW_SW_CoDesign_LU/vhdl/audiocore/FIFO.vhdl|
+!i113 1
 R14
 R15
 Abehavior
-R48
+R71
 R2
 R3
 R4
@@ -335,127 +484,256 @@ VEQNfj2QO`e19GkC7n[UhA0
 !s100 OT<=N;0cAJH?8ND4mFEkZ1
 R9
 32
-R10
+R47
 !i10b 1
-R11
-R51
-R52
-!i113 0
+R48
+R74
+R75
+!i113 1
 R14
 R15
 Efirfilter
-Z53 w1467920177
-R21
-R3
-R4
-R5
-R16
-Z54 8C:/Users/ZECK/Documents/#TU/HWSWCoDLU/Maintask/HW_SW_CoDesign_LU/vhdl/audiocore/FIRFilter.vhdl
-Z55 FC:/Users/ZECK/Documents/#TU/HWSWCoDLU/Maintask/HW_SW_CoDesign_LU/vhdl/audiocore/FIRFilter.vhdl
-l0
-L9
-Vl;CWLAZAK58adC3QLUP@G1
-!s100 ;`k9Pk1RVUIJ@>S9e7mgX1
-R17
-32
-R18
-!i10b 1
-R19
-Z56 !s90 -reportprogress|300|-work|work|-2002|-explicit|-stats=none|C:/Users/ZECK/Documents/#TU/HWSWCoDLU/Maintask/HW_SW_CoDesign_LU/vhdl/audiocore/FIRFilter.vhdl|
-Z57 !s107 C:/Users/ZECK/Documents/#TU/HWSWCoDLU/Maintask/HW_SW_CoDesign_LU/vhdl/audiocore/FIRFilter.vhdl|
-!i113 1
-R14
-R15
-Abehavior
-R21
-R3
-R4
-R5
-R26
-l66
-L23
-Z58 Vl>>Dm[Xk>]mhdD4i6K;9T2
-Z59 !s100 QHHVd_YV>BDoCLYcz2<BO3
-R17
-32
-R18
-!i10b 1
-R19
-R56
-R57
-!i113 1
-R14
-R15
-Eiirfilter
-Z60 w1465819089
-Z61 DPx4 work 13 audiocore_pkg 0 22 VlWW<NKBN;CfSKFS_4eSS1
-R3
-R4
-R5
-R16
-Z62 8C:/Users/ZECK/Documents/#TU/HWSWCoDLU/Maintask/HW_SW_CoDesign_LU/vhdl/audiocore/IIRFilter.vhdl
-Z63 FC:/Users/ZECK/Documents/#TU/HWSWCoDLU/Maintask/HW_SW_CoDesign_LU/vhdl/audiocore/IIRFilter.vhdl
-l0
-L9
-V0>JOGcoM;jBaCA7BIAMF`2
-!s100 WUQGGE0?V;m:KXLL=JzYN0
-R17
-32
-Z64 !s110 1467892168
-!i10b 1
-Z65 !s108 1467892168.000000
-Z66 !s90 -reportprogress|300|-work|work|-2002|-explicit|-stats=none|C:/Users/ZECK/Documents/#TU/HWSWCoDLU/Maintask/HW_SW_CoDesign_LU/vhdl/audiocore/IIRFilter.vhdl|
-Z67 !s107 C:/Users/ZECK/Documents/#TU/HWSWCoDLU/Maintask/HW_SW_CoDesign_LU/vhdl/audiocore/IIRFilter.vhdl|
-!i113 1
-R14
-R15
-Abehavior
-R61
-R3
-R4
-R5
-DEx4 work 9 iirfilter 0 22 0>JOGcoM;jBaCA7BIAMF`2
-l81
-L23
-V6aC1PePmDnaDbP7LXgSU?0
-!s100 NdK``FUYY0P;BC5bN5eUo1
-R17
-32
-R64
-!i10b 1
-R65
-R66
-R67
-!i113 1
-R14
-R15
-Eiirfilter_buffer
-Z68 w1464942902
-R48
+Z76 w1469093270
 R2
 R3
 R4
 R5
 R6
-Z69 8/homes/areznicek/Desktop/HW_SW_CoDesign_LU/vhdl/audiocore/IIRFilter_Buffer.vhdl
-Z70 F/homes/areznicek/Desktop/HW_SW_CoDesign_LU/vhdl/audiocore/IIRFilter_Buffer.vhdl
+Z77 8C:/Users/ZECK/Documents/#TU/HWSWCoDLU/Maintask/HW_SW_CoDesign_LU/vhdl/audiocore/FIRFilter.vhdl
+Z78 FC:/Users/ZECK/Documents/#TU/HWSWCoDLU/Maintask/HW_SW_CoDesign_LU/vhdl/audiocore/FIRFilter.vhdl
 l0
 L9
-VdWhL3XzfYg6?MI`GEnDDA0
-!s100 >;_WjdQ@6iFnRSm:9EA8o1
+Vl;CWLAZAK58adC3QLUP@G1
+!s100 ;`k9Pk1RVUIJ@>S9e7mgX1
 R9
 32
 R10
 !i10b 1
 R11
-Z71 !s90 -reportprogress|300|-work|work|-2002|-explicit|-vopt|-stats=none|/homes/areznicek/Desktop/HW_SW_CoDesign_LU/vhdl/audiocore/IIRFilter_Buffer.vhdl|
-Z72 !s107 /homes/areznicek/Desktop/HW_SW_CoDesign_LU/vhdl/audiocore/IIRFilter_Buffer.vhdl|
+Z79 !s90 -reportprogress|300|-work|work|-2002|-explicit|-stats=none|C:/Users/ZECK/Documents/#TU/HWSWCoDLU/Maintask/HW_SW_CoDesign_LU/vhdl/audiocore/FIRFilter.vhdl|
+Z80 !s107 C:/Users/ZECK/Documents/#TU/HWSWCoDLU/Maintask/HW_SW_CoDesign_LU/vhdl/audiocore/FIRFilter.vhdl|
+!i113 1
+R14
+R15
+Abehavior
+R2
+R3
+R4
+R5
+DEx4 work 9 firfilter 0 22 l;CWLAZAK58adC3QLUP@G1
+l56
+L23
+Vi6z7bK<X23IldPU`;ULeJ1
+!s100 LMc[;6M0hHV@M`gQ0=Tc>2
+R9
+32
+R10
+!i10b 1
+R11
+R79
+R80
+!i113 1
+R14
+R15
+Efirfilter_demod
+Z81 w1469093283
+R2
+R3
+R4
+R5
+R6
+Z82 8C:/Users/ZECK/Documents/#TU/HWSWCoDLU/Maintask/HW_SW_CoDesign_LU/vhdl/audiocore/FIRFilter_demod.vhdl
+Z83 FC:/Users/ZECK/Documents/#TU/HWSWCoDLU/Maintask/HW_SW_CoDesign_LU/vhdl/audiocore/FIRFilter_demod.vhdl
+l0
+L9
+V@kb]FYVgIHDgSjRKGO1VD2
+!s100 U8QNVlWe_YH=JZ>M6dB6A3
+R9
+32
+R27
+!i10b 1
+R28
+Z84 !s90 -reportprogress|300|-work|work|-2002|-explicit|-stats=none|C:/Users/ZECK/Documents/#TU/HWSWCoDLU/Maintask/HW_SW_CoDesign_LU/vhdl/audiocore/FIRFilter_demod.vhdl|
+Z85 !s107 C:/Users/ZECK/Documents/#TU/HWSWCoDLU/Maintask/HW_SW_CoDesign_LU/vhdl/audiocore/FIRFilter_demod.vhdl|
+!i113 1
+R14
+R15
+Abehavior
+R2
+R3
+R4
+R5
+DEx4 work 15 firfilter_demod 0 22 @kb]FYVgIHDgSjRKGO1VD2
+l108
+L23
+VYVcAF[XBgU6Q@WC=8gcf83
+!s100 f=ggXglTfb>OZZeo;VHJF1
+R9
+32
+R27
+!i10b 1
+R28
+R84
+R85
+!i113 1
+R14
+R15
+Efixpoint_magnitude
+Z86 w1469093298
+R2
+R3
+R4
+R5
+R6
+Z87 8C:/Users/ZECK/Documents/#TU/HWSWCoDLU/Maintask/HW_SW_CoDesign_LU/vhdl/audiocore/fixpoint_magnitude.vhdl
+Z88 FC:/Users/ZECK/Documents/#TU/HWSWCoDLU/Maintask/HW_SW_CoDesign_LU/vhdl/audiocore/fixpoint_magnitude.vhdl
+l0
+L10
+VD?:[LC8T<X`ko^=igIg]C0
+!s100 zXDV3n8LXKF<URRHOJFV90
+R9
+32
+Z89 !s110 1469094365
+!i10b 1
+Z90 !s108 1469094365.000000
+Z91 !s90 -reportprogress|300|-work|work|-2002|-explicit|-stats=none|C:/Users/ZECK/Documents/#TU/HWSWCoDLU/Maintask/HW_SW_CoDesign_LU/vhdl/audiocore/fixpoint_magnitude.vhdl|
+Z92 !s107 C:/Users/ZECK/Documents/#TU/HWSWCoDLU/Maintask/HW_SW_CoDesign_LU/vhdl/audiocore/fixpoint_magnitude.vhdl|
+!i113 1
+R14
+R15
+Abehavior
+R2
+R3
+R4
+R5
+DEx4 work 18 fixpoint_magnitude 0 22 D?:[LC8T<X`ko^=igIg]C0
+l55
+L31
+VibEmYnNeY=g@W?5QAQCLN1
+!s100 `V9QKbj<2h3ENk5_k9V5T1
+R9
+32
+R89
+!i10b 1
+R90
+R91
+R92
+!i113 1
+R14
+R15
+Eiirfilter
+Z93 w1469093311
+R2
+R3
+R4
+R5
+R6
+Z94 8C:/Users/ZECK/Documents/#TU/HWSWCoDLU/Maintask/HW_SW_CoDesign_LU/vhdl/audiocore/IIRFilter.vhdl
+Z95 FC:/Users/ZECK/Documents/#TU/HWSWCoDLU/Maintask/HW_SW_CoDesign_LU/vhdl/audiocore/IIRFilter.vhdl
+l0
+L9
+V0>JOGcoM;jBaCA7BIAMF`2
+!s100 WUQGGE0?V;m:KXLL=JzYN0
+R9
+32
+R89
+!i10b 1
+R90
+Z96 !s90 -reportprogress|300|-work|work|-2002|-explicit|-stats=none|C:/Users/ZECK/Documents/#TU/HWSWCoDLU/Maintask/HW_SW_CoDesign_LU/vhdl/audiocore/IIRFilter.vhdl|
+Z97 !s107 C:/Users/ZECK/Documents/#TU/HWSWCoDLU/Maintask/HW_SW_CoDesign_LU/vhdl/audiocore/IIRFilter.vhdl|
+!i113 1
+R14
+R15
+Abehavior
+R2
+R3
+R4
+R5
+DEx4 work 9 iirfilter 0 22 0>JOGcoM;jBaCA7BIAMF`2
+l73
+L23
+V>gO9_B3iiKFN3Jd0F1U<G0
+!s100 g_8EOTSU>U4;oN^gLmg2<1
+R9
+32
+R89
+!i10b 1
+R90
+R96
+R97
+!i113 1
+R14
+R15
+Eiirfilter_audioout
+Z98 w1469093329
+R2
+R3
+R4
+R5
+R6
+Z99 8C:/Users/ZECK/Documents/#TU/HWSWCoDLU/Maintask/HW_SW_CoDesign_LU/vhdl/audiocore/IIRFilter_audioout.vhdl
+Z100 FC:/Users/ZECK/Documents/#TU/HWSWCoDLU/Maintask/HW_SW_CoDesign_LU/vhdl/audiocore/IIRFilter_audioout.vhdl
+l0
+L9
+VlPzU<nKieQ5f6o?oa3QG<1
+!s100 f^6Q_K_K3LT]zGlKm59iN3
+R9
+32
+R89
+!i10b 1
+R90
+Z101 !s90 -reportprogress|300|-work|work|-2002|-explicit|-stats=none|C:/Users/ZECK/Documents/#TU/HWSWCoDLU/Maintask/HW_SW_CoDesign_LU/vhdl/audiocore/IIRFilter_audioout.vhdl|
+Z102 !s107 C:/Users/ZECK/Documents/#TU/HWSWCoDLU/Maintask/HW_SW_CoDesign_LU/vhdl/audiocore/IIRFilter_audioout.vhdl|
+!i113 1
+R14
+R15
+Abehavior
+R2
+R3
+R4
+R5
+DEx4 work 18 iirfilter_audioout 0 22 lPzU<nKieQ5f6o?oa3QG<1
+l73
+L23
+VF46gJ:>QS@bd2;HIC<S563
+!s100 L9@TM8VUmQZQN:nXDK=>S3
+R9
+32
+R89
+!i10b 1
+R90
+R101
+R102
+!i113 1
+R14
+R15
+Eiirfilter_buffer
+Z103 w1464942902
+R71
+Z104 DPx4 work 13 audiocore_pkg 0 22 [WM_?cZa<_=3m[FX@PX]83
+R3
+R4
+R5
+Z105 d/homes/areznicek/Desktop/HW_SW_CoDesign_LU/Simulation
+Z106 8/homes/areznicek/Desktop/HW_SW_CoDesign_LU/vhdl/audiocore/IIRFilter_Buffer.vhdl
+Z107 F/homes/areznicek/Desktop/HW_SW_CoDesign_LU/vhdl/audiocore/IIRFilter_Buffer.vhdl
+l0
+L9
+VdWhL3XzfYg6?MI`GEnDDA0
+!s100 >;_WjdQ@6iFnRSm:9EA8o1
+Z108 OL;C;10.4c;61
+32
+Z109 !s110 1465227565
+!i10b 1
+Z110 !s108 1465227565.000000
+Z111 !s90 -reportprogress|300|-work|work|-2002|-explicit|-vopt|-stats=none|/homes/areznicek/Desktop/HW_SW_CoDesign_LU/vhdl/audiocore/IIRFilter_Buffer.vhdl|
+Z112 !s107 /homes/areznicek/Desktop/HW_SW_CoDesign_LU/vhdl/audiocore/IIRFilter_Buffer.vhdl|
 !i113 0
 R14
 R15
 Abehavior
-R48
-R2
+R71
+R104
 R3
 R4
 R5
@@ -464,21 +742,21 @@ l49
 L28
 V`ZLbQQLo2QFO9ZKh36NJH0
 !s100 R6ZA37N9ZYdHn:CO[82GK0
-R9
+R108
 32
-R10
+R109
 !i10b 1
-R11
-R71
-R72
+R110
+R111
+R112
 !i113 0
 R14
 R15
 Pmath_pkg
-R42
+Z113 w1449251553
 R6
-Z73 8/homes/areznicek/Desktop/HW_SW_CoDesign_LU/vhdl/common/math/src/math_pkg.vhd
-Z74 F/homes/areznicek/Desktop/HW_SW_CoDesign_LU/vhdl/common/math/src/math_pkg.vhd
+Z114 8C:/Users/ZECK/Documents/#TU/HWSWCoDLU/Maintask/HW_SW_CoDesign_LU/vhdl/common/math/src/math_pkg.vhd
+Z115 FC:/Users/ZECK/Documents/#TU/HWSWCoDLU/Maintask/HW_SW_CoDesign_LU/vhdl/common/math/src/math_pkg.vhd
 l0
 L20
 V:8G=3n:5T:beicYkUUnWH0
@@ -486,52 +764,51 @@ V:8G=3n:5T:beicYkUUnWH0
 R9
 32
 b1
-Z75 !s110 1465227564
+R47
 !i10b 1
-Z76 !s108 1465227564.000000
-Z77 !s90 -reportprogress|300|-work|work|-2002|-explicit|-vopt|-stats=none|/homes/areznicek/Desktop/HW_SW_CoDesign_LU/vhdl/common/math/src/math_pkg.vhd|
-Z78 !s107 /homes/areznicek/Desktop/HW_SW_CoDesign_LU/vhdl/common/math/src/math_pkg.vhd|
-!i113 0
+R48
+Z116 !s90 -reportprogress|300|-work|work|-2002|-explicit|-stats=none|C:/Users/ZECK/Documents/#TU/HWSWCoDLU/Maintask/HW_SW_CoDesign_LU/vhdl/common/math/src/math_pkg.vhd|
+Z117 !s107 C:/Users/ZECK/Documents/#TU/HWSWCoDLU/Maintask/HW_SW_CoDesign_LU/vhdl/common/math/src/math_pkg.vhd|
+!i113 1
 R14
 R15
 Bbody
-R48
+R71
 l0
 L40
 VeAaN^aN5f_5l9=zM@;5aC3
 !s100 n[@=7Amo=8;6=i]C78L4W3
 R9
 32
-R75
+R47
 !i10b 1
-R76
-R77
-R78
-!i113 0
+R48
+R116
+R117
+!i113 1
 R14
 R15
-nbody
 Emixerfm
-Z79 w1465227549
+Z118 w1469093398
 R2
 R3
 R4
 R5
 R6
-Z80 8/homes/areznicek/Desktop/HW_SW_CoDesign_LU/vhdl/audiocore/mixerFM.vhdl
-Z81 F/homes/areznicek/Desktop/HW_SW_CoDesign_LU/vhdl/audiocore/mixerFM.vhdl
+Z119 8C:/Users/ZECK/Documents/#TU/HWSWCoDLU/Maintask/HW_SW_CoDesign_LU/vhdl/audiocore/mixerFM.vhdl
+Z120 FC:/Users/ZECK/Documents/#TU/HWSWCoDLU/Maintask/HW_SW_CoDesign_LU/vhdl/audiocore/mixerFM.vhdl
 l0
 L8
 V5:_X36<0Ha_e;YlL69Vgb3
 !s100 IGUNfPk[a<kTJ3]77n`VI2
 R9
 32
-R10
+R89
 !i10b 1
-R11
-Z82 !s90 -reportprogress|300|-work|work|-2002|-explicit|-vopt|-stats=none|/homes/areznicek/Desktop/HW_SW_CoDesign_LU/vhdl/audiocore/mixerFM.vhdl|
-Z83 !s107 /homes/areznicek/Desktop/HW_SW_CoDesign_LU/vhdl/audiocore/mixerFM.vhdl|
-!i113 0
+R48
+Z121 !s90 -reportprogress|300|-work|work|-2002|-explicit|-stats=none|C:/Users/ZECK/Documents/#TU/HWSWCoDLU/Maintask/HW_SW_CoDesign_LU/vhdl/audiocore/mixerFM.vhdl|
+Z122 !s107 C:/Users/ZECK/Documents/#TU/HWSWCoDLU/Maintask/HW_SW_CoDesign_LU/vhdl/audiocore/mixerFM.vhdl|
+!i113 1
 R14
 R15
 Abehavior
@@ -540,47 +817,92 @@ R3
 R4
 R5
 DEx4 work 7 mixerfm 0 22 5:_X36<0Ha_e;YlL69Vgb3
-l165
+l156
 L24
-VVDX27mWi4EK?D7hmC2OP<0
-!s100 1cIM[1gOZ=k`cOiW8>RNh1
+V5NTJSVIWO?7l7DdUEl6HU1
+!s100 5hI1d87>9;T3DihN?Lib>1
 R9
 32
-R10
+R89
 !i10b 1
-R11
-R82
-R83
-!i113 0
+R48
+R121
+R122
+!i113 1
 R14
 R15
-Eoutputbuffer
-Z84 w1465213115
+Eoutput_mem
+R24
 R2
-R48
+R71
 R3
 R4
 R5
 R6
-Z85 8/homes/areznicek/Desktop/HW_SW_CoDesign_LU/vhdl/audiocore/outputbuffer.vhdl
-Z86 F/homes/areznicek/Desktop/HW_SW_CoDesign_LU/vhdl/audiocore/outputbuffer.vhdl
+Z123 8C:/Users/ZECK/Documents/#TU/HWSWCoDLU/Maintask/HW_SW_CoDesign_LU/vhdl/audiocore/output_mem.vhdl
+Z124 FC:/Users/ZECK/Documents/#TU/HWSWCoDLU/Maintask/HW_SW_CoDesign_LU/vhdl/audiocore/output_mem.vhdl
+l0
+L9
+VYIi?ZcA1LafRhZ^=zGYY[1
+!s100 FgVb4kVVXV?N:;X[[Lh>B0
+R9
+32
+R89
+!i10b 1
+R90
+Z125 !s90 -reportprogress|300|-work|work|-2002|-explicit|-stats=none|C:/Users/ZECK/Documents/#TU/HWSWCoDLU/Maintask/HW_SW_CoDesign_LU/vhdl/audiocore/output_mem.vhdl|
+Z126 !s107 C:/Users/ZECK/Documents/#TU/HWSWCoDLU/Maintask/HW_SW_CoDesign_LU/vhdl/audiocore/output_mem.vhdl|
+!i113 1
+R14
+R15
+Abehavior
+R2
+R71
+R3
+R4
+R5
+DEx4 work 10 output_mem 0 22 YIi?ZcA1LafRhZ^=zGYY[1
+l71
+L32
+VPlkXLKLTVRXh?fYW=Oang0
+!s100 n<A:AS4]Qbz>G]JXZA[Ea3
+R9
+32
+R89
+!i10b 1
+R90
+R125
+R126
+!i113 1
+R14
+R15
+Eoutputbuffer
+R70
+R2
+R71
+R3
+R4
+R5
+R6
+Z127 8C:/Users/ZECK/Documents/#TU/HWSWCoDLU/Maintask/HW_SW_CoDesign_LU/vhdl/audiocore/outputbuffer.vhdl
+Z128 FC:/Users/ZECK/Documents/#TU/HWSWCoDLU/Maintask/HW_SW_CoDesign_LU/vhdl/audiocore/outputbuffer.vhdl
 l0
 L9
 VDb540M_;LJk^?jIi8SMbH3
 !s100 QoghCIa@_mNB>DJP7837T2
 R9
 32
-R10
+R89
 !i10b 1
-R11
-Z87 !s90 -reportprogress|300|-work|work|-2002|-explicit|-vopt|-stats=none|/homes/areznicek/Desktop/HW_SW_CoDesign_LU/vhdl/audiocore/outputbuffer.vhdl|
-Z88 !s107 /homes/areznicek/Desktop/HW_SW_CoDesign_LU/vhdl/audiocore/outputbuffer.vhdl|
-!i113 0
+R90
+Z129 !s90 -reportprogress|300|-work|work|-2002|-explicit|-stats=none|C:/Users/ZECK/Documents/#TU/HWSWCoDLU/Maintask/HW_SW_CoDesign_LU/vhdl/audiocore/outputbuffer.vhdl|
+Z130 !s107 C:/Users/ZECK/Documents/#TU/HWSWCoDLU/Maintask/HW_SW_CoDesign_LU/vhdl/audiocore/outputbuffer.vhdl|
+!i113 1
 R14
 R15
 Abehavior
 R2
-R48
+R71
 R3
 R4
 R5
@@ -591,35 +913,35 @@ V[1<nJ[gQfjKdCm>4GJ=F`0
 !s100 nnzad]fM4:ZHKG8Bagdll3
 R9
 32
-R10
+R89
 !i10b 1
-R11
-R87
-R88
-!i113 0
+R90
+R129
+R130
+!i113 1
 R14
 R15
 Eoutputlogic
-Z89 w1460478837
+Z131 w1469093432
 R2
 R3
 R4
 R5
 R6
-Z90 8/homes/areznicek/Desktop/HW_SW_CoDesign_LU/vhdl/audiocore/outputlogic.vhdl
-Z91 F/homes/areznicek/Desktop/HW_SW_CoDesign_LU/vhdl/audiocore/outputlogic.vhdl
+Z132 8C:/Users/ZECK/Documents/#TU/HWSWCoDLU/Maintask/HW_SW_CoDesign_LU/vhdl/audiocore/outputlogic.vhdl
+Z133 FC:/Users/ZECK/Documents/#TU/HWSWCoDLU/Maintask/HW_SW_CoDesign_LU/vhdl/audiocore/outputlogic.vhdl
 l0
 L8
 VIOm9HPV>aYhKL[MBI1_@?0
 !s100 ^AP`XDo?Wf<[8Mk0P^GDM0
 R9
 32
-R10
+R89
 !i10b 1
-R11
-Z92 !s90 -reportprogress|300|-work|work|-2002|-explicit|-vopt|-stats=none|/homes/areznicek/Desktop/HW_SW_CoDesign_LU/vhdl/audiocore/outputlogic.vhdl|
-Z93 !s107 /homes/areznicek/Desktop/HW_SW_CoDesign_LU/vhdl/audiocore/outputlogic.vhdl|
-!i113 0
+R90
+Z134 !s90 -reportprogress|300|-work|work|-2002|-explicit|-stats=none|C:/Users/ZECK/Documents/#TU/HWSWCoDLU/Maintask/HW_SW_CoDesign_LU/vhdl/audiocore/outputlogic.vhdl|
+Z135 !s107 C:/Users/ZECK/Documents/#TU/HWSWCoDLU/Maintask/HW_SW_CoDesign_LU/vhdl/audiocore/outputlogic.vhdl|
+!i113 1
 R14
 R15
 Abehavior
@@ -628,40 +950,40 @@ R3
 R4
 R5
 DEx4 work 11 outputlogic 0 22 IOm9HPV>aYhKL[MBI1_@?0
-l34
+l26
 L22
-VgE5kP6g>UDR16SYgWEFA23
-!s100 C74V_RZi1K;S^:LJI[lG90
+VVUkDn=[=EeOme``MQ;]4a3
+!s100 hHZSDjM4oQW5Aj=1T0^O@2
 R9
 32
-R10
+R89
 !i10b 1
-R11
-R92
-R93
-!i113 0
+R90
+R134
+R135
+!i113 1
 R14
 R15
 Eqp_ram
-Z94 w1458304864
+Z136 w1458757432
 R3
 R4
 R5
 R6
-Z95 8/homes/areznicek/Desktop/HW_SW_CoDesign_LU/vhdl/audiocore/qp_ram.vhdl
-Z96 F/homes/areznicek/Desktop/HW_SW_CoDesign_LU/vhdl/audiocore/qp_ram.vhdl
+Z137 8C:/Users/ZECK/Documents/#TU/HWSWCoDLU/Maintask/HW_SW_CoDesign_LU/vhdl/audiocore/qp_ram.vhdl
+Z138 FC:/Users/ZECK/Documents/#TU/HWSWCoDLU/Maintask/HW_SW_CoDesign_LU/vhdl/audiocore/qp_ram.vhdl
 l0
 L5
 VN<YRcJ]JcBzFkEk4ebRTz0
 !s100 JG:mMJgz>5[l<=43>mBJ]2
 R9
 32
-R10
+R89
 !i10b 1
-R11
-Z97 !s90 -reportprogress|300|-work|work|-2002|-explicit|-vopt|-stats=none|/homes/areznicek/Desktop/HW_SW_CoDesign_LU/vhdl/audiocore/qp_ram.vhdl|
-Z98 !s107 /homes/areznicek/Desktop/HW_SW_CoDesign_LU/vhdl/audiocore/qp_ram.vhdl|
-!i113 0
+R90
+Z139 !s90 -reportprogress|300|-work|work|-2002|-explicit|-stats=none|C:/Users/ZECK/Documents/#TU/HWSWCoDLU/Maintask/HW_SW_CoDesign_LU/vhdl/audiocore/qp_ram.vhdl|
+Z140 !s107 C:/Users/ZECK/Documents/#TU/HWSWCoDLU/Maintask/HW_SW_CoDesign_LU/vhdl/audiocore/qp_ram.vhdl|
+!i113 1
 R14
 R15
 Abeh
@@ -675,23 +997,23 @@ Veb1=oez1bYo=Ui<AK8VQE0
 !s100 o_<PIe>8PS`@LDA8U38Vg1
 R9
 32
-R10
+R89
 !i10b 1
-R11
-R97
-R98
-!i113 0
+R90
+R139
+R140
+!i113 1
 R14
 R15
 Etp_ram
-Z99 w1464873483
+Z141 w1464898701
 R2
 R3
 R4
 R5
 R6
-Z100 8/homes/areznicek/Desktop/HW_SW_CoDesign_LU/vhdl/audiocore/tp_ram.vhdl
-Z101 F/homes/areznicek/Desktop/HW_SW_CoDesign_LU/vhdl/audiocore/tp_ram.vhdl
+Z142 8C:/Users/ZECK/Documents/#TU/HWSWCoDLU/Maintask/HW_SW_CoDesign_LU/vhdl/audiocore/tp_ram.vhdl
+Z143 FC:/Users/ZECK/Documents/#TU/HWSWCoDLU/Maintask/HW_SW_CoDesign_LU/vhdl/audiocore/tp_ram.vhdl
 l0
 L8
 VT1>9zeFQXE_`CG3@[WJnE1
@@ -701,9 +1023,9 @@ R9
 R10
 !i10b 1
 R11
-Z102 !s90 -reportprogress|300|-work|work|-2002|-explicit|-vopt|-stats=none|/homes/areznicek/Desktop/HW_SW_CoDesign_LU/vhdl/audiocore/tp_ram.vhdl|
-Z103 !s107 /homes/areznicek/Desktop/HW_SW_CoDesign_LU/vhdl/audiocore/tp_ram.vhdl|
-!i113 0
+Z144 !s90 -reportprogress|300|-work|work|-2002|-explicit|-stats=none|C:/Users/ZECK/Documents/#TU/HWSWCoDLU/Maintask/HW_SW_CoDesign_LU/vhdl/audiocore/tp_ram.vhdl|
+Z145 !s107 C:/Users/ZECK/Documents/#TU/HWSWCoDLU/Maintask/HW_SW_CoDesign_LU/vhdl/audiocore/tp_ram.vhdl|
+!i113 1
 R14
 R15
 Abeh
@@ -721,8 +1043,8 @@ R9
 R10
 !i10b 1
 R11
-R102
-R103
-!i113 0
+R144
+R145
+!i113 1
 R14
 R15

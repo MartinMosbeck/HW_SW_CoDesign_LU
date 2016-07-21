@@ -15,7 +15,12 @@ from BitVector import *
 #vars =[58.250718819166465, 49.235539357609530, 52.636911774180525, 52.888395882599816, 59.560697188528900]#Q die vierte
 
 #vars = [0.802734]
-vars = [450]#Test faktor bei demod_FIR um zwischen 0-255 Werte zu erreichen
+#vars = [450]#Test faktor bei demod_FIR um zwischen 0-255 Werte zu erreichen
+
+#vars = [6.283185307179586476925286766559, -6.283185307179586476925286766559]
+#vars = [0.01745329251994329576923690768489]
+
+vars = [6.283185307179586476925286766559]
 
 skalierungsfaktor = pow(2,2*8)
 
