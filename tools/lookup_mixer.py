@@ -1,8 +1,13 @@
-#Überlegung
+#berlegung
 # In den sinus und cosinus beim Mixer
-# bleibt folgendes übrig : 86.4 * x
+# bleibt folgendes brig : 86.4 * x
 # das ergibt eine 25 werte periodische lookup tabelle 
 # =D =D =D
+
+#beim Mixer fr das RDS sinds bei Decimation um 10
+#82.08193330441730*x, bei 82.08 sinds wieder 25 Werteperiodisch
+
+#ANGEPASST FR 16.16!!!
 
 
 from math import *
@@ -15,10 +20,10 @@ for i in range(0,25):
     if ( x>360):
         x=x-360
     index.append(x)
-    x=x+86.4
+    x=x+82.08#x=x+86.4
 
 
-skalierungsfaktor = pow(2,3*8)
+skalierungsfaktor = pow(2,2*8)
 
 print("\nCOSINUS")
 i=0
@@ -28,8 +33,8 @@ for x in index:
     vorkomma = abs(int(value))
     nachkomma = abs(int((value-int(value))*skalierungsfaktor))
     
-    bv1 = BitVector(intVal=vorkomma,size=8)
-    bv2 = BitVector(intVal=nachkomma,size=24)
+    bv1 = BitVector(intVal=vorkomma,size=16)
+    bv2 = BitVector(intVal=nachkomma,size=16)
     bv = bv1 + bv2
 
     if(value<0):
@@ -54,7 +59,7 @@ for x in index:
 
     
     print("\t\t\twhen "+str(i)+" =>")
-    print('\t\t\t\treturn "',end="")
+    print('\t\t\t\treturn "')
     print(str(bv)+'";') 
     i=i+1
 
@@ -67,8 +72,8 @@ for x in index:
     vorkomma = abs(int(value))
     nachkomma = abs(int((value-int(value))*skalierungsfaktor))
     
-    bv1 = BitVector(intVal=vorkomma,size=8)
-    bv2 = BitVector(intVal=nachkomma,size=24)
+    bv1 = BitVector(intVal=vorkomma,size=16)
+    bv2 = BitVector(intVal=nachkomma,size=16)
     bv = bv1 + bv2
 
     if(value<0):
@@ -93,6 +98,6 @@ for x in index:
 
 
     print("\t\t\twhen "+str(i)+" =>")
-    print('\t\t\t\treturn "',end="")
+    print('\t\t\t\treturn "')
     print(str(bv)+'";') 
     i=i+1

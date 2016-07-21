@@ -55,7 +55,12 @@ architecture rtl of audiocore is
 	signal fmixer_Ivalidout, fmixer_Qvalidout: std_logic;
 	signal fFMdemod_data_out: fixpoint;
 	signal fFMdemod_validout: std_logic;
-
+	signal RDSmixI_data_out, RDSmixQ_data_out: fixpoint;
+	signal RDSmix_validout: std_logic;
+	signal fRDSmixI_data_out, fRDSmixQ_data_out: fixpoint;
+	signal fRDSmixI_validout, fRDSmixQ_validout: std_logic;
+	signal RDS_symbols: byte;
+	signal RDS_symbols_validin: std_logic;
 begin
 	clk_top <= clk;
 	res_n_top <= res_n;
@@ -203,7 +208,8 @@ begin
 		data_out 	=> FMdemod_data_out,
 		validout 	=> FMdemod_validout
 	);
-	
+
+	--AUDIO
 	filter12kHz : IIRFilter_audioout
 	port map
 	(
@@ -229,7 +235,7 @@ begin
 		data_out => outlogic_data_out,
 		validout => outlogic_validout
 	);
-	
+
 	audioout: output_mem
 	generic map
 	(
@@ -252,6 +258,63 @@ begin
 		audiooutright_valid => audiooutright_valid
 	);
 
+	--RDS
+	mix_RDS: mixerRDS
+	port map
+	(
+		clk => clk_top,
+		res_n => res_n_top,
+
+		fixin => FMdemod_data_out,
+		validin => FMdemod_validout,
+
+		Iout => RDSmixI_data_out,
+		Qout => RDSmixQ_data_out,
+		validout => RDSmix_validout
+	);
+
+	filter2K4HzI: IIRFilter_matched
+	port map
+	(
+		clk => clk_top,
+		res_n => res_n_top,
+
+		data_in => RDSmixI_data_out,
+		validin => RDSmix_validout,
+
+		data_out => fRDSmixI_data_out,
+		validout => fRDSmixI_validout
+	);
+
+	filter2K4HzQ: IIRFilter_matched
+	port map
+	(
+		clk => clk_top,
+		res_n => res_n_top,
+
+		data_in => RDSmixQ_data_out,
+		validin => RDSmix_validout,
+
+		data_out => fRDSmixQ_data_out,
+		validout => fRDSmixQ_validout
+	);
+
+	--Symbol-Detection, der von fRDSmix... die Symbole ausliest und
+	--auf RDS_symbols byteweise ausgibt
+	Symbolgetter: RDSSymboler
+	port map
+	(
+		clk => clk_top,
+		res_n => res_n_top,
+
+		Iin => fRDSmixI_data_out,
+		Qin => fRDSmixQ_data_out,
+		validin => fRDSmixI_validout,
+
+		RDSout => RDS_symbols,
+		validout => RDS_symbols_validin
+	);
+
 	outbuffer: outputbuffer
 	generic map
 	(
@@ -262,9 +325,9 @@ begin
 		clk => clk_top,
 		res_n => res_n_top,
 
-		data_in => outlogic_data_out,
-		validin => outlogic_validout,
-		
+		data_in => RDS_symbols,
+		validin => RDS_symbols_validin,
+
 		ready => asout_ready,
 		validout => asout_valid,
 		data_out => asout_data

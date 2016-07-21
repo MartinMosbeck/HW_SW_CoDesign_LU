@@ -21,14 +21,6 @@ entity IIRFilter is
 end IIRFilter;
 
 architecture behavior of IIRFIlter is
-	function fixpoint_mult(a,b:fixpoint) return fixpoint is
-		variable result_full : fixpoint_product;
-	begin
-		result_full := a * b;
-
-		return result_full(47 downto 16);
-	end function;
-	
 	constant order: natural := 4;
 	function a(index:index) 
 		return fixpoint is

@@ -6,7 +6,7 @@ library work;
 use work.audiocore_pkg.all;
 
 
-entity IIRFilter is	
+entity IIRFilter_matched is	
 	port 
 	(
 		clk 		: in std_logic;
@@ -18,25 +18,31 @@ entity IIRFilter is
 		data_out 	: out fixpoint;
 		validout 	: out std_logic
 	);
-end IIRFilter;
+end IIRFilter_matched;
 
-architecture behavior of IIRFIlter is
+architecture behavior of IIRFilter_matched is
 	--IIR-FILTER: Nachfolgend die Filterordnung eintragen, und die Koeffizienten a[x] und b[x]
 	--Koeffizienten in der Form 16 Vorkomma/16 Nachkomma Stellen Zweierkomplement Fixpunkt
 	--Die Filterordnung passt so, die Ordnung beim IIR ist die Anzahl der a-Koeffizienten (=b-1)
-	constant order: natural := 4;
+	constant order: natural := 7;
 	function a(index:index) 
 		return fixpoint is
 	begin 
 		case index is
 		    when 0 =>
-			    return "11111111111111000001110001000001";
-		    when 1 =>
-			    return "00000000000001011011001001111011";
-		    when 2 =>
-			    return "11111111111111000100011010110000";
-		    when 3 =>
-			    return "00000000000000001110101010011011";
+					return "11111111111110010001000101001110";
+			when 1 =>
+					return "00000000000101001001100101111111";
+			when 2 =>
+					return "11111111110111011111110100000101";
+			when 3 =>
+					return "00000000001000011011001011100100";
+			when 4 =>
+					return "11111111111010111111011010110001";
+			when 5 =>
+					return "00000000000001101001111010001111";
+			when 6 =>
+					return "11111111111111110001000000001010";
 		    when others=> return x"FFFFFFFF";
 		end case;
 	end function;
@@ -44,16 +50,22 @@ architecture behavior of IIRFIlter is
 		return fixpoint is
 	begin 
 		case index is
-		     when 0 =>
-			    return "00000000000000000000000001001010";
-		    when 1 =>
-			    return "11111111111111111111111100001000";
-		    when 2 =>
-			    return "00000000000000000000000101100000";
-		    when 3 =>
-			    return "11111111111111111111111100001000";
-		    when 4 =>
-			    return "00000000000000000000000001001010";
+		    when 0 =>
+					return "00000000000000000000000000000000";
+			when 1 =>
+					return "00000000000000000000010000100001";
+			when 2 =>
+					return "11111111111111111110011001001010";
+			when 3 =>
+					return "00000000000000000100001010110100";
+			when 4 =>
+					return "11111111111111111010001110101011";
+			when 5 =>
+					return "00000000000000000100011111101101";
+			when 6 =>
+					return "11111111111111111110001000011011";
+			when 7 =>
+					return "00000000000000000000010100101110";
 		    when others=> return x"FFFFFFFF";
 		end case;
 	end function;

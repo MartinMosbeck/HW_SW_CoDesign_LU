@@ -29,15 +29,6 @@ entity fixpoint_magnitude is
 
 
  architecture behavior of fixpoint_magnitude is
-
-	function fixpoint_mult(a,b:fixpoint) return fixpoint is
-		variable result_full : fixpoint_product;
-	begin
-		result_full := a * b;
-
-		return result_full(47 downto 16);
-	end function;
-
 	signal I_abs_cur, I_abs_next : fixpoint;
 	signal Q_abs_cur, Q_abs_next : fixpoint;
 

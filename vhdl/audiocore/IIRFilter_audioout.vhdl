@@ -21,14 +21,6 @@ entity IIRFilter_audioout is
 end IIRFilter_audioout;
 
 architecture behavior of IIRFIlter_audioout is
-	function fixpoint_mult(a,b:fixpoint) return fixpoint is
-		variable result_full : fixpoint_product;
-	begin
-		result_full := a * b;
-
-		return result_full(47 downto 16);
-	end function;
-	
 	--IIR-FILTER: Nachfolgend die Filterordnung eintragen, und die Koeffizienten a[x] und b[x]
 	--Koeffizienten in der Form 16 Vorkomma/16 Nachkomma Stellen Zweierkomplement Fixpunkt
 	--Die Filterordnung passt so, die Ordnung beim IIR ist die Anzahl der a-Koeffizienten (=b-1)

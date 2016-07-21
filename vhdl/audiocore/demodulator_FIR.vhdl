@@ -42,15 +42,6 @@ architecture behavior of demodulator_FIR is
 	--prepare_sqrt-process
 	signal data_to_sqrt_I_cur, data_to_sqrt_I_next, data_to_sqrt_Q_cur, data_to_sqrt_Q_next, input_to_sqrt_cur, input_to_sqrt_next: fixpoint;
 	signal valid_to_sqrt_cur, valid_to_sqrt_next: std_logic;
-	
-	
-	function fixpoint_mult(a,b:fixpoint) return fixpoint is
-				variable result_full : fixpoint_product;
-	begin
-		result_full := a * b;
-
-		return result_full(47 downto 16);
-	end function;
 begin
 
 	prepare_sqrt: process(data_in_I, data_in_Q,validin_I, data_to_sqrt_I_cur, data_to_sqrt_Q_cur, input_to_sqrt_cur)
