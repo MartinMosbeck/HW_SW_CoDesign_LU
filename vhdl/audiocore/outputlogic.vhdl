@@ -23,14 +23,6 @@ architecture behavior of outputlogic is
 	signal data_out_cur,data_out_next : byte; 
 	signal data : fixpoint;
 	signal validout_cur, validout_next, valid : std_logic;
-
-	function fixpoint_mult(a,b:fixpoint) return fixpoint is
-				variable result_full : fixpoint_product;
-	begin
-		result_full := a * b;
-
-		return result_full(47 downto 16);
-	end function;
 begin
 
 	deci: decimator

@@ -21,14 +21,6 @@ entity FIRFilter is
 end FIRFilter;
 
 architecture behavior of FIRFilter is
-	function fixpoint_mult(a,b:fixpoint) return fixpoint is
-		variable result_full : fixpoint_product;
-	begin
-		result_full := a * b;
-
-		return result_full(47 downto 16);
-	end function;
-	
 	--FIR-FILTER: Nachfolgend die Filterordnung eintragen und die Koeffizienten b[x]
 	--Koeffizienten in der Form 16 Vorkomma/16 Nachkomma Stellen Zweierkomplement Fixpunkt
 	constant order: natural := 4;

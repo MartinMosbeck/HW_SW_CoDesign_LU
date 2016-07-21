@@ -34,15 +34,6 @@ architecture behavior of mixerFM is
 	signal I_temp_cur, I_temp_next, Q_temp_cur, Q_temp_next: fixpoint;
 	
 	signal lookup_cos_cur, lookup_cos_next, lookup_sin_cur, lookup_sin_next: fixpoint;
-
-
-	function fixpoint_mult(a,b:fixpoint) return fixpoint is
-				variable result_full : fixpoint_product;
-	begin
-		result_full := a * b;
-
-		return result_full(47 downto 16);
-	end function;
 	
 	function lookup_sin(index:index_time) 
 		return fixpoint is

@@ -8,7 +8,9 @@ package audiocore_pkg is
 	subtype index_time is integer range 0 to 24; 
 	subtype index is natural;
 	subtype fixpoint is signed(31 downto 0);
-	subtype fixpoint_product is signed(63 downto 0);
+
+	subtype fixpoint_product is signed(47 downto 0);
+	function fixpoint_mult(a,b:fixpoint) return fixpoint;
 
 	type fixpoint_array is array(natural range <>) of fixpoint; 
 
@@ -441,3 +443,13 @@ package audiocore_pkg is
 	);
 	end component;
 end package audiocore_pkg;
+
+package body audiocore_pkg is
+	function fixpoint_mult(a,b:fixpoint) return fixpoint is
+				variable result_full : fixpoint_product;
+	begin
+		result_full := signed(std_logic_vector(a(23 downto 0))) * signed(std_logic_vector(b(23 downto 0)));
+
+		return result_full(47 downto 16);
+	end function;
+end package body;

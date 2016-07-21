@@ -21,15 +21,6 @@ port
 end PLL;
 
 architecture PLL_beh of PLL is
-
-	function fixpoint_mult(a,b:fixpoint) return fixpoint is
-		variable result_full : fixpoint_product;
-	begin
-		result_full := a * b;
-
-		return result_full(47 downto 16);
-	end function;
-
 	--constant kp : fixpoint := "00000000001001100110011001100110";
 	constant kp : fixpoint := "00000000000000000010011001100110";
 

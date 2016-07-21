@@ -28,14 +28,6 @@ architecture behavior of demodulator is
 
 	signal validintern_cur, validintern_next: std_logic := '0';
 	signal data1_cur, data1_next, data2_cur, data2_next: fixpoint;
-
-	function fixpoint_mult(a,b:fixpoint) return fixpoint is
-				variable result_full : fixpoint_product;
-	begin
-		result_full := a * b;
-
-		return result_full(47 downto 16);
-	end function;
 begin
 
 	do_demodulation: process (data_in_I,data_in_Q,validin_I, data_out_cur, validout_cur, data_con_I, data_con_Q,validintern_cur, data1_cur, data2_cur)--,validin_Q
