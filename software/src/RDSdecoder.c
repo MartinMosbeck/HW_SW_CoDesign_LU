@@ -203,7 +203,7 @@ uint8_t addBit(uint8_t bit)
 					isSync = 1;
 					//calculating the actual count for synchronous operation in the next cycle	
 					syncCount = 26 * (block);
-					expectedBlock = ((block) & 0x3 + 1;    //(Modulo 4) + 1
+					expectedBlock = ((block) & 0x3) + 1;    //(Modulo 4) + 1
 					packetsLost = 0;
 
 			 		block_ok[block - 1] = 1;
