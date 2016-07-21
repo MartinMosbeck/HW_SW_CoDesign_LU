@@ -163,7 +163,7 @@ begin
 	Ideci : decimator
 	generic map
 	(
-		N => 20
+		N => 10
 	)
 	port map
 	(
@@ -180,7 +180,7 @@ begin
 	Qdeci : decimator
 	generic map
 	(
-		N => 20
+		N => 10
 	)
 	port map
 	(
