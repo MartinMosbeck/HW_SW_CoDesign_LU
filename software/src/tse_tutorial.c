@@ -166,7 +166,6 @@ int main(void)
 				sprintf(buffer, "Byte #%d added\n", z);
 				display_print(buffer);
 			}
-
 			PrintNameAndText();
 			
 			//------------ENDE VIEL SPAß-----------
