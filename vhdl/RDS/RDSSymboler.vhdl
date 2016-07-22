@@ -486,14 +486,14 @@ architecture behavior of RDSSymboler is
 	signal lastI_cur, lastI_next: fixpoint;
 	signal I_corr_cur, I_corr_next : fixpoint;
 	signal Q_corr_cur, Q_corr_next : fixpoint;
-	signal phi_cur, phi_next : fixpoint;
+	signal phi_cur, phi_next, phipih_cur, phipih_next : fixpoint;
 
 	signal code_mode_cur, code_mode_next: std_logic;
 	signal code_word_next, code_word_cur: fixpoint;
 
-	signal validintern_cur1, validintern_cur2, validintern_next1, validintern_next2, validintern_cur3, validintern_next3, validintern_cur4, validintern_next4: std_logic;
+	signal validintern_cur1, validintern_cur2, validintern_next1, validintern_next2, validintern_cur3, validintern_next3: std_logic;
 	signal validout_next, validout_cur: std_logic;
-	signal validlook_cur1, validlook_next1: std_logic;
+	signal validlook_cur1, validlook_next1, validlook_cur2, validlook_next2, validlook_cur3, validlook_next3: std_logic;
 
 	signal vorganger_cur, vorganger_next: std_logic;
 	signal double_cur, double_next: std_logic;
@@ -504,11 +504,13 @@ architecture behavior of RDSSymboler is
 	signal data_out_cur, data_out_next: byte;
 	signal bit_cnt_cur, bit_cnt_next: natural range 0 to 7 := 7;
 	signal RDSByte_cur, RDSByte_next: byte;
+	
+	signal err_term_cur, err_term_next: fixpoint;
 
 	signal dynshift_cur, dynshift_next: natural range 0 to 24 := 0;
 begin
-	symboldetection: process (Iin, Qin, validin, code_mode_cur, cnt_cur, lastI_cur, sin_corr_cur, cos_corr_cur, I_corr_cur, Q_corr_cur, phi_cur, validout_cur, validintern_cur1, validintern_cur2, bit_cnt_cur, RDSByte_cur, dbit_cur, bit1_cur, bit2_cur, lastbit_cur, validintern_cur3, code_word_cur, vorganger_cur, double_cur, dynshift_cur, validintern_cur4, validlook_cur1)
-		variable err_term, phi_cor, phi_corr: fixpoint;
+	symboldetection: process (Iin, Qin, validin, code_mode_cur, cnt_cur, lastI_cur, sin_corr_cur, cos_corr_cur, I_corr_cur, Q_corr_cur, phi_cur, validout_cur, validintern_cur1, validintern_cur2, bit_cnt_cur, RDSByte_cur, dbit_cur, bit1_cur, bit2_cur, lastbit_cur, validintern_cur3, code_word_cur, vorganger_cur, double_cur, dynshift_cur, err_term_cur, phipih_cur, validlook_cur1, validlook_cur2, validlook_cur3)
+		variable phi_cor, phi_corr: fixpoint;
 		variable vorganger, double: std_logic;
 		variable code_neg: fixpoint;
 		variable bit1, bit2, lastbit: std_logic;
@@ -532,6 +534,8 @@ begin
 		bit_cnt_next <= bit_cnt_cur;
 		RDSByte_next <= RDSByte_cur;
 		dynshift_next <= dynshift_cur;
+		err_term_next <= err_term_cur;
+		phipih_next <= phipih_cur;
 
 		if(validin = '1') then
 			I_corr_next <= fixpoint_mult(Iin,cos_corr_cur)-fixpoint_mult(Qin,sin_corr_cur);
@@ -545,97 +549,8 @@ begin
 			Q_corr_next <= Q_corr_cur;
 		end if;
 
-		if(validintern_cur1 = '1')then
-			if(I_corr_cur(31)='1')then
-				I_abs:=not(I_corr_cur - 1);
-			else
-				I_abs := I_corr_cur;
-			end if;
-			if(Q_corr_cur(31) = '1' )then
-				Q_abs:=not(Q_corr_cur - 1);
-			else
-				Q_abs:=Q_corr_cur;
-			end if;
-			if(I_abs > Q_abs)then
-				if(I_abs(31 downto 16) = "0000000000000000")then
-					dynshift_next <= 16;
-				elsif(I_abs(31 downto 17) = "000000000000000")then
-					dynshift_next <= 15;
-				elsif(I_abs(31 downto 18) = "00000000000000")then
-					dynshift_next <= 14;
-				elsif(I_abs(31 downto 19) = "0000000000000")then
-					dynshift_next <= 13;
-				elsif(I_abs(31 downto 20) = "000000000000")then
-					dynshift_next <= 12;
-				elsif(I_abs(31 downto 21) = "00000000000")then
-					dynshift_next <= 11;
-				elsif(I_abs(31 downto 22) = "0000000000")then
-					dynshift_next <= 10;
-				elsif(I_abs(31 downto 23) = "000000000")then
-					dynshift_next <= 9;
-				elsif(I_abs(31 downto 24) = "00000000")then
-					dynshift_next <= 8;
-				elsif(I_abs(31 downto 25) = "0000000")then
-					dynshift_next <= 7;
-				elsif(I_abs(31 downto 26) = "000000")then
-					dynshift_next <= 6;
-				elsif(I_abs(31 downto 27) = "00000")then
-					dynshift_next <= 5;
-				elsif(I_abs(31 downto 28) = "0000")then
-					dynshift_next <= 4;
-				elsif(I_abs(31 downto 29) = "000")then
-					dynshift_next <= 3;
-				elsif(I_abs(31 downto 30) = "00")then
-					dynshift_next <= 2;
-				elsif(I_abs(31) = '0')then
-					dynshift_next <= 1;
-				else
-					dynshift_next <= 0;
-				end if;
-			else
-				if(Q_abs(31 downto 16) = "0000000000000000")then
-					dynshift_next <= 16;
-				elsif(Q_abs(31 downto 17) = "000000000000000")then
-					dynshift_next <= 15;
-				elsif(Q_abs(31 downto 18) = "00000000000000")then
-					dynshift_next <= 14;
-				elsif(Q_abs(31 downto 19) = "0000000000000")then
-					dynshift_next <= 13;
-				elsif(Q_abs(31 downto 20) = "000000000000")then
-					dynshift_next <= 12;
-				elsif(Q_abs(31 downto 21) = "00000000000")then
-					dynshift_next <= 11;
-				elsif(Q_abs(31 downto 22) = "0000000000")then
-					dynshift_next <= 10;
-				elsif(Q_abs(31 downto 23) = "000000000")then
-					dynshift_next <= 9;
-				elsif(Q_abs(31 downto 24) = "00000000")then
-					dynshift_next <= 8;
-				elsif(Q_abs(31 downto 25) = "0000000")then
-					dynshift_next <= 7;
-				elsif(Q_abs(31 downto 26) = "000000")then
-					dynshift_next <= 6;
-				elsif(Q_abs(31 downto 27) = "00000")then
-					dynshift_next <= 5;
-				elsif(Q_abs(31 downto 28) = "0000")then
-					dynshift_next <= 4;
-				elsif(Q_abs(31 downto 29) = "000")then
-					dynshift_next <= 3;
-				elsif(Q_abs(31 downto 30) = "00")then
-					dynshift_next <= 2;
-				elsif(Q_abs(31) = '0')then
-					dynshift_next <= 1;
-				else
-					dynshift_next <= 0;
-				end if;
-			end if;
-			validintern_next4 <= '1';
-		else
-			validintern_next4 <= '0';
-		end if;
-
 		validintern_next2 <= '0';
-		if(validintern_cur4 = '1')then
+		if(validintern_cur1 = '1')then
 			if(I_corr_cur(31) /= lastI_cur(31))then--Zerocrossing
 				if(cnt_cur > anzsamplesHalf + anzsamples)then
 					code_mode_next <= '0';
@@ -652,16 +567,90 @@ begin
 				code_mode_next <= '0';
 				code_word_next <= I_corr_cur;
 				validintern_next2 <= '1';
-				err_term := lookup_arg(I_corr_cur,Q_corr_cur,dynshift_cur);
-				phi_cor := phi_cur - signed(err_term(31) & err_term(31) & std_logic_vector(err_term(31 downto 2))) + signed(err_term(31) & err_term(31) & err_term(31) & err_term(31) & std_logic_vector(err_term(31 downto 4)));
-				if(phi_cor >= ovterm)then
-					phi_corr := phi_cor - ovterm;
-				elsif(phi_cor <= ufterm)then
-					phi_corr := phi_cor + ufterm;
+
+				if(I_corr_cur(31)='1')then
+					I_abs:=not(I_corr_cur - 1);
 				else
-					phi_corr := phi_cor;
+					I_abs := I_corr_cur;
 				end if;
-				phi_next <= phi_corr;
+				if(Q_corr_cur(31) = '1' )then
+					Q_abs:=not(Q_corr_cur - 1);
+				else
+					Q_abs:=Q_corr_cur;
+				end if;
+				if(I_abs > Q_abs)then
+					if(I_abs(31 downto 16) = "0000000000000000")then
+						dynshift_next <= 16;
+					elsif(I_abs(31 downto 17) = "000000000000000")then
+						dynshift_next <= 15;
+					elsif(I_abs(31 downto 18) = "00000000000000")then
+						dynshift_next <= 14;
+					elsif(I_abs(31 downto 19) = "0000000000000")then
+						dynshift_next <= 13;
+					elsif(I_abs(31 downto 20) = "000000000000")then
+						dynshift_next <= 12;
+					elsif(I_abs(31 downto 21) = "00000000000")then
+						dynshift_next <= 11;
+					elsif(I_abs(31 downto 22) = "0000000000")then
+						dynshift_next <= 10;
+					elsif(I_abs(31 downto 23) = "000000000")then
+						dynshift_next <= 9;
+					elsif(I_abs(31 downto 24) = "00000000")then
+						dynshift_next <= 8;
+					elsif(I_abs(31 downto 25) = "0000000")then
+						dynshift_next <= 7;
+					elsif(I_abs(31 downto 26) = "000000")then
+						dynshift_next <= 6;
+					elsif(I_abs(31 downto 27) = "00000")then
+						dynshift_next <= 5;
+					elsif(I_abs(31 downto 28) = "0000")then
+						dynshift_next <= 4;
+					elsif(I_abs(31 downto 29) = "000")then
+						dynshift_next <= 3;
+					elsif(I_abs(31 downto 30) = "00")then
+						dynshift_next <= 2;
+					elsif(I_abs(31) = '0')then
+						dynshift_next <= 1;
+					else
+						dynshift_next <= 0;
+					end if;
+				else
+					if(Q_abs(31 downto 16) = "0000000000000000")then
+						dynshift_next <= 16;
+					elsif(Q_abs(31 downto 17) = "000000000000000")then
+						dynshift_next <= 15;
+					elsif(Q_abs(31 downto 18) = "00000000000000")then
+						dynshift_next <= 14;
+					elsif(Q_abs(31 downto 19) = "0000000000000")then
+						dynshift_next <= 13;
+					elsif(Q_abs(31 downto 20) = "000000000000")then
+						dynshift_next <= 12;
+					elsif(Q_abs(31 downto 21) = "00000000000")then
+						dynshift_next <= 11;
+					elsif(Q_abs(31 downto 22) = "0000000000")then
+						dynshift_next <= 10;
+					elsif(Q_abs(31 downto 23) = "000000000")then
+						dynshift_next <= 9;
+					elsif(Q_abs(31 downto 24) = "00000000")then
+						dynshift_next <= 8;
+					elsif(Q_abs(31 downto 25) = "0000000")then
+						dynshift_next <= 7;
+					elsif(Q_abs(31 downto 26) = "000000")then
+						dynshift_next <= 6;
+					elsif(Q_abs(31 downto 27) = "00000")then
+						dynshift_next <= 5;
+					elsif(Q_abs(31 downto 28) = "0000")then
+						dynshift_next <= 4;
+					elsif(Q_abs(31 downto 29) = "000")then
+						dynshift_next <= 3;
+					elsif(Q_abs(31 downto 30) = "00")then
+						dynshift_next <= 2;
+					elsif(Q_abs(31) = '0')then
+						dynshift_next <= 1;
+					else
+						dynshift_next <= 0;
+					end if;
+				end if;
 				validlook_next1 <= '1';
 			else
 				validlook_next1 <= '0';
@@ -669,8 +658,31 @@ begin
 		end if;
 
 		if(validlook_cur1 = '1')then
+			err_term_next <= lookup_arg(I_corr_cur,Q_corr_cur,dynshift_cur);
+			validlook_next2 <= '1';
+		else
+			validlook_next2 <= '0';
+		end if;
+		
+		if(validlook_cur2 = '1')then
+			phi_cor := phi_cur - signed(err_term_cur(31) & err_term_cur(31) & std_logic_vector(err_term_cur(31 downto 2))) + signed(err_term_cur(31) & err_term_cur(31) & err_term_cur(31) & err_term_cur(31) & std_logic_vector(err_term_cur(31 downto 4)));
+			if(phi_cor >= ovterm)then
+				phi_corr := phi_cor - ovterm;
+			elsif(phi_cor <= ufterm)then
+				phi_corr := phi_cor + ufterm;
+			else
+				phi_corr := phi_cor;
+			end if;
+			phi_next <= phi_corr;
+			phipih_next <= phi_corr + pihalbe;
+			validlook_next3 <= '1';
+		else
+			validlook_next3 <= '0';
+		end if;
+		
+		if(validlook_cur3 = '1')then
 			sin_corr_next <= lookup_sin(phi_cur);
-			cos_corr_next <= lookup_sin(phi_cur + pihalbe);
+			cos_corr_next <= lookup_sin(phipih_cur);
 		end if;
 
 		validintern_next3 <= '0';
@@ -777,7 +789,6 @@ begin
 			validintern_cur1 <= '0';
 			validintern_cur2 <= '0';
 			validintern_cur3 <= '0';
-			validintern_cur4 <= '0';
 			code_word_cur <= (others => '0');
 			code_mode_cur <= '0';
 			sin_corr_cur <= (others => '0');
@@ -798,12 +809,15 @@ begin
 			bit_cnt_cur <= 7;
 			RDSByte_cur <= (others => '0');
 			validlook_cur1 <= '0';
+			validlook_cur2 <= '0';
+			validlook_cur3 <= '0';
+			err_term_cur <= (others => '0');
+			phipih_cur <= (others => '0');
 		elsif rising_edge(clk) then
 			--internals
 			validintern_cur1 <= validintern_next1;
 			validintern_cur2 <= validintern_next2;
 			validintern_cur3 <= validintern_next3;
-			validintern_cur4 <= validintern_next4;
 			validout_cur <= validout_next;
 			code_word_cur <= code_word_next;
 			code_mode_cur <= code_mode_next;
@@ -824,6 +838,10 @@ begin
 			bit_cnt_cur <= bit_cnt_next;
 			RDSByte_cur <= RDSByte_next;
 			validlook_cur1 <= validlook_next1;
+			validlook_cur2 <= validlook_next2;
+			validlook_cur3 <= validlook_next3;
+			err_term_cur <= err_term_next;
+			phipih_cur <= phipih_next;
 
 			--outputs
 			validout <= validout_cur;

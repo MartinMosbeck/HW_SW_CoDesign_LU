@@ -173,8 +173,8 @@ begin
 			data_out_array_cur<=data_out_array_next;
 			shift_array_x_cur<=shift_array_x_next;
 			
-			data_out <= data_out_next;
-			validout <= validout_next;
+			data_out <= data_out_cur;
+			validout <= validout_cur;
 		end if;
 	end process sync;
 		

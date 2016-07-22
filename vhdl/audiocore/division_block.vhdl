@@ -130,8 +130,8 @@ begin
 			validout_cur <= validout_next;
 
 			--outputs
-			div_out <= data_out_next;
-			validout <= validout_next;
+			div_out <= data_out_cur;
+			validout <= validout_cur;
 		end if;
 	end process sync;
 end behavior;
