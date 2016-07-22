@@ -2,8 +2,8 @@
 <sch:Settings xmlns:sch="http://www.altera.com/embeddedsw/bsp/schema">
         <BspType>hal</BspType>
         <BspVersion>default</BspVersion>
-        <BspGeneratedTimeStamp>Apr 12, 2016 6:53:56 PM</BspGeneratedTimeStamp>
-        <BspGeneratedUnixTimeStamp>1460480036857</BspGeneratedUnixTimeStamp>
+        <BspGeneratedTimeStamp>Jul 22, 2016 8:27:01 AM</BspGeneratedTimeStamp>
+        <BspGeneratedUnixTimeStamp>1469168821484</BspGeneratedUnixTimeStamp>
         <BspGeneratedLocation>bsp/</BspGeneratedLocation>
         <BspSettingsFile>./settings.bsp</BspSettingsFile>
         <SopcDesignFile>../quartus/tse_tutorial.sopcinfo</SopcDesignFile>
@@ -887,70 +887,64 @@
                 <Group xsi:nil="true" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"/>
         </Setting>
         <MemoryMap>
-                <slaveDescriptor>sdram</slaveDescriptor>
-                <addressRange>0x00000000 - 0x07FFFFFF</addressRange>
-                <addressSpan>134217728</addressSpan>
-                <attributes>memory</attributes>
-        </MemoryMap>
-        <MemoryMap>
-                <slaveDescriptor>main_memory</slaveDescriptor>
-                <addressRange>0x08080000 - 0x080CAFFF</addressRange>
-                <addressSpan>307200</addressSpan>
-                <attributes>memory</attributes>
-        </MemoryMap>
-        <MemoryMap>
-                <slaveDescriptor>descriptor_memory</slaveDescriptor>
-                <addressRange>0x08100000 - 0x0810801F</addressRange>
-                <addressSpan>32800</addressSpan>
-                <attributes>memory</attributes>
-        </MemoryMap>
-        <MemoryMap>
-                <slaveDescriptor>tse</slaveDescriptor>
-                <addressRange>0x08111000 - 0x081113FF</addressRange>
-                <addressSpan>1024</addressSpan>
-                <attributes/>
-        </MemoryMap>
-        <MemoryMap>
-                <slaveDescriptor>sgdma_tx</slaveDescriptor>
-                <addressRange>0x08111400 - 0x0811143F</addressRange>
-                <addressSpan>64</addressSpan>
-                <attributes/>
-        </MemoryMap>
-        <MemoryMap>
-                <slaveDescriptor>sgdma_rx</slaveDescriptor>
-                <addressRange>0x08111440 - 0x0811147F</addressRange>
-                <addressSpan>64</addressSpan>
-                <attributes/>
-        </MemoryMap>
-        <MemoryMap>
-                <slaveDescriptor>textmode_controller</slaveDescriptor>
-                <addressRange>0x08111480 - 0x081114BF</addressRange>
-                <addressSpan>64</addressSpan>
-                <attributes/>
-        </MemoryMap>
-        <MemoryMap>
                 <slaveDescriptor>altpll</slaveDescriptor>
-                <addressRange>0x081114C0 - 0x081114CF</addressRange>
+                <addressRange>0x00000010 - 0x0000001F</addressRange>
                 <addressSpan>16</addressSpan>
                 <attributes/>
         </MemoryMap>
         <MemoryMap>
                 <slaveDescriptor>audio_and_video_config_0</slaveDescriptor>
-                <addressRange>0x081114D0 - 0x081114DF</addressRange>
-                <addressSpan>16</addressSpan>
-                <attributes/>
-        </MemoryMap>
-        <MemoryMap>
-                <slaveDescriptor>audio</slaveDescriptor>
-                <addressRange>0x081114E0 - 0x081114EF</addressRange>
+                <addressRange>0x00000020 - 0x0000002F</addressRange>
                 <addressSpan>16</addressSpan>
                 <attributes/>
         </MemoryMap>
         <MemoryMap>
                 <slaveDescriptor>jtag_uart</slaveDescriptor>
-                <addressRange>0x081114F0 - 0x081114F7</addressRange>
+                <addressRange>0x00000030 - 0x00000037</addressRange>
                 <addressSpan>8</addressSpan>
                 <attributes>printable</attributes>
+        </MemoryMap>
+        <MemoryMap>
+                <slaveDescriptor>sgdma_tx</slaveDescriptor>
+                <addressRange>0x00000040 - 0x0000007F</addressRange>
+                <addressSpan>64</addressSpan>
+                <attributes/>
+        </MemoryMap>
+        <MemoryMap>
+                <slaveDescriptor>sgdma_rx</slaveDescriptor>
+                <addressRange>0x00000080 - 0x000000BF</addressRange>
+                <addressSpan>64</addressSpan>
+                <attributes/>
+        </MemoryMap>
+        <MemoryMap>
+                <slaveDescriptor>textmode_controller</slaveDescriptor>
+                <addressRange>0x000000C0 - 0x000000FF</addressRange>
+                <addressSpan>64</addressSpan>
+                <attributes/>
+        </MemoryMap>
+        <MemoryMap>
+                <slaveDescriptor>tse</slaveDescriptor>
+                <addressRange>0x00000400 - 0x000007FF</addressRange>
+                <addressSpan>1024</addressSpan>
+                <attributes/>
+        </MemoryMap>
+        <MemoryMap>
+                <slaveDescriptor>descriptor_memory</slaveDescriptor>
+                <addressRange>0x00010000 - 0x0001801F</addressRange>
+                <addressSpan>32800</addressSpan>
+                <attributes>memory</attributes>
+        </MemoryMap>
+        <MemoryMap>
+                <slaveDescriptor>main_memory</slaveDescriptor>
+                <addressRange>0x00100000 - 0x0014AFFF</addressRange>
+                <addressSpan>307200</addressSpan>
+                <attributes>memory</attributes>
+        </MemoryMap>
+        <MemoryMap>
+                <slaveDescriptor>sdram</slaveDescriptor>
+                <addressRange>0x08000000 - 0x0FFFFFFF</addressRange>
+                <addressSpan>134217728</addressSpan>
+                <attributes>memory</attributes>
         </MemoryMap>
         <LinkerSection>
                 <sectionName>.text</sectionName>

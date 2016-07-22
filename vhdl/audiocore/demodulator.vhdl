@@ -24,7 +24,7 @@ end demodulator;
 architecture behavior of demodulator is
 	signal data_out_cur,data_out_next, data_con_I, data_con_Q, data_con_I_next, data_con_Q_next: fixpoint;
 	signal validout_cur, validout_next :std_logic;
-	constant min1: fixpoint := x"FFFF0000";
+	constant min1: fixpoint := x"FFFF0000"; --minus 1
 
 	signal validintern_cur, validintern_next: std_logic := '0';
 	signal data1_cur, data1_next, data2_cur, data2_next: fixpoint;

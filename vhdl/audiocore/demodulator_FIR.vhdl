@@ -36,10 +36,10 @@ architecture behavior of demodulator_FIR is
 	--normalization-process
 	signal valid_to_FIR, valid_to_FIRQ: std_logic;
 	signal normalI, normalQ: fixpoint;
-	--sqrt-signale
+	--sqrt-signale (was changed to magnitude!)
 	signal data_sqrt_I, data_sqrt_Q, sqrt: fixpoint;
 	signal validin_sqrt: std_logic;
-	--prepare_sqrt-process
+	--prepare_sqrt-process (new: magnitude!)
 	signal data_to_sqrt_I_cur, data_to_sqrt_I_next, data_to_sqrt_Q_cur, data_to_sqrt_Q_next, input_to_sqrt_cur, input_to_sqrt_next: fixpoint;
 	signal valid_to_sqrt_cur, valid_to_sqrt_next: std_logic;
 begin
@@ -53,16 +53,15 @@ begin
 		if(validin_I = '1') then
 			data_to_sqrt_I_next <= data_in_I;
 			data_to_sqrt_Q_next <= data_in_Q;
-			--Das braucht eventuell 2 Takte
-			input_to_sqrt_next <= (others => '0');--unnötig!!! DER GANZE BLOCK eig--fixpoint_mult(data_in_I,data_in_I) + fixpoint_mult(data_in_Q,data_in_Q);
+			
+			input_to_sqrt_next <= (others => '0');
 			valid_to_sqrt_next <= '1';
 		else
 			valid_to_sqrt_next <= '0';
 		end if;
 	end process prepare_sqrt;
 
-	--Ultrafastsqrt(~10% ungenauigkeit): Das größere + die hälfte des kleineren Wertes (nicht verwendet)
-	wurzel: fixpoint_magnitude
+	magnitude: fixpoint_magnitude
 	port map
 	(
 		clk => clk,

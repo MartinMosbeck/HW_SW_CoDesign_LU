@@ -7,7 +7,7 @@ use work.audiocore_pkg.all;
 entity decimator is
 	generic 
 	(
-		N : integer
+		N : integer -- take every Nth value
 	);	
 	port 
 	(

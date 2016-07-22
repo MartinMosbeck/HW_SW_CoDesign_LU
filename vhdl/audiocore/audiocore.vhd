@@ -16,7 +16,7 @@ entity audiocore is
 		asin_valid : in std_logic;
 		asin_ready : out std_logic;
 
-		-- stream output
+		-- stream output for RDS
 		asout_data : out std_logic_vector(31 downto 0);
 		asout_startofpacket : out std_logic;
 		asout_endofpacket : out std_logic;
