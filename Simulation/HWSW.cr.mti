@@ -1,12 +1,186 @@
-C:/Users/ZECK/Documents/#TU/HWSWCoDLU/Maintask/HW_SW_CoDesign_LU/vhdl/audiocore/audiocore_pkg.vhd {1 {vcom -work work -2002 -explicit -stats=none C:/Users/ZECK/Documents/#TU/HWSWCoDLU/Maintask/HW_SW_CoDesign_LU/vhdl/audiocore/audiocore_pkg.vhd
+C:/Users/ZECK/Documents/#TU/HWSWCoDLU/Maintask/HW_SW_CoDesign_LU/vhdl/audiocore/mixerFM.vhdl {1 {vcom -work work -2002 -explicit -stats=none C:/Users/ZECK/Documents/#TU/HWSWCoDLU/Maintask/HW_SW_CoDesign_LU/vhdl/audiocore/mixerFM.vhdl
+Model Technology ModelSim ALTERA vcom 10.4d Compiler 2015.12 Dec 30 2015
+-- Loading package STANDARD
+-- Loading package TEXTIO
+-- Loading package std_logic_1164
+-- Loading package NUMERIC_STD
+-- Loading package audiocore_pkg
+-- Compiling entity mixerFM
+-- Compiling architecture behavior of mixerFM
+
+} {} {}} C:/Users/ZECK/Documents/#TU/HWSWCoDLU/Maintask/HW_SW_CoDesign_LU/vhdl/audiocore/demodulator_FIR.vhdl {1 {vcom -work work -2002 -explicit -stats=none C:/Users/ZECK/Documents/#TU/HWSWCoDLU/Maintask/HW_SW_CoDesign_LU/vhdl/audiocore/demodulator_FIR.vhdl
+Model Technology ModelSim ALTERA vcom 10.4d Compiler 2015.12 Dec 30 2015
+-- Loading package STANDARD
+-- Loading package TEXTIO
+-- Loading package std_logic_1164
+-- Loading package NUMERIC_STD
+-- Loading package audiocore_pkg
+-- Compiling entity demodulator_FIR
+-- Compiling architecture behavior of demodulator_FIR
+
+} {} {}} C:/Users/ZECK/Documents/#TU/HWSWCoDLU/Maintask/HW_SW_CoDesign_LU/vhdl/audiocore/demodulator.vhdl {1 {vcom -work work -2002 -explicit -stats=none C:/Users/ZECK/Documents/#TU/HWSWCoDLU/Maintask/HW_SW_CoDesign_LU/vhdl/audiocore/demodulator.vhdl
+Model Technology ModelSim ALTERA vcom 10.4d Compiler 2015.12 Dec 30 2015
+-- Loading package STANDARD
+-- Loading package TEXTIO
+-- Loading package std_logic_1164
+-- Loading package NUMERIC_STD
+-- Loading package audiocore_pkg
+-- Compiling entity demodulator
+-- Compiling architecture behavior of demodulator
+
+} {} {}} C:/Users/ZECK/Documents/#TU/HWSWCoDLU/Maintask/HW_SW_CoDesign_LU/vhdl/audiocore/audiocore_pkg.vhd {2 {vcom -work work -2002 -explicit -stats=none C:/Users/ZECK/Documents/#TU/HWSWCoDLU/Maintask/HW_SW_CoDesign_LU/vhdl/audiocore/audiocore_pkg.vhd
 Model Technology ModelSim ALTERA vcom 10.4d Compiler 2015.12 Dec 30 2015
 -- Loading package STANDARD
 -- Loading package TEXTIO
 -- Loading package std_logic_1164
 -- Loading package NUMERIC_STD
 -- Compiling package audiocore_pkg
+-- Compiling package body audiocore_pkg
+-- Loading package audiocore_pkg
+** Warning: C:/Users/ZECK/Documents/#TU/HWSWCoDLU/Maintask/HW_SW_CoDesign_LU/vhdl/audiocore/audiocore_pkg.vhd(453): (vcom-1200) Function "fixpoint_mult" return type index bounds do not match RETURN value index bounds.
 
-} {} {}} C:/Users/ZECK/Documents/#TU/HWSWCoDLU/Maintask/HW_SW_CoDesign_LU/Simulation/testbench.vhdl {1 {vcom -work work -2002 -explicit -stats=none C:/Users/ZECK/Documents/#TU/HWSWCoDLU/Maintask/HW_SW_CoDesign_LU/Simulation/testbench.vhdl
+
+} {} {}} C:/Users/ZECK/Documents/#TU/HWSWCoDLU/Maintask/HW_SW_CoDesign_LU/vhdl/audiocore/qp_ram.vhdl {1 {vcom -work work -2002 -explicit -stats=none C:/Users/ZECK/Documents/#TU/HWSWCoDLU/Maintask/HW_SW_CoDesign_LU/vhdl/audiocore/qp_ram.vhdl
+Model Technology ModelSim ALTERA vcom 10.4d Compiler 2015.12 Dec 30 2015
+-- Loading package STANDARD
+-- Loading package TEXTIO
+-- Loading package std_logic_1164
+-- Loading package NUMERIC_STD
+-- Compiling entity qp_ram
+-- Compiling architecture beh of qp_ram
+
+} {} {}} C:/Users/ZECK/Documents/#TU/HWSWCoDLU/Maintask/HW_SW_CoDesign_LU/vhdl/audiocore/decimator.vhdl {1 {vcom -work work -2002 -explicit -stats=none C:/Users/ZECK/Documents/#TU/HWSWCoDLU/Maintask/HW_SW_CoDesign_LU/vhdl/audiocore/decimator.vhdl
+Model Technology ModelSim ALTERA vcom 10.4d Compiler 2015.12 Dec 30 2015
+-- Loading package STANDARD
+-- Loading package TEXTIO
+-- Loading package std_logic_1164
+-- Loading package NUMERIC_STD
+-- Loading package audiocore_pkg
+-- Compiling entity decimator
+-- Compiling architecture behavior of decimator
+
+} {} {}} C:/Users/ZECK/Documents/#TU/HWSWCoDLU/Maintask/HW_SW_CoDesign_LU/vhdl/audiocore/IIRFilter.vhdl {1 {vcom -work work -2002 -explicit -stats=none C:/Users/ZECK/Documents/#TU/HWSWCoDLU/Maintask/HW_SW_CoDesign_LU/vhdl/audiocore/IIRFilter.vhdl
+Model Technology ModelSim ALTERA vcom 10.4d Compiler 2015.12 Dec 30 2015
+-- Loading package STANDARD
+-- Loading package TEXTIO
+-- Loading package std_logic_1164
+-- Loading package NUMERIC_STD
+-- Loading package audiocore_pkg
+-- Compiling entity IIRFilter
+-- Compiling architecture behavior of IIRFIlter
+
+} {} {}} C:/Users/ZECK/Documents/#TU/HWSWCoDLU/Maintask/HW_SW_CoDesign_LU/vhdl/audiocore/enqueuer.vhdl {1 {vcom -work work -2002 -explicit -stats=none C:/Users/ZECK/Documents/#TU/HWSWCoDLU/Maintask/HW_SW_CoDesign_LU/vhdl/audiocore/enqueuer.vhdl
+Model Technology ModelSim ALTERA vcom 10.4d Compiler 2015.12 Dec 30 2015
+-- Loading package STANDARD
+-- Loading package TEXTIO
+-- Loading package std_logic_1164
+-- Loading package NUMERIC_STD
+-- Loading package audiocore_pkg
+-- Compiling entity enqueuer
+-- Compiling architecture behavior of enqueuer
+
+} {} {}} C:/Users/ZECK/Documents/#TU/HWSWCoDLU/Maintask/HW_SW_CoDesign_LU/vhdl/audiocore/outputbuffer.vhdl {1 {vcom -work work -2002 -explicit -stats=none C:/Users/ZECK/Documents/#TU/HWSWCoDLU/Maintask/HW_SW_CoDesign_LU/vhdl/audiocore/outputbuffer.vhdl
+Model Technology ModelSim ALTERA vcom 10.4d Compiler 2015.12 Dec 30 2015
+-- Loading package STANDARD
+-- Loading package TEXTIO
+-- Loading package std_logic_1164
+-- Loading package NUMERIC_STD
+-- Loading package math_pkg
+-- Loading package audiocore_pkg
+-- Compiling entity outputbuffer
+-- Compiling architecture behavior of outputbuffer
+
+} {} {}} C:/Users/ZECK/Documents/#TU/HWSWCoDLU/Maintask/HW_SW_CoDesign_LU/vhdl/audiocore/tp_ram.vhdl {1 {vcom -work work -2002 -explicit -stats=none C:/Users/ZECK/Documents/#TU/HWSWCoDLU/Maintask/HW_SW_CoDesign_LU/vhdl/audiocore/tp_ram.vhdl
+Model Technology ModelSim ALTERA vcom 10.4d Compiler 2015.12 Dec 30 2015
+-- Loading package STANDARD
+-- Loading package TEXTIO
+-- Loading package std_logic_1164
+-- Loading package NUMERIC_STD
+-- Loading package audiocore_pkg
+-- Compiling entity tp_ram
+-- Compiling architecture beh of tp_ram
+
+} {} {}} C:/Users/ZECK/Documents/#TU/HWSWCoDLU/Maintask/HW_SW_CoDesign_LU/vhdl/audiocore/dp_ram.vhdl {1 {vcom -work work -2002 -explicit -stats=none C:/Users/ZECK/Documents/#TU/HWSWCoDLU/Maintask/HW_SW_CoDesign_LU/vhdl/audiocore/dp_ram.vhdl
+Model Technology ModelSim ALTERA vcom 10.4d Compiler 2015.12 Dec 30 2015
+-- Loading package STANDARD
+-- Loading package TEXTIO
+-- Loading package std_logic_1164
+-- Loading package NUMERIC_STD
+-- Loading package audiocore_pkg
+-- Compiling entity dp_ram
+-- Compiling architecture beh of dp_ram
+
+} {} {}} C:/Users/ZECK/Documents/#TU/HWSWCoDLU/Maintask/HW_SW_CoDesign_LU/vhdl/common/math/src/math_pkg.vhd {1 {vcom -work work -2002 -explicit -stats=none C:/Users/ZECK/Documents/#TU/HWSWCoDLU/Maintask/HW_SW_CoDesign_LU/vhdl/common/math/src/math_pkg.vhd
+Model Technology ModelSim ALTERA vcom 10.4d Compiler 2015.12 Dec 30 2015
+-- Loading package STANDARD
+-- Compiling package math_pkg
+-- Compiling package body math_pkg
+-- Loading package math_pkg
+
+} {} {}} C:/Users/ZECK/Documents/#TU/HWSWCoDLU/Maintask/HW_SW_CoDesign_LU/vhdl/audiocore/dp_ram_std.vhdl {1 {vcom -work work -2002 -explicit -stats=none C:/Users/ZECK/Documents/#TU/HWSWCoDLU/Maintask/HW_SW_CoDesign_LU/vhdl/audiocore/dp_ram_std.vhdl
+Model Technology ModelSim ALTERA vcom 10.4d Compiler 2015.12 Dec 30 2015
+-- Loading package STANDARD
+-- Loading package TEXTIO
+-- Loading package std_logic_1164
+-- Loading package NUMERIC_STD
+-- Loading package audiocore_pkg
+-- Compiling entity dp_ram_std
+-- Compiling architecture beh of dp_ram_std
+
+} {} {}} C:/Users/ZECK/Documents/#TU/HWSWCoDLU/Maintask/HW_SW_CoDesign_LU/vhdl/audiocore/FIRFilter_demod.vhdl {1 {vcom -work work -2002 -explicit -stats=none C:/Users/ZECK/Documents/#TU/HWSWCoDLU/Maintask/HW_SW_CoDesign_LU/vhdl/audiocore/FIRFilter_demod.vhdl
+Model Technology ModelSim ALTERA vcom 10.4d Compiler 2015.12 Dec 30 2015
+-- Loading package STANDARD
+-- Loading package TEXTIO
+-- Loading package std_logic_1164
+-- Loading package NUMERIC_STD
+-- Loading package audiocore_pkg
+-- Compiling entity FIRFilter_demod
+-- Compiling architecture behavior of FIRFilter_demod
+
+} {} {}} C:/Users/ZECK/Documents/#TU/HWSWCoDLU/Maintask/HW_SW_CoDesign_LU/vhdl/audiocore/outputlogic.vhdl {1 {vcom -work work -2002 -explicit -stats=none C:/Users/ZECK/Documents/#TU/HWSWCoDLU/Maintask/HW_SW_CoDesign_LU/vhdl/audiocore/outputlogic.vhdl
+Model Technology ModelSim ALTERA vcom 10.4d Compiler 2015.12 Dec 30 2015
+-- Loading package STANDARD
+-- Loading package TEXTIO
+-- Loading package std_logic_1164
+-- Loading package NUMERIC_STD
+-- Loading package audiocore_pkg
+-- Compiling entity outputlogic
+-- Compiling architecture behavior of outputlogic
+
+} {} {}} C:/Users/ZECK/Documents/#TU/HWSWCoDLU/Maintask/HW_SW_CoDesign_LU/vhdl/audiocore/IIRFilter_audioout.vhdl {1 {vcom -work work -2002 -explicit -stats=none C:/Users/ZECK/Documents/#TU/HWSWCoDLU/Maintask/HW_SW_CoDesign_LU/vhdl/audiocore/IIRFilter_audioout.vhdl
+Model Technology ModelSim ALTERA vcom 10.4d Compiler 2015.12 Dec 30 2015
+-- Loading package STANDARD
+-- Loading package TEXTIO
+-- Loading package std_logic_1164
+-- Loading package NUMERIC_STD
+-- Loading package audiocore_pkg
+-- Compiling entity IIRFilter_audioout
+-- Compiling architecture behavior of IIRFIlter_audioout
+
+} {} {}} C:/Users/ZECK/Documents/#TU/HWSWCoDLU/Maintask/HW_SW_CoDesign_LU/vhdl/audiocore/FIFO.vhdl {1 {vcom -work work -2002 -explicit -stats=none C:/Users/ZECK/Documents/#TU/HWSWCoDLU/Maintask/HW_SW_CoDesign_LU/vhdl/audiocore/FIFO.vhdl
+Model Technology ModelSim ALTERA vcom 10.4d Compiler 2015.12 Dec 30 2015
+-- Loading package STANDARD
+-- Loading package TEXTIO
+-- Loading package std_logic_1164
+-- Loading package NUMERIC_STD
+-- Loading package audiocore_pkg
+-- Loading package math_pkg
+-- Compiling entity FIFO
+-- Compiling architecture behavior of FIFO
+
+} {} {}} C:/Users/ZECK/Documents/#TU/HWSWCoDLU/Maintask/HW_SW_CoDesign_LU/vhdl/audiocore/fixpoint_magnitude.vhdl {2 {vcom -work work -2002 -explicit -stats=none C:/Users/ZECK/Documents/#TU/HWSWCoDLU/Maintask/HW_SW_CoDesign_LU/vhdl/audiocore/fixpoint_magnitude.vhdl
+Model Technology ModelSim ALTERA vcom 10.4d Compiler 2015.12 Dec 30 2015
+-- Loading package STANDARD
+-- Loading package TEXTIO
+-- Loading package std_logic_1164
+-- Loading package NUMERIC_STD
+-- Loading package audiocore_pkg
+-- Compiling entity fixpoint_magnitude
+-- Compiling architecture behavior of fixpoint_magnitude
+** Warning: C:/Users/ZECK/Documents/#TU/HWSWCoDLU/Maintask/HW_SW_CoDesign_LU/vhdl/audiocore/fixpoint_magnitude.vhdl(57): (vcom-1445) Duplicate signal "state_cur" found in sensitivity list.
+
+
+} {} {}} C:/Users/ZECK/Documents/#TU/HWSWCoDLU/Maintask/HW_SW_CoDesign_LU/Simulation/testbench_old.vhd {1 {vcom -work work -2002 -explicit -stats=none C:/Users/ZECK/Documents/#TU/HWSWCoDLU/Maintask/HW_SW_CoDesign_LU/Simulation/testbench_old.vhd
 Model Technology ModelSim ALTERA vcom 10.4d Compiler 2015.12 Dec 30 2015
 -- Loading package STANDARD
 -- Loading package TEXTIO
@@ -15,18 +189,37 @@ Model Technology ModelSim ALTERA vcom 10.4d Compiler 2015.12 Dec 30 2015
 -- Loading package audiocore_pkg
 -- Compiling entity audiocore_Simulation
 -- Compiling architecture testbench of audiocore_Simulation
--- Loading entity FIRFilter
+-- Loading entity audiocore
 
-} {} {}} C:/Users/ZECK/Documents/#TU/HWSWCoDLU/Maintask/HW_SW_CoDesign_LU/vhdl/audiocore/FIRFilter.vhdl {2 {vcom -work work -2002 -explicit -stats=none C:/Users/ZECK/Documents/#TU/HWSWCoDLU/Maintask/HW_SW_CoDesign_LU/vhdl/audiocore/FIRFilter.vhdl
+} {} {}} C:/Users/ZECK/Documents/#TU/HWSWCoDLU/Maintask/HW_SW_CoDesign_LU/vhdl/audiocore/division_block.vhdl {1 {vcom -work work -2002 -explicit -stats=none C:/Users/ZECK/Documents/#TU/HWSWCoDLU/Maintask/HW_SW_CoDesign_LU/vhdl/audiocore/division_block.vhdl
 Model Technology ModelSim ALTERA vcom 10.4d Compiler 2015.12 Dec 30 2015
 -- Loading package STANDARD
 -- Loading package TEXTIO
 -- Loading package std_logic_1164
 -- Loading package NUMERIC_STD
 -- Loading package audiocore_pkg
--- Compiling entity FIRFilter
--- Compiling architecture behavior of FIRFilter
-** Warning: C:/Users/ZECK/Documents/#TU/HWSWCoDLU/Maintask/HW_SW_CoDesign_LU/vhdl/audiocore/FIRFilter.vhdl(29): (vcom-1200) Function "fixpoint_mult" return type index bounds do not match RETURN value index bounds.
+-- Compiling entity division_block
+-- Compiling architecture behavior of division_block
 
+} {} {}} C:/Users/ZECK/Documents/#TU/HWSWCoDLU/Maintask/HW_SW_CoDesign_LU/vhdl/audiocore/audiocore.vhd {1 {vcom -work work -2002 -explicit -stats=none C:/Users/ZECK/Documents/#TU/HWSWCoDLU/Maintask/HW_SW_CoDesign_LU/vhdl/audiocore/audiocore.vhd
+Model Technology ModelSim ALTERA vcom 10.4d Compiler 2015.12 Dec 30 2015
+-- Loading package STANDARD
+-- Loading package TEXTIO
+-- Loading package std_logic_1164
+-- Loading package NUMERIC_STD
+-- Loading package audiocore_pkg
+-- Compiling entity audiocore
+-- Compiling architecture rtl of audiocore
+
+} {} {}} C:/Users/ZECK/Documents/#TU/HWSWCoDLU/Maintask/HW_SW_CoDesign_LU/vhdl/audiocore/output_mem.vhdl {1 {vcom -work work -2002 -explicit -stats=none C:/Users/ZECK/Documents/#TU/HWSWCoDLU/Maintask/HW_SW_CoDesign_LU/vhdl/audiocore/output_mem.vhdl
+Model Technology ModelSim ALTERA vcom 10.4d Compiler 2015.12 Dec 30 2015
+-- Loading package STANDARD
+-- Loading package TEXTIO
+-- Loading package std_logic_1164
+-- Loading package NUMERIC_STD
+-- Loading package math_pkg
+-- Loading package audiocore_pkg
+-- Compiling entity output_mem
+-- Compiling architecture behavior of output_mem
 
 } {} {}}

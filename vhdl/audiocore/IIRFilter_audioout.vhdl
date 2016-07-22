@@ -24,19 +24,17 @@ architecture behavior of IIRFIlter_audioout is
 	--IIR-FILTER: Nachfolgend die Filterordnung eintragen, und die Koeffizienten a[x] und b[x]
 	--Koeffizienten in der Form 16 Vorkomma/16 Nachkomma Stellen Zweierkomplement Fixpunkt
 	--Die Filterordnung passt so, die Ordnung beim IIR ist die Anzahl der a-Koeffizienten (=b-1)
-	constant order: natural := 4;
+	constant order: natural := 3;
 	function a(index:index) 
 		return fixpoint is
 	begin 
 		case index is
-		    when 0 =>
-			    return "11111111111111001011001011011011";
-		    when 1 =>
-			    return "00000000000001000110100011000000";
-		    when 2 =>
-			    return "11111111111111010011010110010001";
-		    when 3 =>
-			    return "00000000000000001011010010110000";
+			when 0 =>
+					return "11111111111111010011101000011011";
+			when 1 =>
+					return "00000000000000101010100100111001";
+			when 2 =>
+					return "11111111111111110001111011000011";
 		    when others=> return x"FFFFFFFF";
 		end case;
 	end function;
@@ -44,16 +42,14 @@ architecture behavior of IIRFIlter_audioout is
 		return fixpoint is
 	begin 
 		case index is
-		     when 0 =>
-			    return "00000000000000000000000100010010";
-		    when 1 =>
-			    return "00000000000000000000000001000001";
-		    when 2 =>
-			    return "00000000000000000000000101111110";
-		    when 3 =>
-			    return "00000000000000000000000001000001";
-		    when 4 =>
-			    return "00000000000000000000000100010010";
+			when 0 =>
+					return "00000000000000000000010001011101";
+			when 1 =>
+					return "11111111111111111111110010101110";
+			when 2 =>
+					return "11111111111111111111110010101110";
+			when 3 =>
+					return "00000000000000000000010001011101";
 		    when others=> return x"FFFFFFFF";
 		end case;
 	end function;

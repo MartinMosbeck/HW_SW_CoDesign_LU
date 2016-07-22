@@ -6,7 +6,7 @@ int dataOKCount = 0;
 char name[2][PROGRAM_NAME_LENGTH + 1];
 char text[RADIO_TEXT_LENGTH + 1];
 static uint8_t nameChgd[2][2];
-static uint8_t actName;
+uint8_t actName;
 static uint16_t textChgd;
 static char pi_code[5];
 

@@ -28,7 +28,7 @@ begin
 	deci: decimator
 	generic map
 	(
-		N => 2
+		N => 4
 	)	
 	port map 
 	(
@@ -44,7 +44,7 @@ begin
 
 
 	do_output: process (data,valid, data_out_cur, validout_cur)
-		constant factor : fixpoint := x"007F0000";--x"00000300";
+		--constant factor : fixpoint := x"007F0000";--x"00000300";
 		variable data_fixp : fixpoint;
 		variable data_out_fixp: fixpoint;
 		constant v127 : fixpoint := "00000000011111110000000000000000";
@@ -55,7 +55,9 @@ begin
 		if(valid = '1') then
 			validout_next <= '1';
 
-			data_fixp := fixpoint_mult(data,factor);
+			--data_fixp := fixpoint_mult(data,factor); im normalen demod
+			--braucht beim FIR_demod aber sowieso keinen HW-Multiplier
+			data_fixp := data(24 downto 0) & "0000000";
 			data_out_fixp := data_fixp + v127;
 			data_out_next <= std_logic_vector(data_out_fixp(23 downto 16));
 		else

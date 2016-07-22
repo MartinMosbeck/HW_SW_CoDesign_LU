@@ -194,9 +194,9 @@ begin
 			lookup_sin_cur <= lookup_sin_next;
 
 			--outputs
-			validout <= validout_next;
-			Iout <= Iout_next;
-			Qout <= Qout_next;
+			validout <= validout_cur;
+			Iout <= Iout_cur;
+			Qout <= Qout_cur;
 		end if;
 	end process sync;
 	
