@@ -10,9 +10,6 @@ static uint8_t actName;
 static uint16_t textChgd;
 static char pi_code[5];
 
-static uint8_t dirtyName = 1;
-static uint8_t dirtyText = 1;
-
 /**
 * @brief decodes the found 4 blocks. The method tries to find Name, Text and PI Code of the radio station
 * @detail	blockData 
@@ -51,9 +48,7 @@ void DecodeData(uint16_t *blockData, uint8_t *blockOK)
 	uint8_t groupTypeCode = 0;
 	uint8_t version = 0;
 	uint8_t textSegment = 0;
-  uint8_t otherName = (actName + 1) & 0x1; //Modulo 2
-	//uint8_t trafficInfo = 0;
-	//uint8_t programType = 0;
+	uint8_t otherName = (actName + 1) & 0x1; //Modulo 2
 
 
 	if(blockOK[1] != 1)
@@ -82,9 +77,6 @@ void DecodeData(uint16_t *blockData, uint8_t *blockOK)
 
 	groupTypeCode = (blockData[1]>>12);
 	version = (blockData[1]>>11)&0x01;
-	//trafficInfo = (block_data[1]>>10)&0x01;
-	//programType = (block_data[1]>>5)&0x1F;
-
 
 	//Group 0 A or B (does not matter in this case), since we only need the name of the program
 	if(groupTypeCode == 0)
@@ -114,8 +106,6 @@ void DecodeData(uint16_t *blockData, uint8_t *blockOK)
 		  	}
 			name[actName][(textSegment<<1)] = (blockData[3]>>8);
 			name[actName][(textSegment<<1)+1] = (blockData[3]&0xFF);
-
-			dirtyName=1;
 		}
 	}
 	//Group type 2A and 2B
@@ -143,7 +133,6 @@ void DecodeData(uint16_t *blockData, uint8_t *blockOK)
 				textChgd |= (1<<(textSegment<<1));
 				text[(textSegment<<2)] = (blockData[2]>>8);
 				text[(textSegment<<2)+1] = (blockData[2]&0xFF);
-				dirtyText=1;
 			}
 			if(blockOK[3] == 1)
 			{
@@ -156,12 +145,10 @@ void DecodeData(uint16_t *blockData, uint8_t *blockOK)
 				textChgd |= (1<<((textSegment<<1)+1));
 				text[(textSegment<<2)+2] = (blockData[3]>>8);
 				text[(textSegment<<2)+3] = (blockData[3]&0xFF);
-				dirtyText=1;
 			}
 		}
 		else //Version B
 		{
-
 			if(blockOK[3] == 1)
 			{
 				//Resetting the data buffer if a letter is different to the old one or a reset occurred
@@ -174,7 +161,6 @@ void DecodeData(uint16_t *blockData, uint8_t *blockOK)
 				textChgd |= (1<<textSegment);
 				text[textSegment<<1] = (blockData[3]>>8);
 				text[(textSegment<<1)+1] = (blockData[3]&0xFF);
-				dirtyText=1;
 			}
 		}
 	}

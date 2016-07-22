@@ -26,7 +26,7 @@ f_break = 2/td;
 
 num_f1 = floor(f_break/n1)-1;
 num_f2 = floor((f_nyquist-f_break)/n2)+1; %+1 because of >2/td
-filterorder=10;
+filterorder=1000;
 
 f1 = linspace(0,f_break,num_f1);
 f2 = linspace(f_break,f_nyquist,num_f2);
@@ -45,7 +45,7 @@ figure
 plot(f, abs(a));
 
 d = fdesign.arbmagnphase('N,F,H', filterorder, f_norm, a);
-h = design(d, 'iirls');
+h = design(d, 'firls');
 %h=firls(filterorder,f_norm,a);
 
 fvtool(h,'Fs', f_nyquist*2, 'Analysis','freq');

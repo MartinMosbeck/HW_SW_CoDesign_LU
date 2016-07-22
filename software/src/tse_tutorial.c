@@ -162,7 +162,10 @@ int main(void)
 			//process the data bytewise
 			int z;
 			for(z = 0; z < BUF_SIZE; z++)
+			{
 				addByte(sgdma_daten[z+frm*BUF_SIZE]);
+				display_print("Added one Byte\n");
+			}
 
 			PrintNameAndText();
 			
