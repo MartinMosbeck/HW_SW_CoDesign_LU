@@ -458,6 +458,7 @@ architecture behavior of RDSSymboler is
 			when "11111101" => erg := "00000000000000001011100000000101";
 			when "11111110" => erg := "00000000000000001100000011001110";
 			when "11111111" => erg := "00000000000000001100100100001111";
+			when others => return x"FFFFFFFF";
 		end case;
 
 		if(neg = '1')then
@@ -492,6 +493,7 @@ architecture behavior of RDSSymboler is
 
 	signal validintern_cur1, validintern_cur2, validintern_next1, validintern_next2, validintern_cur3, validintern_next3, validintern_cur4, validintern_next4: std_logic;
 	signal validout_next, validout_cur: std_logic;
+	signal validlook_cur1, validlook_next1: std_logic;
 
 	signal vorganger_cur, vorganger_next: std_logic;
 	signal double_cur, double_next: std_logic;
@@ -505,7 +507,7 @@ architecture behavior of RDSSymboler is
 
 	signal dynshift_cur, dynshift_next: natural range 0 to 24 := 0;
 begin
-	symboldetection: process (Iin, Qin, validin, code_mode_cur, cnt_cur, lastI_cur, sin_corr_cur, cos_corr_cur, I_corr_cur, Q_corr_cur, phi_cur, validout_cur, validintern_cur1, validintern_cur2, bit_cnt_cur, RDSByte_cur, dbit_cur, bit1_cur, bit2_cur, lastbit_cur, validintern_cur3, code_word_cur, vorganger_cur, double_cur, dynshift_cur, validintern_cur4)
+	symboldetection: process (Iin, Qin, validin, code_mode_cur, cnt_cur, lastI_cur, sin_corr_cur, cos_corr_cur, I_corr_cur, Q_corr_cur, phi_cur, validout_cur, validintern_cur1, validintern_cur2, bit_cnt_cur, RDSByte_cur, dbit_cur, bit1_cur, bit2_cur, lastbit_cur, validintern_cur3, code_word_cur, vorganger_cur, double_cur, dynshift_cur, validintern_cur4, validlook_cur1)
 		variable err_term, phi_cor, phi_corr: fixpoint;
 		variable vorganger, double: std_logic;
 		variable code_neg: fixpoint;
@@ -531,13 +533,9 @@ begin
 		RDSByte_next <= RDSByte_cur;
 		dynshift_next <= dynshift_cur;
 
-		--rds_demod
 		if(validin = '1') then
-			-- Shift nicht nötig?
-			--I und Q fix
 			I_corr_next <= fixpoint_mult(Iin,cos_corr_cur)-fixpoint_mult(Qin,sin_corr_cur);
 			Q_corr_next <= fixpoint_mult(Iin,sin_corr_cur)+fixpoint_mult(Qin,cos_corr_cur);
-			-- Shift nicht nötig?
 			lastI_next <= I_corr_cur;
 			cnt_next <= cnt_cur + 1;
 			validintern_next1 <= '1';
@@ -641,10 +639,9 @@ begin
 			if(I_corr_cur(31) /= lastI_cur(31))then--Zerocrossing
 				if(cnt_cur > anzsamplesHalf + anzsamples)then
 					code_mode_next <= '0';
-					code_word_next <= lastI_cur;--diffcoding(lastI_cur) als 2.
+					code_word_next <= lastI_cur;
 					if(cnt_cur > anzsamplesHalf + 2*anzsamples)then
 						code_mode_next <= '1';
-						--diffcoding(-lastI_cur) == -code_word_next als 1.
 					end if;
 					validintern_next2 <= '1';
 				end if;
@@ -653,7 +650,7 @@ begin
 
 			if(cnt_cur = anzsamplesHalf)then
 				code_mode_next <= '0';
-				code_word_next <= I_corr_cur;--diffcoding(I_corr_cur)
+				code_word_next <= I_corr_cur;
 				validintern_next2 <= '1';
 				err_term := lookup_arg(I_corr_cur,Q_corr_cur,dynshift_cur);
 				phi_cor := phi_cur - signed(err_term(31) & err_term(31) & std_logic_vector(err_term(31 downto 2))) + signed(err_term(31) & err_term(31) & err_term(31) & err_term(31) & std_logic_vector(err_term(31 downto 4)));
@@ -665,15 +662,19 @@ begin
 					phi_corr := phi_cor;
 				end if;
 				phi_next <= phi_corr;
+				validlook_next1 <= '1';
+			else
+				validlook_next1 <= '0';
 			end if;
 		end if;
 
-		--diffcoding
-		validintern_next3 <= '0';
-		if(validintern_cur2 = '1')then
+		if(validlook_cur1 = '1')then
 			sin_corr_next <= lookup_sin(phi_cur);
 			cos_corr_next <= lookup_sin(phi_cur + pihalbe);
+		end if;
 
+		validintern_next3 <= '0';
+		if(validintern_cur2 = '1')then
 			dbit_next <= '0';
 			vorganger := vorganger_cur;
 			double := double_cur;
@@ -696,10 +697,10 @@ begin
 						double := '1';
 					else
 						if(code_neg(31) = '1' and vorganger = '0') then
-							bit1_next <= '1';--bit(1);
+							bit1_next <= '1';
 							validintern_next3 <= '1';
 						elsif(code_neg(31) = '0' and vorganger = '1')then
-							bit1_next <= '0';--bit(0);
+							bit1_next <= '0';
 							validintern_next3 <= '1';
 						end if;
 						double := '0';
@@ -718,10 +719,10 @@ begin
 					double := '1';
 				else
 					if(code_word_cur(31) = '1' and vorganger = '0') then
-						bit2_next <= '1';--bit(1);
+						bit2_next <= '1';
 						validintern_next3 <= '1';
 					elsif(code_word_cur(31) = '0' and vorganger = '1')then
-						bit2_next <= '0';--bit(0);
+						bit2_next <= '0';
 						validintern_next3 <= '1';
 					end if;
 					double := '0';
@@ -732,7 +733,6 @@ begin
 			double_next <= double;
 		end if;
 
-		--bit + Ausgabe in Byte
 		validout_next <= '0';
 		if(validintern_cur3 = '1')then
 			lastbit:=lastbit_cur;
@@ -760,7 +760,6 @@ begin
 				end if;
 			else
 				if(bit_cnt_cur = 0)then
-					--VOLL
 					data_out_next <=  RDSByte_cur(7 downto 1) & bit2;
 					bit_cnt_next <= 7;
 					validout_next <= '1';
@@ -798,6 +797,7 @@ begin
 			lastbit_cur <= '0';
 			bit_cnt_cur <= 7;
 			RDSByte_cur <= (others => '0');
+			validlook_cur1 <= '0';
 		elsif rising_edge(clk) then
 			--internals
 			validintern_cur1 <= validintern_next1;
@@ -823,6 +823,7 @@ begin
 			lastbit_cur <= lastbit_next;
 			bit_cnt_cur <= bit_cnt_next;
 			RDSByte_cur <= RDSByte_next;
+			validlook_cur1 <= validlook_next1;
 
 			--outputs
 			validout <= validout_cur;

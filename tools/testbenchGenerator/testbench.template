@@ -17,6 +17,8 @@ architecture testbench of audiocore_Simulation is
   
   signal Istart, Iend, Ivalid, Iready, Ostart, Oend, Ovalid, Oready: std_logic;
   signal Idata, Odata: std_logic_vector(31 downto 0);
+  signal alrdy, arrdy, alval, arval: std_logic;
+  signal audioleft, audioright: std_logic_vector(31 downto 0);
   
   signal counter: integer:=30000;
   
@@ -39,7 +41,16 @@ architecture testbench of audiocore_Simulation is
 		asout_startofpacket => Ostart,
 		asout_endofpacket => Oend,
 		asout_valid => Ovalid,
-		asout_ready => Oready
+		asout_ready => Oready,
+		
+		--audiostream sinks
+		audiooutleft_data => audioleft,
+		audiooutleft_ready => alrdy,
+		audiooutleft_valid => alval,
+		
+		audiooutright_data => audioright,
+		audiooutright_ready => arrdy,
+		audiooutright_valid => arval
 	);
     
     stimulus : process is
@@ -48,6 +59,8 @@ architecture testbench of audiocore_Simulation is
 		res <= '1'; wait for 20 ns;
 		Ivalid <= '1';
 		Oready <= '1';
+		alrdy <= '1';
+		arrdy <= '1';
 
 		
 		%%DATA
